@@ -20,7 +20,7 @@ http://write.blog.csdn.net/mdeditor/getArticle?id=11111111&user_name=aaaaaa
 
 看一下列表页的html，发现包含id的语句长得像这样：
 
-{% hightlight html %}
+{% highlight html %}
 lifen class="link_title"><a href="/vctisildur/article/details/46778265">^M
         nodejs使用中遇到的问题            ^M
         </a>
