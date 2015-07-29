@@ -1,0 +1,27 @@
+---
+layout: post
+title: 2015-05-14-【实习】马克
+date: 2015-05-14 10:42:15
+categories:
+---
+# mysql
+1. 编码格式
+	2. ALTER TABLE mytable CONVERT TO CHARACTER SET utf8
+	3.	DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
+	4.
+
+# emacs
+1. 禁用tab
+force Emacs to indent with spaces, never with TABs:
+M-x set-variable<RET> indent-tabs-mode<RET> nil
+Permanently force Emacs to indent with spaces, never with TABs:
+(setq-default indent-tabs-mode nil);  # put this in your .emacs file
+
+# angularjs
+1. 不要在child scope里对 $parent.property赋值，可读不可写（原理不明）
+
+# linux
+1. PORT=8092 node server.js (为什么shell中能直接设置环境变量而且不用分隔符？)
+2. | 是管道， >是重定向
+3. find libs/ -name "*.so" | xargs rm -f 
+4. vim里 :%s#^#pangu://localcluster/#        正则表达式替换

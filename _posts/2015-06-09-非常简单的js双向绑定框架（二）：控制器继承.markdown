@@ -1,0 +1,168 @@
+---
+layout: post
+title: 2015-06-09-非常简单的js双向绑定框架（二）：控制器继承
+date: 2015-06-09 08:21:21
+categories:javascript
+---
+# 初衷
+上一篇已经实现了数据的双向绑定，但model的控制范围是整个文档，在实际工程中必须要有作用范围，以便做ui模块的拆分。
+这一篇，我们希望实现像angularjs一样的控制器继承：
+1. 父controller的Model可以在子controller里被访问到
+2. 子controller的model不影响父controller
+3. controller继承关系在html中指定，而不是js中指定
+
+# 目标
+html里，用isi-controller属性去声明控制器：
+```html
+<body>
+	<div isi-controller="ParentController">
+		<input data-bind="name">
+		<div isi-controller="SubController">
+			<input data-bind="name">
+		</div>
+	</div>
+</body
+```
+希望上面的input name 改了，下面的会跟着变，而下面的变了，上面的不变。
+js里，用和上面isi-controller属性值同名的函数定义控制器：
+```javascript
+function ParentController() {
+	var model = new Model();
+	model.set('name', 'parent');
+}
+function ParentController() {
+	var model = new Model();
+	model.set('name', 'sub');
+}
+```
+对用户来说，只要写这些，就完事儿了。
+# 实现
+## 版本1
+这个版本采用最简单直观的思路：框架去找$('[isi-controller]')的元素，然后给这些元素分别去绑定监听器、执行控制器函数
+代码先列了：
+index.html:
+```html
+<html>
+  <head>
+    <title>simple MVVM</title>
+    <script src="js/ParentController.js"></script>
+    <script src="js/SubController.js"></script>
+    <script src="js/frame_v2.js"></script>
+  </head>
+  <body isi-controller="ParentController">
+    <input type="text" data-bind="name">
+    <div isi-controller="SubController">
+      <input type="text" data-bind="name">
+    </div>
+  </body>
+</html>
+```
+ParentController.js:
+```javascript
+function ParentController() {
+    var model = new Model();
+    model.set('name', 'parent');
+}
+```
+SubController.js:
+```javascript
+function SubController() {
+    var model = new Model();
+    model.set('name','sub');
+}
+```
+frame_v2.js: (对照上一篇，主要改动在绑监听器和new Model的自动化)
+```javascript
+var pubsub = ... //见上一篇
+var Model = ...  //见上一篇
+// listener capture view changes --> publish model.change event
+var changeHandler = function(event) {
+    var target = event.target,
+        propName = target.getAttribute('data-bind');
+    if( propName && propName !== '' ) {
+        pubsub.pub('model.change', propName, target.value);
+    }
+    event.stopPropagation();
+}
+
+/*----------- Init --------------*/
+window.onload = function() {
+    /* first step:
+     * find controllers' dom
+     */
+    var controllerRanges = document.querySelectorAll('[isi-controller]');
+    /* second step:
+     * bind listeners for each controllers' range,
+     * view.change event --> change each controllers' range
+     */
+    for(var i=0, len=controllerRanges.length; i<len; i++) {
+        controllerRanges[i].addEventListener('change', changeHandler, false);
+        // view.change event --> change view
+        (function(index){
+            pubsub.sub('view.change', function(propName, newVal) {
+                var elements = controllerRanges[index].querySelectorAll('[data-bind=' + propName +']'),
+                    tagName;
+                for(var i=0,l=elements.length; i<l; i++) {
+                    tagName = elements[i].tagName.toLowerCase();
+                    if(tagName==='input' || tagName==='textarea' || tagName==='select') {
+                        elements[i].value = newVal;
+                    } else {
+                        elements[i].innerHTML = newVal;
+                    }
+                }
+            });
+        })(i);
+    }
+     /* third step:
+     * execute each controller function
+     */
+    for(var i=0, len=controllerRanges.length; i<len; i++) {
+        var controllerName = controllerRanges[i].getAttribute('isi-controller');
+        eval(controllerName+'()');
+    }
+}
+```
+看看效果：
+![这里写图片描述](http://img.blog.csdn.net/20150610091048831)
+悲剧了。没有实现第二个初衷：子控制器不影响父控制器。
+这个问题该如何解决呢？
+
+# 版本二，子不影响父
+仔细看代码，之所以会出现问题，是因为view.change信道的作用范围是有问题的。不管哪个model发出的view.change事件，两个控制器的view都会改变。
+所以，我们给发布view.change事件的时候，多发布一个控制器名，好让接收view.change的时候知道应不应该修改html:
+```javascript
+var Model = function(controllerName) {
+    var model = {
+        controllerName:controllerName,
+        props: {},
+        set: function(propName, value) {
+            this.props[propName] = value;
+            pubsub.pub('view.change', propName, value, this.controllerName); //就是这里！
+        }       
+    }
+```
+控制器里new Model的时候注意把controller的名字初始化进去：
+ParentController.js:
+```javascript
+function ParentController() {
+    var model = new Model('ParentController');
+    model.set('name', 'parent');
+}
+```
+最后接收view.change信道消息的时候，判断下controllerName:
+```javascript
+pubsub.sub('view.change', function(propName, newVal, controllerName) {
+				....
+                thisControllerName = controllerRanges[index].getAttribute('isi-controller'),
+                if(thisControllerName !== controllerName)
+                    return;
+                ....
+}
+```
+当然，监听器发布model.change的时候也是一样，要把控制器名称发布出去。代码就不贴了。
+再看看效果：
+![这里写图片描述](http://img.blog.csdn.net/20150610094145521)
+妥了
+
+所有代码：
+[github/victorisildur](https://github.com/victorisildur/javascript/tree/master/simpleMvvmFrame)

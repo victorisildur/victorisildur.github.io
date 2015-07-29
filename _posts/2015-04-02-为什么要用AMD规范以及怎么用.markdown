@@ -1,0 +1,62 @@
+---
+layout: post
+title: 2015-04-02-为什么要用AMD规范以及怎么用
+date: 2015-04-02 03:20:03
+categories:
+---
+#为什么要用AMD规范
+1. 我们必须自己清楚js文件的加载顺序
+2. 必须依靠全局变量使用依赖，强烈的全局污染！
+3. 同步有性能问题，我们希望依赖一旦load, 代码立即执行
+4. 我们希望有类似#include，因为我们希望js代码能不写成一坨，同时还能少http请求几次
+5. 一旦模块化，我们可以容易的mock一些模块，方便测试
+
+#怎么用
+```javascript
+define(
+    //The name of this module
+    "types/Manager",
+    //The array of dependencies
+    ["types/Employee"],
+    //The function to execute when all dependencies have loaded. The
+    //arguments to this function are the array of dependencies mentioned
+    //above.
+    function (Employee) {
+       ...
+    }
+);
+```
+看看我们的入口app/main.js的例子：
+```javascript
+define( function(require) {
+    var messages = require('app/messages'),  //下图3
+        print = require('print'),            //下图4  
+        $ = require('jquery'),               //下图5
+        tabs = require('app/tab');           //下图6
+
+    print( messages.getHello());
+    $.fn.tabs = tabs;
+    $("ul#tabs").tabs("#tabsContent");
+});
+```
+注意，给jQuery加的原型tabs全局有效！
+
+再看一下js加载顺序：
+![js加载顺序](http://img.blog.csdn.net/20150402163335446)
+先加载入口app.js(只做配置和中转)
+再加载入口请求的main.js(真正的入口)
+然后的请求顺序正好和main.js的依赖顺序一致！
+到底发生了什么！？其实是requirejs异步的给head里加了script标签！
+![异步加载标签](http://img.blog.csdn.net/20150402163851721)
+
+#如何与angularjs集成
+[别人的例子](http://www.sitepoint.com/using-requirejs-angularjs-applications/)
+坑：
+1. paths不好使
+2. ngRoute, ngCookies要用shim包一下
+3. Controllor要NodeControllor.\$inject = ['\$http']一下，否则汇报inject error
+4. shim,   modulePath : [deps]
+
+
+#继续提高性能
+r.js , 把related scripts合并成一个（？？）
