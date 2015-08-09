@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 2015-06-09-非常简单的js双向绑定框架（一）
+title: "2015-06-09-非常简单的js双向绑定框架（一）"
 date: 2015-06-09 09:25:45
 categories:javascript
 ---
