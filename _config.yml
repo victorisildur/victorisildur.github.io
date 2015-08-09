@@ -9,5 +9,5 @@ twitter_username: victorisildur
 github_username: victorisildur 
 
 # Build settings
-markdown: kramdown
+markdown: redcarpet
 highlighter: null
