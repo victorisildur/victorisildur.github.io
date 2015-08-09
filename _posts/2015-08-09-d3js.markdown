@@ -1,0 +1,44 @@
+---
+layout: post
+title: "d3.js学习"
+date: 2015-08-09 22:00:45
+categories: javascript
+---
+
+d3.js在stream和scheduler上都有用，它结合svg之后，可以做出很漂亮的可视化数据，而且编程风格非常优雅
+
+先上个绘制svg rect，展示柱状图的例子：
+
+```javascript
+var width = 900;
+var data = [12,23,43,11,2,32];
+var scale = d3.scale.linear()
+    .domain([0, d3.max(data)])
+    .range([0,width]);
+var barHeight = 20;
+
+var chart = d3.select('svg.chart')
+    .attr('width', width)
+    .attr('height', barHeight * data.length);
+
+var bar = chart.selectAll('g')
+    .data(data)
+    .enter().append('g')
+    .attr('transform', function(d,i) {
+        return 'translate(0,' + i*barHeight + ')';
+    });
+
+bar.append('rect')
+    .attr('width', scale)
+    .attr('height', barHeight-1)
+
+bar.append('text')
+    .attr('x', function(d) {
+        return scale(d) - 3;
+    })
+    .attr('y', barHeight/2)
+    .attr('dy', '.35em')
+    .text(function(d) {return d;});
+```
+
+可以看到，一行data()之后，就把data数组转换成了d3对象bar，这个bar既包含了数据data，可供后续所有东西（rect,text)调用，由代表了<g>元素。 这种以数据为中心的d3元素，表达力很强。
