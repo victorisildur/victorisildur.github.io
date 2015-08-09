@@ -1,0 +1,39 @@
+---
+layout: post
+title: "2015-07-06-nodejs使用中遇到的问题"
+date: 2015-07-06 07:32:35
+categories: javascript
+---
+# json
+- XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空
+- XMLHttpRequest.setRequestHeader必须在request open后再设置
+
+# REST	
+- Express()生成的app, 可以用use(router)，也可以直接app.post, app.delete
+- 重定向：
+```javascript
+//express router中：
+res.redirect('http://aaa.com');
+//nodejs
+res.writeHeader(301, {Location: 'http://aaa.com'});
+// syntax: response.writeHead(statusCode[, statusMessage][, headers])
+// 301之后浏览器会重新请求
+res.end()
+```
+
+# api
+- 中间件之间共享数据aaa，免得老是res.render({aaa:aaa}):
+```javascript
+res.locals = {aaa: aaa}
+// 然后就可以在所有模板里  <%= aaa %>了
+```
+
+# linux
+- 统计文件行数：
+```shell
+# 简单
+wc -l filename [filename [filename [..]]]
+# 文件 --> cat --> wc -l
+find scripts/ -name '*.js'  ! -path 'scripts/lib/*' | xargs cat | wc -l
+# 这里用到了expr1 ! expr2 (== expr1 && !expr2)
+```

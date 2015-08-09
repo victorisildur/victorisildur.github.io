@@ -9,3 +9,13 @@ title问题？
 还是有问题
 
 编译问题？全删了试试
+
+好吧，首先，除了问题先jekyll build一下，看有无error, 别自己瞎试
+
+问题有两个：
+
+1. formatter config 'categories: ' 后面必须跟空格，否则build不了
+
+2. title后面必须接""双引号
+
+知道了原因，改写下我们的生成函数就好了

@@ -1,0 +1,81 @@
+---
+layout: post
+title: "2015-06-19-【实习】新项目之前的思考"
+date: 2015-06-19 11:00:15
+categories: job-related
+---
+# 问题
+## 速度问题
+smstream web速度遇到问题，原因总结下：
+一是没有充分利用后端模板，全靠angularjs做渲染，这样文件大小倒没有变化很大，但依赖restful接口传数据，且数据需要各种拼接，耗时3秒
+二是页面spa化严重，导致页面���胀，很多简单视图不得不去加载不需要的库和js
+三是数据库结构有问题，params, calls什么的是把json字符串化之后存到一个字段里去的。这样导致每次取数据库的时候都要json load一次，非常耗时
+
+## js问题
+js主要问题是数据操作相关的controller和视图显示/隐藏相关的逻辑混杂在了一起。
+stackoverflow上大家建议的思路是把视图相关的js放到directive里去做，但directive一直没有搞清是怎么回事，template和link函数的作用。也就作罢了
+
+## css问题
+css主要问题是用了过多的一揽子方案，如一揽子用bootstrap, 一揽子用semantic ui，导致文件大小惊人。淘宝网页的css就只有一个，js也是，非常精打细算。
+
+# 下次怎么办
+## 后端
+同步架构滚粗，想用nodejs
+不过需要解决：
+1. 没有了shenma scripts怎么办  --> 貌似只能nodejs写模块代替
+2. 调用python? --> 用命令行？ 那不是成了同步的了？
+3. mongodb存储？ 主要是有没有线上资源给mongodb，本地随便搭一个自然简单
+
+## 前端
+1. 后端mvc为主，后端mvc为主！文件多了不害怕，数据多了ajax等害怕的！
+2. 	js 视图逻辑和数据逻辑分开？ 啃directive? 应该看看网友的例子入门也还好。
+3. less, 手动去简化bootstrap吧，虽然费时，但效果绝对nb。现在在改css上也没少花时间，还不如用less
+
+# 最近干什么
+1. mongodb不知道能不能用，所以还是先看看
+2. nodejs 的 mvc不知道怎么搞，尽快搞个demo出来。带用户带应用的那种
+3. angularjs directive不知道怎么搞，google别人的简易教程，书写的太渣渣了
+
+# 试用反馈
+- tornado可以使用nginx做反向代理和静态文件服务器，提高处理能力
+```javascript
+ http {
+    upstream frontends {
+         server 10.181.207.7:8099;
+    }
+    server {
+         listen 8080;
+         location / {
+             proxy_pass http://frontends;
+         }
+         location /scripts {
+             root /home/admin/ha_pe_work/sm_stream/trunk/web/;
+         }
+         location /resources {
+             root /home/admin/ha_pe_work/sm_stream/trunk/web/;
+         }
+         location /images/ {
+             root /home/admin/liuxu/data/;
+         }
+     }
+```
+这样的话/scripts, /resources 目录的请求都用nginx做静态文件服务器了，
+其他请求则反向代理到了10.181.207.7:8099
+
+- grunt-md5插件可以把 指定文件aaa.js转换成aaa-234rf23uh2u342342b34u23.js，放到指定目录
+- md5好像并没有什么卵用啊，文件引用处要引用aaa-234rf23uh2u342342b34u23.js全名好吗，有什么鬼用
+- 最后还是用了requirejs的urlArgs选项，虽然是全部require用到的js都会加bust后缀，但可用性很强：
+```javascript
+requirejs.config({
+	...
+	urlArgs: 'bust=20150624'
+	...
+})
+```
+这样之后，app.js之后的所有请求就成这样了：
+![urlArgs](http://img.blog.csdn.net/20150624162211211)
+- requirejs之外的静态文件要更新该怎么办？tornado提供了static_url()方法：
+```html
+<img src="{{ static_url('resources/images/logo.png') }} />"
+```
+干，不能用，貌似settings问题

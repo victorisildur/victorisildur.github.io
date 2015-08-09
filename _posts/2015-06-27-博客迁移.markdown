@@ -1,0 +1,47 @@
+---
+layout: post
+title: "2015-06-27-博客迁移"
+date: 2015-06-27 03:10:56
+categories: 
+---
+今天review了x易的课，发现csdn博客实在是。。。没有关注度
+今天开始转github.io，用jekyllrb写博客，目标找工作前拿到人生第一个star!
+步骤：
+1. github.io配套设施搞好
+2. nodejs写一个转换脚本
+3. 迁移！
+
+# 目标：
+1. 拿到一个star
+2. 每天contibute
+3. 有这种效果就挺好：[somebodysblog](http://curtistimson.co.uk/front-end-dev/what-is-cache-busting/)
+
+# 问题：
+Errno::ECONNRESET: Connection reset by peer - SSL_connect (https://api.rubygems.org
+解决方法：
+```shell
+gem sources -a https://ruby.taobao.org/
+gem sources -l
+gem sources --remove https://rubygems.org
+```
+干，git不能用， ssl error
+```shell
+sudo git config http.sslVerify false
+sudo git config --global http.sslverify false
+```
+
+# 步骤
+去github.io根目录
+```shell
+jekyll new .
+```
+修改_config.yml
+```shell
+# 加一行，否则build报错
+highlighter : null
+```
+build 
+```shell
+jekyll build
+```
+调试： 非常蛋疼，因为jekyll serve 只能在127.0.0.1跑？
