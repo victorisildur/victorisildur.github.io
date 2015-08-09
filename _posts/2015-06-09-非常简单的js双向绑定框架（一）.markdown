@@ -5,12 +5,19 @@ date: 2015-06-09 09:25:45
 categories:javascript
 ---
 # 初衷
+
 搞了近5个月的angularjs项目，用起来非常顺手。最爽的是两个功能：
+
 1. 控制器的继承特性
+
 2. 数据的双向绑定
+
 3. 表达式控制显示与否
+
 前者减少了很多model的重复声明，赋值。后者大大简化了动态编辑，动态显示。比如我的表格需要根据某一列排序，我只用改动数据模型的顺序，视图会自动更新。
+
 但是，作为“Get your hands dirty”的小项目，用脏值检测和dom树编译太难了，目标1周的话搞不掂。所以借鉴knockoutjs的方法：
+
 ```javascript
 var myViewModel = {
     personName: ko.observable('Bob'),
@@ -18,16 +25,25 @@ var myViewModel = {
 };
 ko.applyBindings(myViewModel, document.getElementById('my-view'));
 ```
+
 手动的把一个js object绑到某个DOM元素上去。
+
 # 目标
+
 1.  实现数据的双向绑定(input, textarea, select)
+
 2.  实现控制器继承，控制器的作用范围在html里声明，而不是像knockout一样用js声明
+
 3.  基本事件的绑定，如click
+
 4.  类似ng-show这样的表达式控制显隐
 
 # 第一个特性：双向绑定
+
 参考这篇blog: [pubsub双向绑定](http://www.lucaongaro.eu/blog/2012/12/02/easy-two-way-data-binding-in-javascript/)
+
 我们用原生js先实现pubsub本身，为了代码的独立性，不像原文一样做dom操作：
+
 ```html
 <body isi-controller="MainController">
     <script type="text/javascript">
@@ -105,7 +121,12 @@ var Model = function() {
     return model;
 }
 ```
+
 可以看到，我们搞了2个pubsub的"信道": view.change和model.change
+
 模型的set方法会给view.change信道发消息，改变view
+
 view的监听器会给model.change信道发消息，改变model
+
 这样就完成了双向绑定
+
