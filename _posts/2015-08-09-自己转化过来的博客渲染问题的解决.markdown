@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "解决博客渲染不正常问题"
-date: 2015-06-09 09:25:45
+date: 2015-08-09 21:55:45
 categories: javascript
 ---
 title问题？
