@@ -1,7 +1,0 @@
----
-layout: post
-title: 2011-10-04-camera带储存，连拍版本
-date: 2011-10-04 11:40:54
-categories:
----
-null

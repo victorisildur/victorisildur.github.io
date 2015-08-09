@@ -1,7 +1,0 @@
----
-layout: post
-title: 2011-08-31-菜鸟笔记6——Camera改装，去掉内含类，重构程序。扩充暂停。
-date: 2011-08-31 10:41:58
-categories:
----
-null

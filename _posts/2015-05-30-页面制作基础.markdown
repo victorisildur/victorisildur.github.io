@@ -1,8 +1,0 @@
----
-layout: post
-title: 2015-05-30-页面制作基础
-date: 2015-05-30 11:44:35
-categories:
----
-# 标签
-![这里写图片描述](http://img.blog.csdn.net/20150530114406097)

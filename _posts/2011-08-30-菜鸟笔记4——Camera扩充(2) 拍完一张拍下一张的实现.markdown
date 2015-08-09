@@ -1,7 +1,0 @@
----
-layout: post
-title: 2011-08-30-菜鸟笔记4——Camera扩充(2) 拍完一张拍下一张的实现
-date: 2011-08-30 09:27:42
-categories:
----
-null

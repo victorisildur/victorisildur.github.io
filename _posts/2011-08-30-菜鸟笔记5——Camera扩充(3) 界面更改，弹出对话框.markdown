@@ -1,7 +1,0 @@
----
-layout: post
-title: 2011-08-30-菜鸟笔记5——Camera扩充(3) 界面更改，弹出对话框
-date: 2011-08-30 04:00:16
-categories:
----
-null

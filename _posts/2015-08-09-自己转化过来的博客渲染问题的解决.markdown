@@ -1,0 +1,11 @@
+---
+layout: post
+title: "2015-06-09-非常简单的js双向绑定框架（一）"
+date: 2015-06-09 09:25:45
+categories:javascript
+---
+title问题？
+
+还是有问题
+
+编译问题？全删了试试
