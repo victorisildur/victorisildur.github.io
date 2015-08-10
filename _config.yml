@@ -10,4 +10,4 @@ github_username: victorisildur
 
 # Build settings
 markdown: redcarpet
-highlighter: null
+highlighter: pygments
