@@ -19,12 +19,15 @@ categories:
 # 问题：
 Errno::ECONNRESET: Connection reset by peer - SSL_connect (https://api.rubygems.org
 解决方法：
+
 ```shell
 gem sources -a https://ruby.taobao.org/
 gem sources -l
 gem sources --remove https://rubygems.org
 ```
+
 干，git不能用， ssl error
+
 ```shell
 sudo git config http.sslVerify false
 sudo git config --global http.sslverify false
@@ -32,16 +35,22 @@ sudo git config --global http.sslverify false
 
 # 步骤
 去github.io根目录
+
 ```shell
 jekyll new .
 ```
+
 修改_config.yml
+
 ```shell
 # 加一行，否则build报错
 highlighter : null
 ```
+
 build 
+
 ```shell
 jekyll build
 ```
+
 调试： 非常蛋疼，因为jekyll serve 只能在127.0.0.1跑？

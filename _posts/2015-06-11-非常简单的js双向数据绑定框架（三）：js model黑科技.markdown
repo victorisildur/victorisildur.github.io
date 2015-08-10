@@ -1,24 +1,29 @@
 ---
 layout: post
 title: "2015-06-11-非常简单的js双向数据绑定框架（三）：js model黑科技"
-date: 2015-06-11 10:52:45
+date: 2015-06-11 10:55:45
 categories: javascript
 ---
 # 初衷
 之前我们要在js域更新model，需要这样：
+
 ```javascript
 model.set('name', 'sub');
 ```
+
 这实在太土了。。。
 我们希望像angularjs一样，直接：
+
 ```javascript
 $scope.name = 'sub';
 ```
+
 然后bong, 视图就会更新！这样的黑科技必定是极好的。
 # 目标
 1. 完成model更新黑科技
 2. 200行以内完成
 我们希望html长成这样：
+
 ```html
 <head>
     <title>avalon like mvvm framework</title>
@@ -30,9 +35,11 @@ $scope.name = 'sub';
     <p id="my-p">{{width}}</p>
   </body>
 ```
+
 {{width}}即绑到p里面，又绑到isi-css-width里面，又绑了个isi-click
 不用写data-bind=xxx属性了，很像angularjs有没有！
 js我们希望长这样：
+
 ```javascript
 var model = MVVM.define("MainController", function(vm) {
     vm.width = 150;
@@ -43,6 +50,7 @@ var model = MVVM.define("MainController", function(vm) {
 
 MVVM.scanTag();
 ```
+
 想要改变model数据，直接vm.property = xxx就好，不用去model.set('property',xxx)了！
 
 # 实现
@@ -61,6 +69,7 @@ MVVM.scanTag();
 2. scanTag，在这个过程中对vm对象求值，对vm对象handler(一般是去改视图)
 
 贴一下关键代码和注释：
+
 ```javascript
     /*----------- define ------------------*/
     var MVVM = function() {};
@@ -93,6 +102,7 @@ MVVM.scanTag();
         return vModel;
 	}
 ```
+
 ```javascript
     MVVM.scanTag = function(element, vModel) {
         // 假使通过parse, 取到了包含{{}}的元素<p>
