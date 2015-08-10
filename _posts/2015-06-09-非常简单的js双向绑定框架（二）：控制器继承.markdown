@@ -13,6 +13,7 @@ categories: javascript
 
 # 目标
 html里，用isi-controller属性去声明控制器：
+
 ```html
 <body>
 	<div isi-controller="ParentController">
@@ -23,8 +24,10 @@ html里，用isi-controller属性去声明控制器：
 	</div>
 </body
 ```
+
 希望上面的input name 改了，下面的会跟着变，而下面的变了，上面的不变。
 js里，用和上面isi-controller属性值同名的函数定义控制器：
+
 ```javascript
 function ParentController() {
 	var model = new Model();
@@ -35,12 +38,14 @@ function ParentController() {
 	model.set('name', 'sub');
 }
 ```
+
 对用户来说，只要写这些，就完事儿了。
 # 实现
 ## 版本1
 这个版本采用最简单直观的思路：框架去找$('[isi-controller]')的元素，然后给这些元素分别去绑定监听器、执行控制器函数
 代码先列了：
 index.html:
+
 ```html
 <html>
   <head>
@@ -57,21 +62,27 @@ index.html:
   </body>
 </html>
 ```
+
 ParentController.js:
+
 ```javascript
 function ParentController() {
     var model = new Model();
     model.set('name', 'parent');
 }
 ```
+
 SubController.js:
+
 ```javascript
 function SubController() {
     var model = new Model();
     model.set('name','sub');
 }
 ```
+
 frame_v2.js: (对照上一篇，主要改动在绑监听器和new Model的自动化)
+
 ```javascript
 var pubsub = ... //见上一篇
 var Model = ...  //见上一篇
@@ -122,6 +133,7 @@ window.onload = function() {
     }
 }
 ```
+
 看看效果：
 ![这里写图片描述](http://img.blog.csdn.net/20150610091048831)
 悲剧了。没有实现第二个初衷：子控制器不影响父控制器。
@@ -130,6 +142,7 @@ window.onload = function() {
 # 版本二，子不影响父
 仔细看代码，之所以会出现问题，是因为view.change信道的作用范围是有问题的。不管哪个model发出的view.change事件，两个控制器的view都会改变。
 所以，我们给发布view.change事件的时候，多发布一个控制器名，好让接收view.change的时候知道应不应该修改html:
+
 ```javascript
 var Model = function(controllerName) {
     var model = {
@@ -141,15 +154,19 @@ var Model = function(controllerName) {
         }       
     }
 ```
+
 控制器里new Model的时候注意把controller的名字初始化进去：
 ParentController.js:
+
 ```javascript
 function ParentController() {
     var model = new Model('ParentController');
     model.set('name', 'parent');
 }
 ```
+
 最后接收view.change信道消息的时候，判断下controllerName:
+
 ```javascript
 pubsub.sub('view.change', function(propName, newVal, controllerName) {
 				....
@@ -159,6 +176,7 @@ pubsub.sub('view.change', function(propName, newVal, controllerName) {
                 ....
 }
 ```
+
 当然，监听器发布model.change的时候也是一样，要把控制器名称发布出去。代码就不贴了。
 再看看效果：
 ![这里写图片描述](http://img.blog.csdn.net/20150610094145521)
