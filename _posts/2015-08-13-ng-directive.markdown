@@ -1,6 +1,6 @@
 ---
 layout: post
-title: ""
+title: "angular js自定义directive与集成jquery插件"
 date: 2015-08-13 19:26:00
 categories: javascript
 ---
