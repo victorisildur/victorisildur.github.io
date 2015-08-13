@@ -15,7 +15,9 @@ categories: life
 # 目标：
 1. 拿到一个star
 2. 每天contibute
-3. 有这种效果就挺好：[somebodysblog](http://curtistimson.co.uk/front-end-dev/what-is-cache-busting/)
+3. 有这种效果就挺好：
+
+[somebodysblog](http://curtistimson.co.uk/front-end-dev/what-is-cache-busting/)
 
 # 问题：
 Errno::ECONNRESET: Connection reset by peer - SSL_connect (https://api.rubygems.org
