@@ -15,9 +15,11 @@ categories: javascript
 先不讲概念，看下直观效果
 
 datetimepicker:
+
 ![datetimepicker]({{ site.url }}/assets/images/datetimepicker.png)
 
 toggle-switch:
+
 ![toggle-switch]({{ site.url }}/assets/images/toggle-switch.png)
 
 其中datetimepicker直接复用了jquery的datetimepicker插件，只是做了angularjs的ngModel接入。主要用到的directive概念：
