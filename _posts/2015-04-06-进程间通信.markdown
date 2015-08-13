@@ -2,9 +2,11 @@
 layout: post
 title: "2015-04-06-进程间通信"
 date: 2015-04-06 06:44:36
-categories: 
+categories: os
 ---
+
 #引子
+
 ```python
 from multiprocessing import Process, Queue
 import os, time, random

@@ -2,8 +2,9 @@
 layout: post
 title: "2015-06-27-博客迁移"
 date: 2015-06-27 03:10:56
-categories: 
+categories: life
 ---
+
 今天review了x易的课，发现csdn博客实在是。。。没有关注度
 今天开始转github.io，用jekyllrb写博客，目标找工作前拿到人生第一个star!
 步骤：
