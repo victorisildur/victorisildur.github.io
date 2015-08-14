@@ -9,7 +9,9 @@ categories: javascript
 1. 搞清楚$digest循环时调用的$$watchers是哪里来的
 
 ## 简单结论
-当dom ready后发生了这么几件事：
+
+# 当dom ready后发生了这么几件事：
+
 1. AngularInit() 拿到ng-app名
 
 2. bootstrap() 生成 injector
@@ -18,7 +20,7 @@ categories: javascript
 
 4. $compile(element)
 
-最后一步$compile中，又分如下几步：
+# 最后一步$compile中，又分如下几步：
 
 1. 遍历dom树
 
