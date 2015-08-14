@@ -159,6 +159,8 @@ link: function(scope, element, attrs, ngModelCtrl){
 
    从控制器里设置mySwitchStatus.ifOpen = true到 *div class="switch-open"*，经历了这么几步骤：
 
+   ![formatters-render]({{site.url}}/assets/images/formatters-render.png)
+
    1. 控制器初始化，触发$digest循环
 
    2. 检测到$scope.mySwitchStatus.ifOpen是脏值
@@ -167,13 +169,15 @@ link: function(scope, element, attrs, ngModelCtrl){
 
    4. (不确定)执行$setViewValue(true)
 
-   5. 依次执行$parsers中的函数
+   5. 依次执行$formatters中的函数, mySwitchStatus.ifOpen中的值被最终转换成dom中的字符串
 
-   6. $viewValue被赋值
+   6. $viewValue被赋值为formatters处理后的字符串
 
    7. 执行$render()
 
-   所以这里的 $render保证了$scope.mySwitchStatus.ifOpen变化后，scope.model随之变化（？？不应该是自动的吗？？）
+   所以这里的 $render保证了$scope.mySwitchStatus.ifOpen变化后，scope.model随之变化
+
+   （？？不应该是自动的吗？？ 似乎scope.model 和 ngModelCtrl.$modelValue不一样）
 
    这样，初始状态下 div class="switch-open"就完成了
 
