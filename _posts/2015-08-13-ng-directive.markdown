@@ -165,11 +165,27 @@ link: function(scope, element, attrs, ngModelCtrl){
 
    2. 检测到$scope.mySwitchStatus.ifOpen是脏值
 
-   3. 执行$$watcher列表中 mySwitchStatus.ifOpen 的$watch函数
+   3. 执行$$watcher列表中 mySwitchStatus.ifOpen的$watch函数ngModelWatch()
 
-   4. (不确定)执行$setViewValue(true)
+   4. ngModel()中：
+   
+   ```javascript
+   if (modelValue !== ctrl.$modelValue) {
+      ctrl.$modelValue = ctrl.$$rawModelValue = modelValue;
+      var formatters = ctrl.$formatters,
+          idx = formatters.length;
+      var viewValue = modelValue;
+      while (idx--) {
+        viewValue = formatters[idx](viewValue);
+      }
+      if (ctrl.$viewValue !== viewValue) {
+        ctrl.$viewValue = ctrl.$$lastCommittedViewValue = viewValue;
+        ctrl.$render();
+      }
+    }
+   ```
 
-   5. 依次执行$formatters中的函数, mySwitchStatus.ifOpen中的值被最终转换成dom中的字符串
+   5. ngModel()中：依次执行$formatters中的函数, mySwitchStatus.ifOpen中的值被最终转换成dom中的字符串
 
    6. $viewValue被赋值为formatters处理后的字符串
 
@@ -184,3 +200,7 @@ link: function(scope, element, attrs, ngModelCtrl){
    然后就是监听elem.click事件，触发时scope.model反向，并更新$viewValue
 
    整个过程结束
+
+   这里至于为什么$watcher长成这个样, 
+
+   ctrl.$viewViewValue如何最终影响到视图dom，就要另开一篇讲了。
