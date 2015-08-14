@@ -108,3 +108,75 @@ scope.model = datetime;
 ```
 
 # 如何手写directive toggle-switch?
+
+toggle-switch难点在于思路上。
+
+首先，switch从逻辑上来说，就是个0,1开关，和 input type="checkbox"实在太像。很容易就想去写个input ng-model="open"，然后通过样式操作让它变得像个iphone的开关。
+
+这个的想法有个问题：iphone switch长成那样，显然是要把checkbox覆盖掉的，你没法直接点到checkbox！
+
+正确思路是：画一个switch，用ng-model的true false值控制其样式，每次click的时候，model值取反。
+
+核心代码如下：
+
+```html
+<toggle-switch ng-model="alimonitorObj.ifWangwang"></toggle-switch>
+```
+
+```javascript
+// 模板
+template: '<div role="radio" class="toggle-switch" ng-class="{ \'disabled\': disabled }">' +
+            '<div class="toggle-switch-animate" ng-class="{\'switch-off\': !model, \'switch-on\': model}">' +
+              '<span class="switch-left" ng-bind="onLabel"></span>' +
+              '<span class="knob" ng-bind="knobLabel"></span>' +
+              '<span class="switch-right" ng-bind="offLabel"></span>' +
+            '</div>' +
+          '</div>',
+
+// link
+link: function(scope, element, attrs, ngModelCtrl){
+    element.on('click', function() {
+        scope.$apply(scope.toggle);
+    });
+
+    ngModelCtrl.$render = function(){
+        scope.model = ngModelCtrl.$viewValue;
+    };
+
+    scope.toggle = function toggle() {
+        if(!scope.disabled) {
+           scope.model = !scope.model;
+           ngModelCtrl.$setViewValue(scope.model);
+        }
+    };
+}
+```
+这段代码做了如下几个事：
+
+1. 把 *toggle-switch* 元素替换成 *div class="toggle-switch"* 元素，其中部分css class由model决定
+
+2. $render: 
+
+   从控制器里设置mySwitchStatus.ifOpen = true到 *div class="switch-open"*，经历了这么几步骤：
+
+   1. 控制器初始化，触发$digest循环
+
+   2. 检测到$scope.mySwitchStatus.ifOpen是脏值
+
+   3. 执行$$watcher列表中 mySwitchStatus.ifOpen 的$watch函数
+
+   4. (不确定)执行$setViewValue(true)
+
+   5. 依次执行$parsers中的函数
+
+   6. $viewValue被赋值
+
+   7. 执行$render()
+
+   所以这里的 $render保证了$scope.mySwitchStatus.ifOpen变化后，scope.model随之变化（？？不应该是自动的吗？？）
+
+   这样，初始状态下 div class="switch-open"就完成了
+
+   然后就是监听elem.click事件，触发时scope.model反向，并更新$viewValue
+
+   整个过程结束
