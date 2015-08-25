@@ -36,3 +36,17 @@ sub1.courses.push('english');
 
 ## 实现
 
+```javascript
+function Super() {
+    this.courses = ['math','music'];
+}
+function Sub() {
+    /* 这里保证父类的Constructor被执行 */
+    Super.apply(this, arguments); 
+}
+/* 这里保证父类的prototype被子类继承 */
+function f() {}
+f.prototype = new Super();
+Sub.prototype = new f();
+```
+
