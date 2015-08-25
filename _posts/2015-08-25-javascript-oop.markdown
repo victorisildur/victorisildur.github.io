@@ -50,3 +50,5 @@ f.prototype = new Super();
 Sub.prototype = new f();
 ```
 
+一般来讲，javascript中我们愿意把类的方法放到原型对象里去，函数嘛，要那么多份拷贝干嘛，通过原型链统统调用同一个就好。
+
