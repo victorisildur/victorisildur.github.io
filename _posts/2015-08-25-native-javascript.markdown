@@ -16,10 +16,9 @@ categories: javascript
 ```javascript
 var event = new Event('build');
 elem.addEventListener('build', function() {
-    ...
+    //todo
 });
 elem.dispatchEvent(event);
-
 /* 更高级点的自定义事件 */
 var event2 = new CustomEvent('build', {detail:'this is detail info'});
 function eventHandler(e) {
@@ -36,7 +35,7 @@ var event = new MouseEvent('click', {
     'bubbles': true,
     'cancelable': true
   });
-elem.dispatchEvent(event)
+elem.dispatchEvent(event);
 ```
 
 ## Element类
@@ -44,8 +43,9 @@ elem.dispatchEvent(event)
 # 判断节点tag
 
 ```javascript
-    elem.tagName // 'A', 'P', 'BUTTON'
-    elem.nodeName // 'A', 'P', 'BUTTON'
+    elem.tagName; // 'A', 'P', 'BUTTON'
+    elem.nodeName; // 'A', 'P', 'BUTTON'
 ```
 
 Element类的实例是有tagName属性的，Node是Element的父类，所以nodeName适用性更广。
+
