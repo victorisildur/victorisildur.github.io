@@ -1,0 +1,81 @@
+---
+layout: post
+title: "Reactjs继续深入"
+date: 2015-08-27 19:16:00
+categories: javascript
+---
+
+## 提纲
+
+上一次初探了reactjs，知道了他主要是虚拟节点，单向数据流动，今天要再深入，试着写点更高级的。
+
+## 例子
+
+实现一个类似angularjs里filter的列表，要求能按关键字过滤，还能按条目属性过滤
+
+静态实现：
+
+1. products数组，传入根vdom，根vdom foreach一下，把各个item再传入子vdom
+
+2. 过滤在foreach中完成，foreach的同时，探测product.name是否含this.props.filterText, 以及product.stock和this.props.inStockOnly
+
+加入动态：
+
+首先要实现的问题是，如何把input传回state，以及理解state与props的关系
+
+
+先明确一下，filterText和inStockOnly不论在<input>里还是在过滤逻辑里，都用的this.props
+
+```javascript
+/* SearchBar的vDom */
+<input
+     type="text"
+     placeholder="search..."
+     value={this.props.filterText}
+     ref="filterTextInput"
+     onChange={this.handleChange}
+/>
+
+/* product列表的过滤逻辑 */
+if(product.name.indexOf(this.props.filterText) === -1 || (!product.stocked && this.props.inStockOnly) ) {
+    return;
+}
+```
+
+再看下input是如何逆向数据流动，改变this.state的：
+
+```javascript
+var SearchBar = React.createClass({
+        /* input的onChange属性指向这里 */
+        handleChange: function() {
+            /* refs指向两个input */
+            this.props.onUserInput(
+                /* 触发props的onUserInput方法 */
+                this.refs.filterTextInput.getDOMNode().value,
+                this.refs.inStockOnlyInput.getDOMNode().checked
+            );
+        },
+
+/* 看下this.props.onUserInput的监听器，这个是绑在根vdom上的 */
+<SearchBar
+    filterText={this.state.filterText}
+    inStackOnly={this.state.inStackOnly}
+    onUserInput={this.handlerUserInput}
+/>
+
+handleUserInput: function(filterText, inStockOnly) {
+    this.setState({
+        filterText: filterText,
+        inStockOnly: inStockOnly
+    });
+},
+```
+
+所以只用到了原生input虚拟节点的onChange事件，把这个事件捕获到的值一级级上传到根节点，改变根节点的state
+
+然后根节点渲染时，把state赋值给了子节点以改变子节点的props.filterText, props.inStockOnly
+
+所以归根结底，还是捕获事件，用监听器一级级上传数据，改变state，改变props，再一级级下传
+
+很清楚的单向数据流动（当然，代码多了点，监听器也多了点），很自由
+
