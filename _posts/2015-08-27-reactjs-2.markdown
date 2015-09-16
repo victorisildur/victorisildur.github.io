@@ -13,6 +13,10 @@ categories: javascript
 
 实现一个类似angularjs里filter的列表，要求能按关键字过滤，还能按条目属性过滤
 
+长得像这样：
+
+![filterlist]({{site.url}}/assets/images/filterball.png)
+
 静态实现：
 
 1. products数组，传入根vdom，根vdom foreach一下，把各个item再传入子vdom
