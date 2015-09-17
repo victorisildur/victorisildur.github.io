@@ -52,3 +52,37 @@ Sub.prototype = new f();
 
 一般来讲，javascript中我们愿意把类的方法放到原型对象里去，函数嘛，要那么多份拷贝干嘛，通过原型链统统调用同一个就好。
 
+## 理论
+
+把成员变量放构造器里，把成员方法放原型链里，这叫组合继承
+
+这是不是最优的呢？我们可以看到，构造器里调用了一次父类构造函数，prototype又调用了一次，那么，Super里的成员变量this.courses实际上是创建了两份的。这能不能改进呢？
+
+答案是用寄生式组合继承。什么意思呢？就是用构造器继承去继承成员变量，用原型链只去继承父类的原型
+
+```javascript
+function Super() {
+    this.courses = ['math','music'];
+}
+Super.prototype.sayHi = function() { alert('Hi'); }
+
+function Sub() {
+    /* 这里保证父类的Constructor被执行 */
+    Super.apply(this, arguments); 
+}
+
+/* 寄生继承 */
+function object_create(o) {
+    function F() {}
+    F.prototype = o;
+    return new F();
+}
+
+/* 这里保证父类的prototype被子类继承 */
+Sub.prototype = object_create(Super.prototype);
+Sub.prototype.constructor = Sub;
+```
+
+完美的继承方案，不是吗？
+
+
