@@ -1,0 +1,18 @@
+---
+layout: post
+title: "gcc的使用"
+date: 2015-09-26 10:38:00
+categories: os
+---
+
+## 基本指令
+
+# -M, -MM
+
+作用：作用对象时.c .cpp这样的源文件，作用是递归地找到所有包含的头文件
+
+备注：-MM 区别在于他不包含$C_INCLUDE_PATH, $CPLUS_INCLUDE_PATH中的头文件
+
+实际：graphite中用于依赖文件xx.d
+
+`$(CXX) -MM -MT $*.o -MF $@ $(CXXFLAGS) $<`
