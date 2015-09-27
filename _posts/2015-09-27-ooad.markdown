@@ -1,0 +1,90 @@
+---
+layout: post
+title: "面向对象分析与设计"
+date: 2015-09-27 09:26:00
+categories: methology
+---
+
+## 什么是好的架构？
+
+1. 完成用户需求
+
+2. 应用面向对象原则，提高代码灵活性
+
+3. 努力提高可维护性、可复用性（通过设计模式）
+
+## 例子
+
+# string比较不是个好主意
+
+匹配吉他的例子，如何search吉他呢？直观的想法是遍历吉他列表，把每个库存吉他的产地、售价、制作人进行string比较
+
+这个方法差，因为string compare对大小写的情况会得出不一致的结论
+
+我们希望用枚举代替产地、售价、制作人
+
+```java
+/* guitar 的私有变量 type 用遍历表示 */
+public enum Type {
+    ACOUSTIC, ELECTRIC;
+    public String toString() {
+        switch(this) {
+            case ACOUSTIC: return "acoustic";
+            case ELECTRIC: return "electric";
+            default:       return "not found";
+        }
+    }
+}
+/* search时直接比较enum对象 */
+/* 因为是enum对象，所以不会出现拼写错误or大小写问题，因为有问题的话是编译不过的 */
+if(searchGuitar.getType() != guitar.getType())
+    continue;
+```
+
+总结, 这是一个讲合理选择数据结构，提高健壮性的例子
+
+
+# 就对象的各个属性去比较？要是有个属性我们不care呢？
+
+还是搜索吉他的例子，要是我只想搜某个产地的吉他，其他都不care，传的是Null呢？显然enum的比较会fail掉
+
+怎么办？这就需要我们方法论的第二步：运用一点面向对象设计模式。
+
+个人思路是单一职责原则，把搜索方法从库存对象剥离出来，因为库存只负责存，不应负责找。
+
+单另的搜索对象，拿到用户感兴趣的属性，去库存里找。但好像归结到代码层，还是要在search方法里加重复的
+
+`if(seachGuitar.someProp != null && seachGuitar.someProp != guitar.someProp)`
+
+书里是怎么解决的呢？
+
+好吧，理解错了，这个例子是说客户搜索吉他的时候永远不会按价格和序列号去搜，所以每次都会传null，所以吉他类经常会有
+`price = null; serialNumber = null;`的情况，这很不好，说明吉他类并不是单一职责的，它有两个属性在搜索情景下总是用不到
+
+so, 对搜索这个情景，我们应该用一个职责更单一的对象承担搜索任务，而不是用吉他这个对象。
+
+so, 从吉他的众多属性中，剥离开price, serialNumber和其他属性，把其他属性搞成另一个类，GuitarSpec，意思是这些属性是通用的，是搜索时候职责单一的
+
+代码长得像这样：
+
+```java
+class Guitar {
+    private String serialNumber;
+    private double price;
+    private GuitarSpec spec;
+
+    public GuitarSpec getSpec();
+}
+```
+
+总结，这是一个讲面向对象原则（单一职责）的例子
+
+## 对吉他对象的各个属性去比较？要是来了新需求，吉他对象多了几个属性呢？
+
+个人想法：要把取各个属性，然后比较、返回的过程抽象。不能在search方法里硬编码取各个属性的操作。应放到GuitarSpec类里
+
+书上思路: 完全和我想的一样！而且要把GuitarSpec用在Guitar的构造器上。这样才能保证对spec的抽象对所有地方生效。
+
+这就是设计模式里的委托！把Invertory.search(spec) 委托给了 GuitarSpec.match(spec). hoho~
+
+总结，这是一个讲设计模式（委托）的例子
