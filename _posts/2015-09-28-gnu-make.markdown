@@ -1,0 +1,24 @@
+---
+layout: post
+title: "GNU Make项目管理"
+date: 2015-09-28 11:12:00
+categories: os
+---
+
+## 初衷
+
+graphite 整个c++项目的编译连接都是make搞的，例程的启动也是一条make命令`make ping_pong_app_test`
+
+要理解项目，改造模块，成功跑起来，必须理解make
+
+## 基础
+
+# 规则
+
+`target: prereq1 prereq2
+    commands`
+
+make看到的第一个规则，是默认规则
+
+
+

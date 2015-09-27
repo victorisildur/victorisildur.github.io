@@ -16,3 +16,8 @@ categories: os
 实际：graphite中用于依赖文件xx.d
 
 `$(CXX) -MM -MT $*.o -MF $@ $(CXXFLAGS) $<`
+
+# -lNAME
+
+作用： 链接时搜索名为libNAME.a的库
+
