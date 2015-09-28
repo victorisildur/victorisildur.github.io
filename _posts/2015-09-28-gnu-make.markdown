@@ -15,10 +15,119 @@ graphite 整个c++项目的编译连接都是make搞的，例程的启动也是�
 
 # 规则
 
-`target: prereq1 prereq2
-    commands`
+```makefile
+target: prereq1 prereq2
+    commands
+```
 
 make看到的第一个规则，是默认规则
 
+# make也能执行可执行文件？
 
+追到tests/Makefile.tests，这里会执行可执行文件！
 
+接着看！
+
+# 假想工作目标（phony target)
+
+任何不是文件的target都是phony target
+
+```makefile
+clean:
+    rm -f *.o lexer.c
+```
+
+make是无法分辨phony target和target的，所以要是有一个文件目标也叫clean，或者当前目录里有个文件叫clean，因为phony clean没有必要条件，所以clean目标总是会被认为已经更新，所以相应地命令永远不会被执行。
+
+假想工作目标总是尚未更新，所以他们总是会被执行，而且总是会让他们的依存对象被重建。
+
+# 变量
+
+自动变量：
+
+1. $@ 工作目标的文件名
+2. $< 第一个必要条件的文件名
+3. $? 时间戳在工作目标之后的所有必要条件，空格分隔
+4. $^ 所有必要条件的文件名，空格分隔
+
+# VPATH和vpath
+
+VPATH指定寻找文件的路径，比如源码放src文件夹下，头文件放include文件夹下，Makefile放根目录下，就必须指定VPATH，否则会提示no such file or directory:
+
+```makefile
+VPATH = src include
+CPPFLAGS = -I include
+
+count_words: count_word.o counter.o lexer.o -lfl
+    gcc $^ -o $@
+
+count_words.o: count_words.c counter.h
+    gcc $(CPPFLAGS) -c $< -o $@
+
+# lexer.o 类似
+```
+
+vpath是带模式匹配版本的VPATH，例：
+
+```makefile
+vpath %.l %.c src
+vpath %.h include
+```
+
+# 模式规则
+
+由.c生成.o的cmd都非常类似，都是`gcc -c $< -o $@`，能不能不要写重复代码呢？这就要用到模式规则：
+
+```makefile
+count_words.o: counter.h
+
+%.o: %.c
+    $(COMPILE.c) $(OUTPUT_OPTION) $<
+```
+
+这叫做规则链接
+
+# 自动产生依存关系
+
+手动去搞依存关系很可能是灾难，尤其是当嵌套include头文件的时候，怎么办呢?
+
+```makefile
+depend: count_word.c lexer.c counter.c
+    $(CC) -M $(CPPFLAGS) $^ > $@
+include depend
+```
+
+# 变量
+
+1. 简单扩展的变量
+
+`MAKE_DEPEND := $(CC) -M`
+
+2. 递归扩展的变量(延后拓展的变量)
+
+`MAKE_DEPEND = $(CC) -M`
+
+3. 附带条件的赋值
+
+只会在变量的值不存在时，进行赋值操作
+
+`OUTPUT_DIR ?= $(PROJECT_DIR)/out`
+
+# 宏
+
+```makefile
+define create-jar
+       $(RM) $(TEMP_JAR_DIR)
+       $(MKDIR) $(TEMP_JAR_DIR)
+endef
+```
+
+# MAKECMDGOALS
+
+make命令运行时命令行上指定了哪些工作目标
+
+## 不懂的地方
+
+# `$(MAKE) -C dir_xxx`
+
+进入dir_xxx目录，执行它下面的Makefile
