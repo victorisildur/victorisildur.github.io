@@ -87,7 +87,11 @@ all: $(TARGET)
 
 具体一点，触发的是`core->initiateMemoryAccess()`方法
 
-还有可能触发redirect_memory.cc中的 `rewriteMemOp()` -> `PinMemoryManager->redirectMemOp()` -> `m_core->accessMemory()` 方法
+还有可能触发redirect_memory.cc中的 
+
+`rewriteMemOp()` -> 
+`PinMemoryManager->redirectMemOp()` -> 
+`m_core->accessMemory()`
 
 ## 不懂的地方
 
