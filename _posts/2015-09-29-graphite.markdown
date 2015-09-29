@@ -1,0 +1,92 @@
+---
+layout: post
+title: "Graphite架构"
+date: 2015-09-29 10:31:00
+categories: os
+---
+
+## 初衷
+
+毕业论文用的仿真器，纯c++写的，用pin统计指令，用c++对网络、存储建模
+
+我们主要改造其中的网络部分
+
+## 网络
+
+# 调用流程
+
+首先要知道网络的packet哪里来的？其实就是memory_model里，当检测到cache miss之后，就会调用
+
+```c++
+_memory_manager->sendMsg();
+/* 进去执行 */
+getNetwork()->netSend(packet);
+/* 进去执行 */
+if(model->hasBroadcastCapability()) {
+    forwardPacket(packet);
+}
+/* 进去执行 */
+next_network_model->__routePacket();
+```
+
+这样会最终调用到/common/network/models/目录下的哪些模型
+
+network_model_xxx_xxx.cc都继承了`NetworkModel`类，重写了`routePacket()`方法
+
+这样其实也是一种delegate
+
+所以，我们首先把注意力集中在network_model_hop_by_hop.cc的`routePacket()`方法里
+
+# link
+
+就是两个路由器之间的链路咯，相当于收费站之间的高速公路
+
+参数：
+
+* link delay
+* link type
+
+# router
+
+就是路由器咯，有input port, switching fabric, output port构成
+
+参数：
+
+* router_delay
+* num_flits_per_output_buffer
+
+## pin
+
+所有app, benchmark都在pin之上运行，pintool上加了很多监听器，监听诸如`ThreadStart`, `ThreadFini`, `INS_AddInstrumentFunction`
+
+其中最后一个里面截获了memory相关的指令
+
+所以勒，/pin/pin_sim.cc先把各种监听器绑好，指令来了调仿真器的函数，然后`PIN_StartProgram()`开始真正运行app/benchmark
+
+最后，我们是在什么地方调用pin_sim.cc，并关联ping_pong的呢？
+
+1. 根Makefile引用`/tests/apps/Makefile`
+2. `/tests/apps/Makefile`中有工作目标`%_app_test`, 并引用`/tests/Makefile.tests`
+3. `/tests/Makefile.tests`中，有工作目标是用来执行的：
+
+```makefile
+EXEC ?= $(CURDIR)/$(TARGET) $(APP_FLAGS)
+PIN_RUN = $(PIN_BIN) $(PIN_DEBUG_FLAGS) -injection child -tool_exit_timeout 1 -mt -t $(PIN_TOOL)
+
+run_fn = $(if $(findstring build,$(BUILD_MODE)), ,$(if $(findstring pin,$(1)),$(call launch_fn) $(PIN_RUN) $(3) -- $(2),$(call launch_fn) $(VALGRIND) $(2) $(3)))
+RUN ?= cd $(SIM_ROOT) ; $(call run_fn,$(MODE),$(EXEC),$(SIM_FLAGS))
+
+# Build targets
+all: $(TARGET)
+     $(RUN)
+```
+
+我们的pin在哪儿？在`PIN_RUN`里，我们的`ping_ping`在哪儿？在`EXEC`里，因为`TARGET`是在`/tests/app/ping_ping/Makefile`里设置的，置为了`ping_pong`!
+
+所以，其实真正起的是一个pin_bin，参数里带ping_pong可执行文件，执行起来之后，特殊指令会触发模拟器里的方法
+
+具体一点，触发的是`core->initiateMemoryAccess()`方法
+
+## 不懂的地方
+
+
