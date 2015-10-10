@@ -97,3 +97,20 @@ all: $(TARGET)
 
 为啥要redirectMemOp()? 好像里面也没有做什么事
 
+## 注包率试验设计
+
+基本思路是去改all_to_all，不过要先确定下all_to_all用到了广播
+
+1. all_to_all.cc里调用`CAPI_message_send_w`
+
+2. capi.cc里调用`core->coreSendW()`，其中的`receiving_tile`参数赋值为`CAPI_ENDPOINT_ALL`。
+
+3. core.cc里调用`tile->getNetwork()->netBroadcast()`
+
+好了，基于这个，我们就可以设计注包率实验了。基本想法是每个线程按固定频率发包，单播包随机发，广播包占x%
+
+注包率的计算公式是 flits/cycle/core
+
+## 如何说明算法好呢？
+
+现在必须借助注包率实验，高注包率的情况下，Latency表现必须好，要不就只能扯contention_delay低，然而contention_delay感觉并不是主要指标。
