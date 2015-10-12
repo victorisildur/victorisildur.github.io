@@ -114,3 +114,7 @@ all: $(TARGET)
 ## 如何说明算法好呢？
 
 现在必须借助注包率实验，高注包率的情况下，Latency表现必须好，要不就只能扯contention_delay低，然而contention_delay感觉并不是主要指标。
+
+干，graphite没法做注包率试验，仅靠benchmark很难说明我的效果好多少，试验效果不理想啊
+
+现在打算注包率试验部分换booksim做
