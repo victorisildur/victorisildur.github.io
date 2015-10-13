@@ -17,4 +17,13 @@ categories: os
 
 ## 不懂的地方
 
-我现在想打印一下router的output buffer，但是不知道怎么打印。特么的这玩意儿文档太少了
+1. 我现在想打印一下router的output buffer，但是不知道怎么打印。特么的这玩意儿文档太少了
+
+把f->watch逻辑去掉了，现在output打印在watchfile.out里了
+
+可以明显看到，injection rate提高之后，latency疯狂提高
+
+2. 怎么在Uniform traffic的基础上添加broadcast?
+
+去改traffic.cpp的某个traffic的dest()方法。 让其dest = -2之类的特殊值。
+然后再routefunc里对这种特殊的dest，outputs要变多个。
