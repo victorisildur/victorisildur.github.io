@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "修改booksim源码，实现loadaware broadcast"
+title: "修改booksim/noxim源码，实现loadaware broadcast"
 date: 2015-10-12 20:38:00
 categories: os
 ---
@@ -11,11 +11,11 @@ categories: os
 
 它仿真具体的路由器结构，比较偏硬件层。我们要做的就是想办法把loadaware广播算法移植过来，跑数据出来！
 
-## routefunc
+# routefunc
 
 /src/routefunc.cc下有个Map，里面定义了config文件里routing_func = dor 被映射成哪个路由函数
 
-## 不懂的地方
+# 不懂的地方
 
 1. 我现在想打印一下router的output buffer，但是不知道怎么打印。特么的这玩意儿文档太少了
 
@@ -27,3 +27,35 @@ categories: os
 
 去改traffic.cpp的某个traffic的dest()方法。 让其dest = -2之类的特殊值。
 然后再routefunc里对这种特殊的dest，outputs要变多个。
+
+## noxim干嘛的
+
+替换该死的booksim地，booksim改一下就跑不了了，他的路由也写得很奇怪（用的dimension right/left）。
+而且没有报错信息。搞得试验没法做了。
+
+so, 换noxim。这个用了虚拟机才搞定了。native装的Ubuntu有package坏了，非常蛋疼。
+
+# noxim路由步骤
+
+1. `route(packet)`
+
+2. `<vector:int>::routingAlgorithm(packet)`
+   给定包，算输出方向
+
+3. `int::SelectionFunction(<vector:int>)`
+   给定输出方向，算int值。int用来干嘛？Selection_RANDOM里，是在所有输出方向里任意选了一个。
+
+   这个地方就有问题了。他的原意是，这几个output都可以，都是candidate。selection策略是个n选1的策略。
+
+   但对我来说，我routingAlgorithm输出的多个输出，都是必须输出的，不存在select其中一个的需求。
+
+   所以应该这么改：
+   1. Router::route()返回值变vector。
+   2. 不要做selection操作。
+   3. 所有用到route()的地方，对应处理下vector。
+
+# 遇到问题
+
+Router forward那一步的时候，遇到全部是cannot forward input[m] to output[n]
+
+current_level_tx有问题，需要再查
