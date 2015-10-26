@@ -153,7 +153,7 @@ so, 我们要修改reservation table，让他变得一对多。
 
 发生了 段错误，用gdb调试之：
 
-```shell
+```
 gdb
 file ./noxim
 set args -config config.yaml
