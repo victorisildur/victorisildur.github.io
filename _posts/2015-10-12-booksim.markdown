@@ -43,6 +43,7 @@ so, 换noxim。这个用了虚拟机才搞定了。native装的Ubuntu有package�
    给定包，算输出方向
 
 3. `int::SelectionFunction(<vector:int>)`
+
    给定输出方向，算int值。int用来干嘛？Selection_RANDOM里，是在所有输出方向里任意选了一个。
 
    这个地方就有问题了。他的原意是，这几个output都可以，都是candidate。selection策略是个n选1的策略。
@@ -59,3 +60,117 @@ so, 换noxim。这个用了虚拟机才搞定了。native装的Ubuntu有package�
 Router forward那一步的时候，遇到全部是cannot forward input[m] to output[n]
 
 current_level_tx有问题，需要再查
+
+current_level_tx 是和 ack_tx 配合用的一个 Alternating Bit Protocol。
+
+A发包给B，包上附序列号0，B收到0之前一直发ack1，收到0发ack0。A收到ack0之前一直发0，收到ack1之后发1。
+
+是一个简单地data link级重传协议。
+
+另一个东西是预约表，当我进来一个广播包。算出来将要发往三个方向，则要把input -> output1， input -> output2, input -> output3都放到预约表里。
+
+然后进行forwarding操作。forwarding从input buffer里拿出一个包，看这个input在预约表里对应哪个output，然后看ABP协议是否满足。然后发forward之。
+
+所以，我们的问题在于预约表只能input->output一一对应，不能一对多对应。这样就有问题了。
+
+so, 我们要修改reservation table，让他变得一对多。
+
+
+# buffer释放问题
+
+改这个改了三天。。。。遇到问题如下：
+
+1. 不能分配reservatin table
+2. ABP协议失败
+3. buffer卡死，仿真1w周期，只有2000周期有结果
+
+打印log调试了整整两天，发现是释放buffer的问题！这个有点subtle，一直没注意到。
+
+举个例子，有个包，其输入输出映射为 in1 -> (o1,o2,o3)。
+
+现在`txProcess()`开始了，in1->o1, in2->o2都符合ABP，成功发送了，并释放了预约表。但in1->o3因为之前的包没传完，ABP失败！
+
+正常的逻辑应该是在buffer里保留这个flit，预约表里只剩in1 -> (o3)，下一次`txProcess()`继续尝试发掉这个flit，直到成功了再pop buffer。并释放in1->o3。
+
+而我的逻辑没考虑到in1->o3失败的情况，不管三七二十一，把buffer清掉了，这样in1->o3永远不会释放。慢慢地预约表就被占满了！自然统统发布出去！
+
+而且，buffer要记住自己还剩下往哪儿发，因为上面的讨论是基于in1->o1, in1->o2被释放掉的情况。然而实际当中只有filt_tail会这样。中间的flit没法通过预约表记录已经哪些发过了。
+
+所以我们要加一点数据结构，记录当前buffer[i]的output_ports中哪些已经发过了。直观的讲可以记录在buffer里，然而我觉得放reservation_table里更好，更符合它的定位。
+
+# 一次预约多个i->o问题
+
+又遇到逻辑问题，这次是预约表的问题。还是假设in1 -> (o1,o2,o3)，之前我们认为in1->o1, in1->o2, in1->o3都能成功预约。这样在forwarding phase时，再有我们的判断是否都传完环节。
+
+然而实际情况是可能只有in1->o1预约成功，in1->o2,in1->o3都没预约上。这种情况下，forwarding是无法发现异常的！
+
+最简单的方法当Flit head来了的时候，是等o1,o2,o3都available，一起预约。这样在都预约之前，谁也不要传。但这样效率低的发指！因为一起预约个毛，其他包很快就会抢占o1,o2,o3. buffer[i1]会一直堵住。
+
+合理地是in1->o2预约上，去传。in1->o2, in1->o3下次继续预约。直到三个都传完才能释放flit buffer。
+
+这个方法的核心是要把这个Packet保存下来，重传若干次。想了很久还是放弃了。逻辑复杂度太高。
+
+新想法是搞优先级，如果一个flit是多输出，且预约不成功，就给它加到waiting list里。下一周期预约phase，先预约waiting list里的input。
+
+这样waiting_list[i]有两种状态：not_waiting，即优先级低的。和waiting_done，即优先级高的。
+
+然而做实验发现仍有问题，那就是包的抵达率非常低，很多高优包总是预约不到（虽然优先级高）。这是因为 A->o1,o2; B1,B2,B3...->o1; C1,C2,C3...->o2。o1,o2的空窗交替出现，而且迅速被单播包占用。
+
+为了解决这一问题，我们应阻止单播包去预约o1,o2。阻塞单播包，只允许多播包。具体实现就是用一个wanted_list[o]。
+
+我毙了，只要是去等，就会产生及其频繁地哲学家进餐问题，等的代价太高了。我你妹根本降不下来。只能考虑拷贝，重发的策略了。。。
+
+## 备份策略！
+
+每个周期执行三步：route and reserve(RR), backup, forward
+
+与原始两步法的不同：
+
+* route and reserve：
+
+    * 算output ports: 先看backup unit是不是 非空、不是备份中、正在期望输出端口。 如果全满足，则去预约期望端口。预约成功后记得告诉backup_unit删除这个期望端口。
+
+    * buffer[i] flit_head预约成功之后：看是不是多输出，是的话，告诉backup_unit开始备份。并设置backup_unit的期望端口。
+
+    * 总结一下：RR阶段，可能用到备份的地方有：用backup unit的期望输出去预约，删除BU的期望输出，告诉BU开始备份，设置BU期望端口。
+
+* backup:
+
+    * 如果正在备份中，则备份buffer.front()
+
+* forward:
+
+    * 去取待转发的flit：看BU是不是 非空、不是备份中。如果全满足，则取BU里的flit。
+
+    * 发送flit完成后：如果是从BU里取的，则BU pop()
+ 
+    * 发送完一个flit_tail: 如果BU 正在备份中，则告诉BU结束备份。如果flit来自BU，且现在BU没有期望端口，则清空BU.
+
+    * 发送flit_head不成功：如果是BU来的flit_head，则告诉BU这个端口被释放了，你要再次期望它。
+
+    * 总结下：forward阶段，用到备份的地方有：取BU front，BU pop，告诉BU结束备份，清空BU，添加期望端口。
+
+
+发生了 段错误，用gdb调试之：
+
+```shell
+gdb
+file ./noxim
+set args -config config.yaml
+r
+backtrace
+```
+
+发现是BU erase _expect_ports时发生问题，可能是之前setExpectPorts有问题，`setExpectPorts(const vector<int> expect_ports)` 里面直接把参数付给了私有成员。
+
+又发现不能参数为`vector<int> &`，会包连接找不到reference。不懂！
+
+`vector.erase()`后iterator会自动指向下一个成员，不用再加一！
+
+错误的重新开始backup?
+
+BU 1->3没有传完，但是RR步骤，已经开始用Buffer去预约1->4了。这就有问题了。显然1->3没传完，reserve 1->4不应该成功。
+
+你妹啊，`isAvailable(port_out)`不管port_in情况的。虽然1->3占了，但4是空的，它就直接分给1->4了。
+
+loadaware并没有完成loadaware。好像是const flit的原因？no，错在先push到buffer再改这个了，应该在Push前完成
