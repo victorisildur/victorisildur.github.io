@@ -18,3 +18,22 @@ categories: methodology
 初级程序员，当然要先看这个。不过话说scheduler项目的时候他们不也想用这个重构代码麽。
 
 这个简单说就是把switch case语句转成一张表。
+
+例子有判断符号，计算保险额度。这些都是把一坨if else转化成一张表存储。
+
+## 复杂的表
+
+更复杂点的例子是flexible message format。要解析的文件里有n中不同message，不同message的格式不同。
+
+与其给每种Message建类来打印之，更好地方法是用表描述每种message，然后用统一的方式去打印。
+
+
+## 多层表
+
+要是key比较复杂，比如年龄不均匀的分层该怎么办？这时可以给key的转换专门搞一个转换函数，把age转成key。
+
+先用一个index table存index->table entry的映射。用于节约空间
+
+## 阶梯表
+
+范围性的东西可以阶梯式的查找。成绩小于90吗？小于85吗？小于60吗？查三次表。
