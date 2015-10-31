@@ -30,3 +30,62 @@ r5值变成新的“过程底”。这么叫是因为r5当前值总代表当前�
 
 这部分图解见[cszhao讲解unix栈](http://blog.csdn.net/cszhao1980/article/details/7572908)
 
+# PPDA
+boot时，我们把内核态段寄存器的前6对页寄存器映射做了不变映射。
+第七对页寄存器映射到_end后第一个块。
+_u也被编址到140000，即虚拟地址第七页页首。
+
+u占用了第七页的低地址1024B，高地址被stack占用。
+
+这中间什么关系！？什么时候做的虚地址到物理地址映射的？和内核态段寄存器有毛关系？
+
+cszhao的说法是，当分配了一个新的kernel page #6，就诞生了一个新的进程。
+具体来说，`newproc()`时，会尝试为新进程分配“私有空间”：
+
+```c
+n = rip->p_size;
+a2 = malloc(coremap, n);
+if(a2 != NULL) {
+    rpp->p_addr = a2; //设置新进程的“私有空间”地址，新进程诞生！
+    while(n--)
+        copyseg(a1++,a2++);
+}
+```
+
+# main
+
+1560行设置UISA:
+
+```c
+i = *ka6 + USIZE;   //PPDA后第一个Block地址
+for(;;) {
+    UISA->r[0] = i;
+    ...
+    clearseg(i);
+}
+```
+
+# 进程切换
+进程不独享代码，我们无法根据当前执行的代码确定哪个进程处于active状态。
+那么该怎么办呢？我们应该通过进程私有的东西来确定。这就是进程的“私有空间”-》ppda。
+即kernel page #6，也就是ppda所在的page。
+
+我们通过KISA6来确定active进程，kisa6指向那个进程的“私有空间”，则该进程就是active进程。
+
+切换之前，首先保存当前进程的信息，到当前进程的ppda，这是`savu()`完成的。
+
+切换是由retu(rp->p_addr)完成的，参数是要被切进来的进程的ppda地起始block号！
+
+```asm
+0740  _retu:
+0741  bis $340, PS
+0742  mov (sp)+, r1   // return addr -> r1
+0743  mov (sp),  KISA6  //参数-->KISA，kernal page #6映射到新进程的ppda拉！
+0744  mov $_u, r0         // u.u_rsav
+0745  1:
+0746  mov (r0)+, sp     //用u恢复sp，这里是去(140000)取内容哦. 还是不懂，这和kisa6如何联系起来的？
+                        //终于知道了！因为有mmu! mmu on之后，汇编写得都是虚地址。mmu自动根据内核态段寄存器去做映射。
+0747  mov (r0)+, r5
+0748  bic $340, PS
+0749  jmp (r1)
+```
