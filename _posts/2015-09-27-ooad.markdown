@@ -123,3 +123,4 @@ so, use case会返回来影响需求
 而狗对象里显然又应该包括多种狗叫。
 
 通过分析use case，我们应该知道 what to focus on!
+
