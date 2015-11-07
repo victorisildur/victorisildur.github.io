@@ -1,0 +1,11 @@
+---
+layout: post
+title: "unix环境高级编程1: more"
+date: 2015-11-07 17:49:00
+categories: os
+---
+
+看了两周的Unix源码了，手都要锈掉了，赶紧码一发代码。
+代码都来源于APUE的配套实践教程。
+第一回，先搞个more的实现。
+
