@@ -78,4 +78,27 @@ int see_more()
 另外一个问题是重定向的情况，比如我们想对ls分页，那么命令显然是`ls | more`。
 这是对more进城来说，stdio被重定向为ls的输出了，那我们如何接受键盘字符呢？？
 
-#第二版
+#第二版 支持管道，更棒的输入
+
+对管道的支持靠的是`/dev/tty`这个文件，这个文件是对输入设备的文件抽象。
+读这个文件就相当于读键盘。调用方法是：
+
+```c
+FILE *fp_tty;
+fp_tty = fopen("/dev/tty","r");
+getc(fp)
+```
+
+不想空格之后按回车该怎么解决呢？和我们的猜想一致，我们要设置terminal，使得它只要有raw input就唤醒我们的more程序：
+
+```c
+#include <termios.h>
+struct termios org_opts, new_opts;
+tcgetattr(STDIN_FILENO, &org_opts);
+memcpy(&new_opts, &org_opts, sizeof(new_opts));
+new_opts.c_lflag &= ~(ICANON | ECHO);
+tcsetattr(STDIN_FILENO, TCSANOW, &new_opts);
+```
+
+这里有点疑问，STDIN_FILENO是个file descriptor，这个FILE指针有什么区别？？
+什么是fd??
