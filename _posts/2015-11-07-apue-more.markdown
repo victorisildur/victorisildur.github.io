@@ -9,3 +9,73 @@ categories: os
 代码都来源于APUE的配套实践教程。
 第一回，先搞个more的实现。
 
+# 版本一：只能看文件
+
+```c
+int main(int ac, char *av[])
+{
+  FILE * fp;
+  if(ac == 1) {
+      do_more(stdin);
+  } else {
+      while(--ac) 
+      {
+          if( (fp=fopen( *++av, "r")) != NULL ) {
+              do_more(fp);
+              fclose(fp);
+          } else {
+              exit(1);
+          }
+      }
+  }
+  return 0;
+}
+/* read PAGELEN lines */
+void do_more(FILE *fp)
+{
+    char line[LINELEN];
+    int num_of_lines = 0;
+    int see_more(), reply;
+    while (fgets(line, LINELEN, fp))
+    {
+        if (num_of_lines == PAGELEN) 
+        {
+            reply = see_more(); // user want some more
+            if (reply == 0)
+                break;
+            num_of_lines -= reply;
+        }
+        if (fputs(line, stdout) == EOF)
+            exit(1);
+        num_of_lines++;
+    }
+}
+int see_more()
+{
+    int c;
+    printf("\033[7m more? \033[m");
+    while ( (c=getchar()) != EOF )
+    {
+        if (c == 'q')
+            return 0;
+        if (c == ' ')
+            return PAGELEN;
+        if (c == '\n')
+            return 1;
+    }
+    return 0;
+}
+```
+
+可以看到，do_more里面一个大循环，不断从fp里gets再puts出来，直到打印满24行（一页）。
+
+一旦满页，就打印提示信息，请求用户输入还要再打印一页or一行or结束。
+
+然而这个版本的程序有着重大问题，就是see_more的时候，按空格之后必须按回车，否则是没有任何反应的。
+这貌似是我们分析unix代码时输入唤醒机制的问题。
+如果我们的程序不指明对raw input感兴趣，那么就只会在输入回车之后被唤醒。
+
+另外一个问题是重定向的情况，比如我们想对ls分页，那么命令显然是`ls | more`。
+这是对more进城来说，stdio被重定向为ls的输出了，那我们如何接受键盘字符呢？？
+
+#第二版
