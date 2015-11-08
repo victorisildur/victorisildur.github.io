@@ -1,0 +1,87 @@
+---
+layout: post
+title: "unix环境高级编程2: who"
+date: 2015-11-08 10:27:00
+categories: os
+---
+
+今天来看看who的实现。
+
+# 如何用man看who的实现
+
+我们`man who`一下，可以看到说明，who就是收集了`/var/run/utmpx`这个文件的信息。
+`SEE ALSO`里有写`utmpx(5)`，意思是utmp在man的第五部分。
+
+我们继续`man 5 utmpx`，发现这是个数据库，和老式的utmp不一样的，多维护了一些诸如进程id，退出状态之类的信息。
+不过也是兼容的，当用户对utmpx操作，系统会自动对utmp做同步。
+想要调用读utmpx，就要`#include <utmpx.h>`。
+
+# utmpx.h
+
+utmpx.h里定义了一些变量，函数，可能对我们有用：
+
+```c
+#define UTMPX_FILE "/var/run/utmpx"
+struct utmpx {
+    char ut_user[_UTX_USERSIZE];
+    struct timeval ut_tv;
+    ...
+}
+```
+
+# 第一版：直接读文件
+
+从直观猜测，`/var/run/utmpx`这个文件就是一堆utmpx的序列。
+读文件然后解析就好：
+
+```c
+#include <utmpx.h>
+#include <stdio.h>
+#include <fcntl.h>
+
+int main()
+{
+    struct utmpx record;
+    int fd;
+    int reclen = sizeof(record);
+    if ( (fd=open(UTMPX_FILE,O_RDONLY)) == -1) {
+        perror(UTMPX_FILE);
+        exit(1);
+    }
+    while (read(fd, &record, reclen) == reclen)
+        show_info(&record);
+    close(fd);
+    return 0;
+}
+show_info(struct utmpx * utbufp)
+{
+    printf("%s\n", utbufp->ut_user);
+}
+```
+
+然而效果并非如我们所想，只打印出了一行有内容，其他都是空行。
+这说明文件并不简单组织的，我们要另想办法。
+
+# 第二版: 用库函数
+
+仔细读utmpx.h，里面有很多getter,setter，为什么不用呢？
+我们用里面的`getutxent()`，也就是get utmpx entry来重写who:
+
+```c
+int main()
+{
+    struct utmpx * records;
+    while ( (records = getutxent()) != NULL)
+        show_info(records);
+    return 0;
+}
+
+void show_info(struct utmpx * utbufp)
+{
+    printf("%s ", utbufp->ut_user);
+    printf("%s ", utbufp->ut_id);
+    printf("%s \n", utbufp->ut_host);
+}
+```
+
+well done!
