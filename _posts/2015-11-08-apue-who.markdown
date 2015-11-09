@@ -1,11 +1,14 @@
 ---
 layout: post
-title: "unix环境高级编程2: who"
+title: "unix环境高级编程2: who与cp"
 date: 2015-11-08 10:27:00
 categories: os
 ---
 
-今天来看看who的实现。
+郁闷，github contributions老是没有，原来是没config email的原因
+
+## who
+今天来看看who与的实现。
 
 # 如何用man看who的实现
 
@@ -85,3 +88,35 @@ void show_info(struct utmpx * utbufp)
 ```
 
 well done!
+
+## cp
+
+首先搞清上次写more没搞清的File descriptor。
+这是个非负整数，可以理解为进程打开文件的索引。
+习惯上，0是stdin，1是stdout，2是stderr。
+
+#cp流程
+
+creat和write系统调用的形式是：
+
+```c
+#include <fcntl.h>
+int fd = creat(char * filename, mode_t mode);
+
+#include <unistd.h>
+/* buf内存数据，amt要写的字节数, result要写入成功的字节数 */
+ssize_t result = write(int fd, void* buf, size_t amt);
+```
+
+cp的流程应该是：读模式打开src,写模式打开dst，读src到buf，写buf到dst。
+直到遇到src文件的eof，说明cp完毕了。最后close源文件和目的文件。
+
+代码见[cp01.c](https://github.com/victorisildur/UNIX/blob/master/APUE/cp/cp01.c)
+
+#缓冲
+BUFFERSIZE对程序运行时间有影响吗？有！而且很大。
+这是因为系统调用要切到内核态，保存用户态栈、寄存器。切内核态栈、寄存器。然后再恢复回去。
+
+一般来说，我们希望尽量减少系统调用的次数，用sys call的时候，容量参数填的越大越好。
+
+
