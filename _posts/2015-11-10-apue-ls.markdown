@@ -16,3 +16,62 @@ apue编程实践一共有15章，后面的章节涉及事件编程、线程、�
 今天先搞定文件系统。
 
 ## ls 
+
+目录的结构。读unix的时候我们知道，目录也是文件，和普通文件不同的是，其inode有个标志位不一样（具体是什么？）。
+目录的内容是entry list，每个entry维护了文件信息、文件指针，或是子目录。
+
+每个目录至少含有两个entry: `.`和`..`。entry的格式在`<dirent.h>`中定义：
+
+```c
+struct dirent {
+    ino_t        d_ino;        /* file number of the entry*/
+    __unit16_t   d_reclen;     /* length of this record */
+    __unit8_t    d_type;       /* file type: fifo,dir,sock,blk,lnk... */
+    __unit16_t   d_namlen;     /* length of string in d_name */
+    char         d_name[1024]; /* entry name */
+}
+```
+
+怎么读目录呢？man一下发现`readdir`这个函数。返回值就是`dirent`。
+还有配套的opendir,closedir。
+都在`dirent.h`里。
+
+接下来思路就相当直观了，ls时，open当前目录；一个个entry读，打印；最后close目录。
+
+# 第一版
+
+就是opendir, readdir, closedir，非常简单。
+
+```c
+#include <stdio.h>
+#include <sys/types.h>
+#include <dirent.h>
+
+void do_ls(char dirname[]);
+
+int main(int ac, char * av[])
+{
+    if (ac==1)
+        do_ls(".");
+    else
+        while (--ac) {
+            printf("%s:\n", * ++av);
+            do_ls(*av);
+        }
+}
+
+void do_ls(char dirname[])
+{
+    DIR * dir_ptr;
+    struct dirent * direntp;
+
+    if ( (dir_ptr=opendir(dirname)) == NULL ) {
+        fprintf(stderr, "ls1: cannot open %s\b", dirname);
+    } else {
+        while ((direntp = readdir(dir_ptr)) != NULL )
+            printf("%s\n", direntp->d_name);
+        closedir(dir_ptr);
+    }
+        
+}
+```
