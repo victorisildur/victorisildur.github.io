@@ -119,4 +119,17 @@ BUFFERSIZE对程序运行时间有影响吗？有！而且很大。
 
 一般来说，我们希望尽量减少系统调用的次数，用sys call的时候，容量参数填的越大越好。
 
+## 错误处理
 
+`errno.h`里的全局变量`errno`指示了出错原因：
+
+```c
+#define EPERM  1   /*operation not permitted*/
+#define ENOENT 2   /*no entry: no such file or directory*/
+#define ESRCH  3   /*no such process*/
+#define EINTR  4   /*interrupted sys call*/
+#define EIO    5   /*io error*/
+```
+
+`perror()`这个函数，就是自动的去读`errno`，然后打印错误信息。
+前面代码也用到过，非常方便。
