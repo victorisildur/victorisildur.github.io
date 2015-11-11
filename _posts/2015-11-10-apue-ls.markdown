@@ -75,3 +75,67 @@ void do_ls(char dirname[])
         
 }
 ```
+
+## 第二版，ls -l
+
+`ls -l`包含了哪些信息？
+
+1. mode: -普通文件,d目录
+2. 链接数：inode链接次数
+3. owner
+4. group
+5. size
+6. last-modified time
+7. 文件名
+
+这些信息是哪里来的呢？stat! 这是`sys/stat.h`里提供的方法。
+函数原型：
+
+```c
+/* bufp输出stat指针
+*  result 0: 成功，-1: 遇到错误
+*/
+int result = stat(char *fname, struct stat * bufp)
+```
+
+这块代码就不写了，咱们要加快点速度了。
+
+关于stat里的一些补充说明：
+
+1. stat->st_mode包含16位，4位用作文件类型，9位用作许可权限，3位用作文件特殊属性。
+2. `set-user-ID`位。
+给可执行文件这一位置位，意思是不管谁执行这个程序，
+内核都认为是文件的owner在执行它。
+这就是为什么我们没有`/etc/passwd`文件的权限，却可以通过passwd命令改密码的原因。
+3. `sticky`位。
+意思是一些常用程序，如编辑器、编译器等，即使没有人在用，也要放到交换空间里。
+这样其装载速度要快很多。
+现在页已经代替了交换技术，这个不那么重要了。
+4. 文件类型：普通文件、目录文件、设备文件、socket文件、符号链接、命名管道。
+
+## pwd
+
+上面的stat方法，opendir方法就好像变魔术一样，传入路径名就行了。
+路径到inode是如何映射的呢？
+我们写个pwd就知道了。
+
+先回顾下新建一个文件发生了什么：
+
+1. 文件属性的存储：内核先找到一个空的inode，如inode 47。
+内核把文件信息如创建者，文件大小，时间，权限等记录其中。
+2. 存储数据：新文件需要三个磁盘block，因此内核从free block list里找出3个自由块。
+如627，200，992. 内核缓冲区的数据依次复制到这三个块。
+3. 记录Block分配：inode节点的磁盘分布区记录了这三个block序列（627,200,992）
+4. 添加文件名到目录：内核将entry (47,newfilename)添加到目录文件。
+
+unix上，每个运行中的程序都有一个当前目录。细节的讲，ppda有一个当前目录的Inode号。
+只与cd时这个inode怎么变，写个pwd就知道了。
+
+步骤如下：
+
+1. 得到“.”的inode号，称其为n
+2. chdir ..
+3. 找到inode号==n的entry的名字
+4. 重复1
+
+代码比较复杂，详见链接[pwd01.c](https://github.com/victorisildur/UNIX/blob/master/APUE/pwd/pwd01.c)
