@@ -31,3 +31,9 @@ int main()
 想要shell长存，就要采用fork方案。
 fork本身比较简单，值得注意的点是主线程要等子线程结束。
 wait的例子如下：[wait demo 01](https://github.com/victorisildur/UNIX/blob/master/APUE/process/waitdemo.c)
+
+然后的思路就很直观了，不断地fgets读命令行参数，遇到回车后fork，主进程等子进程，然后再次读命令行参数。
+子进程用execvp去执行相应地程序。
+
+程序如下：[prompting shell 02](https://github.com/victorisildur/UNIX/blob/master/APUE/process/psh02.c)
+
