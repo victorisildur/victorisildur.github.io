@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "unix环境高级编程6: io、重定向、管道"
-date: 2015-11-15 23:32:00
+date: 2015-11-25 11:22:00
 categories: os
 ---
 
