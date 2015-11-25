@@ -37,3 +37,10 @@ wait的例子如下：[wait demo 01](https://github.com/victorisildur/UNIX/blob/
 
 程序如下：[prompting shell 02](https://github.com/victorisildur/UNIX/blob/master/APUE/process/psh02.c)
 
+# SIGINT信号？
+
+没问题？那是你use case不够！如果在子进程执行的时候按下ctrl+c会怎样？
+你会发现父进程被一起杀掉了！
+
+思路是给父进程设置sigmask。子进程则不设。这个留作练习。
+
