@@ -50,3 +50,5 @@ socket服务器的步骤我们比较熟悉，就是bind->listen->accept->rw->clo
 
 # 客户端
 
+流程建立socket->connet->read->打印->close. 例子：[time client](https://github.com/victorisildur/UNIX/blob/master/APUE/socket/timeclient1.c)
+
