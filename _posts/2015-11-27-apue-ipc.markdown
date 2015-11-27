@@ -1,0 +1,292 @@
+---
+layout: post
+title: "unix环境高级编程9: 进程间通信"
+date: 2015-11-27 19:50:00
+categories: os
+---
+
+select与poll! 这个我在tornado的时候研究过！
+大体印象就是异步io的东西，今天有机会具体看一下拉
+
+## talk: 从多个数据源读
+
+talk是个Unix聊天程序，命令为`talk username@ttyname`可惜没人连我机子，只能yy下实际效果。
+之所以要说talk，是因为它面临这样的问题：
+一方面，程序要读键盘输入，然后发出去。
+另一方面，程序还有读socket，然后打印到屏幕。
+这两个读不能简单的交替执行，否则会阻塞。
+
+这种情况，可以使用select系统调用。他的原理如下：
+
+1. 获得所需的文件描述符列表
+2. 将列表传给select
+3. select挂起，知道任何一个文件描述符有数据到达
+4. select设置一个变量中的若干位，用来通知你哪个文件描述符有数据
+
+我们来看个同时接收两个输入源（fd1, fd2）的例子：
+
+```c
+    while(1)
+    {
+        /* a list of fds to watch*/
+        FD_ZERO(&readfds);
+        FD_SET(fd1, &readfds);
+        FD_SET(fd2, &readfds);
+        
+        timeout.tv_sec = atoi(av[3]);
+        timeout.tv_usec = 0;
+        
+        /* wait for input */
+        retval = select(maxfd, &readfds, NULL, NULL, &timeout);
+        if (retval == -1)
+            oops("select", 4);
+        if (retval > 0) 
+        {
+            /* check bits for each fd */
+            if ( FD_ISSET(fd1, &readfds) )
+                showdata(av[1], fd1);
+            if ( FD_ISSET(fd2, &readfds) )
+                showdata(av[2], fd2);
+        }
+        else
+        {
+            printf("no input after %d seconds\n", atoi(av[3]));
+        }
+    }
+```
+
+poll与select功能基本一样，select是berkeley搞得，poll是贝尔实验室搞的。
+
+## 通过文件的IPC
+
+server:
+
+```
+#每秒写一次文件
+while true; do
+    date > /tmp/current_date
+    sleep 1
+done
+```
+
+client:
+```
+cat /tmp/current_date
+```
+
+注意，unix不限制同时打开文件的进程数量！
+这个方法是有race的！就是server清空文件的一刹那，如果client去读，将读不到完整地。
+这时需要文件锁（flock, lockf,fcntl）。
+
+在打开文件上上锁解锁的代码：
+
+```c
+fcntl(fd, F_SETLKW, &lockinfo); // lockinfo.l_type = F_WRLCK
+fcntl(fd, F_SETLKW, &lockinfo); // lockinfo.l_type = F_UNLCK
+```
+
+## 命名管道IPC
+
+我们已经看过了常规的管道，只能连接父子进程。这太挫了。
+命名管道可以连接不相关的进程，并且独立于进程存在。又称FIFO。
+
+创建删除监听会话等操作如下：
+
+```c
+// create fifo
+mkfifo(char *name, mode_t mode);
+// delete fifo
+unlink(fifoname);
+// listen fifo
+open(fifoname, O_RDONLY); //阻塞进程，直到某一进城打开FIFO进行写操作
+// chat
+open(fifoname, O_WRONLY); //阻塞进程，直到某一进城打开FIFO进行读操作
+// end chat
+close();
+```
+
+## 共享内存
+
+操作都在`sys/shm.h`里。我们看个例子就懂了：
+
+```c
+/* server */
+#include <stdio.h>
+#include <sys/shm.h>
+#include <time.h>
+
+#define TIME_MEM_KEY  99
+#define SEG_SIZE      ((size_t)100)
+#define oops(m,x) {perror(m); exit(x);}
+
+main()
+{
+    int  seg_id;
+    char *mem_ptr, *ctime();
+    long now;
+    int  n;
+
+    /* create shm segment */
+    seg_id = shmget(TIME_MEM_KEY, SEG_SIZE, IPC_CREAT|0777);
+    if (seg_id == -1)
+        oops("shmget", 1);
+
+    /* attach to shm */
+    mem_ptr = shmat(seg_id, NULL, 0);
+    if (mem_ptr == (void *) -1)
+        oops("shmat", 2);
+
+    /* run, write shm */
+    for (n=0; n<60; n++) {
+        time(&now);
+        strcpy(mem_ptr, ctime(&now));
+        sleep(1);
+    }
+    
+    shmctl(seg_id, IPC_RMID, NULL);
+}
+```
+
+```c
+/* client */
+#define TIME_MEM_KEY 99
+#define SEG_SIZE      ((size_t)100)
+#define oops(m,x) {perror(m); exit(x);}
+
+main()
+{
+    int  seg_id;
+    char *mem_ptr, *ctime();
+    long now;
+    
+    seg_id = shmget(TIME_MEM_KEY, SEG_SIZE, 0777);
+    if (seg_id == -1)
+        oops("shmget", 1);
+    mem_ptr = shmat(seg_id, NULL, 0);
+    if (mem_ptr == (void *) -1)
+        oops("shmat", 2);
+    printf("the time, direct from memory: ..%s", mem_ptr);
+    shmdt(mem_ptr);
+}
+```
+## 竞态条件
+
+fifo, socket由内核来处理竞态条件。用户不用操心race问题。
+共享内存or共享文件就要操心这个了。怎么办呢？
+答案是信号量和文件锁。
+
+文件锁之前有提到过，读的时候上RD锁，这样其他进程就不能去写之。
+写的时候上WR锁，这样其他进程就不能去读它。
+
+shm的情况适合用信号量（semaphores），信号量是内核变量！可以被所有进程访问！
+这个必须贴代码，上课时候老写伪代码写得人都迷茫了：
+
+```c
+/* server */
+main()
+{
+    ...
+    /* create two semaphores */
+    semset_id = semget(TIME_SEM_KEY, 2, (0666|IPC_CREAT|IPC_EXCL));
+    if (semset_id == -1)
+        oops("semget", 3);
+    /* set sems to 0 */
+    set_sem_value(semset_id, 0, 0);
+    set_sem_value(semset_id, 1, 0);
+
+    signal(SIGINT, cleanup);
+    for (n=0; n<60; n++) 
+    {
+        time(&now);
+        wait_and_lock(semset_id);
+
+        strcpy(mem_ptr, ctime(&now));
+        sleep(1);
+
+        release_lock(semset_id);
+        sleep(1);
+    }
+    cleanup(0);
+}
+
+set_sem_value(int semset_id, int semnum, int val)
+{
+    union semun initval;
+    initval.val = val;
+    if (semctl(semset_id, semnum, SETVAL, initval) == -1)
+        oops("semctl", 4);
+}
+
+wait_and_lock(int semset_id)
+{
+    struct sembuf actions[2];
+    actions[0].sem_num = 0;   /* sem[0] is n readers */
+    actions[0].sem_flg = SEM_UNDO;
+    actions[0].sem_op  = 0;   /* wait until no readers */
+    
+    actions[1].sem_num = 1;
+    actions[1].sem_flg = SEM_UNDO;
+    actions[1].sem_op  = 1;   /* incr num writers */
+
+    if (semop(semset_id, actions, 2) == -1)
+        oops("semop:Locking", 10);
+}
+
+release_lock(int semset_id)
+{
+    struct sembuf actions[1];
+    actions[0].sem_num = 1;
+    actions[0].sem_flg = SEM_UNDO;
+    actions[0].sem_op  = -1;  /* decr writer count */
+    if (semop(semset_id, actions, 1) == -1)
+        oops("semop: unlocking", 10);
+}
+
+/* client */
+main()
+{
+    ...
+    /* get two sems */
+    semset_id = semget(TIME_SEM_KEY, 2, 0);
+    wait_and_lock(semset_id);
+
+    printf("the time, direct from memory: ..%s", mem_ptr);
+
+    release_lock(semset_id);
+    shmdt(mem_ptr);
+}
+
+wait_and_lock(int semset_id)
+{
+    union semun sem_info;
+    struct sembuf actions[2];
+    actions[0].sem_num = 1;
+    actions[0].sem_flg = SEM_UNDO;
+    actions[0].sem_op  = 0;
+
+    actions[1].sem_num = 0;
+    actions[1].sem_flg = SEM_UNDO;
+    actions[1].sem_op  = 1;
+    
+    if ( semop(semset_id, actions, 2) == -1 )
+        oops("semop: locking", 10);
+}
+
+release_lock(int semset_id)
+{
+    union semun sem_info;
+    struct sembuf actions[1];
+    actions[0].sem_num = 0;
+    actions[0].sem_flg = SEM_UNDO;
+    actions[0].sem_op  = -1;
+
+    if ( semop(semset_id, actions, 1) == -1 )
+        oops("semop: unlocking", 10);
+}
+```
+
+这里有几个注意：
+1. SEM_UNDO标志允许内核在进程退出的时候恢复semop
+2. sembuf.sem_op = 0表示挂起直到信号量为0
+3. sembuf.sem_op = 1表示信号量加1
+4. sembuf.sem_op = -1表示信号量减1
