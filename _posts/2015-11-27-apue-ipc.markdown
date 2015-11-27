@@ -286,6 +286,7 @@ release_lock(int semset_id)
 ```
 
 这里有几个注意：
+
 1. SEM_UNDO标志允许内核在进程退出的时候恢复semop
 2. sembuf.sem_op = 0表示挂起直到信号量为0
 3. sembuf.sem_op = 1表示信号量加1
