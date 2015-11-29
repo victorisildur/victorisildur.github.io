@@ -65,3 +65,46 @@ struct  servent {
 
 这个函数就是给定服务名（如domain）和协议名（如udp），返回服务端口之类的。
 查找表保存在`/etc/services`里。
+
+3. 为什么要用`bzero()`清空struct
+
+```c
+struct sockaddr_in * sap;
+bzero(sap, sizeof(*sap)); 
+```
+
+好吧，暂时想不到其他方法。
+
+4. `size_t`是什么？
+
+`size_t`是`sizeof()`的返回类型。
+一般是unsigned int。
+我们写点简单代码来验证下：
+
+```c
+int main()
+{
+    int intvar, *ptr_intvar;
+    char charvar, *ptr_charvar;
+    struct st {
+        int a;
+        char *b;
+    };
+
+    struct st stvar;
+    struct st * ptr_stvar;
+    printf("%d\n", sizeof(intvar));      //4
+    printf("%d\n", sizeof(ptr_intvar));  //8
+    printf("%d\n", sizeof(charvar));     //1
+    printf("%d\n", sizeof(ptr_charvar)); //8
+    printf("%d\n", sizeof(stvar));       //16
+    printf("%d\n", sizeof(ptr_stvar));   //8
+}
+```
+
+可以看到，凡是指针，大小都为8（64位系统）。
+int,char之类的基本类型返回字节数。
+结构体返回结构体各成员sizeof之和。
+
+
+
