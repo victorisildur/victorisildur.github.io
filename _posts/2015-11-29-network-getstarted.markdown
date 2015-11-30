@@ -106,5 +106,20 @@ int main()
 int,char之类的基本类型返回字节数。
 结构体返回结构体各成员sizeof之和。
 
+5. 为什么要`htonl()`,`ntohl()`,`htons()`,`ntohs()`一系列方法？
 
+网络字节序用的是big endian。也就是我们易读的那种。
+而host machine的字节序取决于cpu。所以要转一下。
+我们可以验证下自己mac上用的是大端还是小端：
 
+```c
+#include <arpa/inet.h>
+int main()
+{
+    int a = 16;
+    printf("%d --> ", a);      // 16              00,00,00,00, 00,00,00,10
+    printf("%d", htonl(a));    // 268435456       10,00,00,00, 00,00,00,00
+}
+```
+
+诺，是小端。所以转换下还是很必要地。
