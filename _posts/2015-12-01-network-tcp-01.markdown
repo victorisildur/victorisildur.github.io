@@ -1,0 +1,12 @@
+---
+layout: post
+title: "unix网络编程2: TCP详解"
+date: 2015-12-01 14:23:00
+categories: network
+---
+
+要理解为什么TCP不是完全可靠地，从而进行防御性编程，我们必须详细了解TCP协议！
+
+其中最重要的是TCP的状态机：
+
+![tcp fsm](/assets/images/tcp_fsm.jpg)
