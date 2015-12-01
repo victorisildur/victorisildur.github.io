@@ -10,3 +10,20 @@ categories: network
 其中最重要的是TCP的状态机：
 
 ![tcp fsm](/assets/images/tcp_fsm.jpg)
+
+为了方便的测试，我们采用stevens写的sock程序，
+在这里下载：[sock](http://www.icir.org/christian/sock.html)
+
+然而，遇到一个问题，就是测试TIME_WAIT状态的时候，确实发现server不能重新绑定到之前杀掉的端口。
+但是客户端提示“connection closed by peer”. 
+netstat也看不到杀掉端口的驻留。
+(先不纠结这个问题，先看完再说)
+
+# 什么时候发RST
+
+1. 访问没有listen的端口。好吧，tcpdump发现只测试到client不停发SYN，server并没有返回RST
+2. 异常终止连接。用RST可以代替FIN，表示“异常释放连接”。服务器要有相应的处理。
+3. 检测半连接。
+考虑这样的情况，server网断了，重启了。
+client不知道这一情况，在server重启之后给server发送一个tcp段，server由于重启了，不知道这个连接的信息。
+这种情况，它就会返回一个RST。
