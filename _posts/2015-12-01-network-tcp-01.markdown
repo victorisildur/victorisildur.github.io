@@ -67,3 +67,5 @@ sock -v 5555
 ## TCP的成块数据流
 
 TCP成块数据流发送时采用滑动窗口协议，窗口的大小是接收方可以控制的，BSD默认2048B。
+
+滑动窗口协议这里比较复杂，我暂时还没有详细研读它的动力，这里有一篇动力性的文章，明天看一看：[网络编程学习经验](https://cloud.github.com/downloads/chenshuo/documents/LearningNetworkProgramming.pdf)
