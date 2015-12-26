@@ -37,3 +37,25 @@ TCP/IP详解，UNIX网络编程都看不下去，转而先看网络编程程序�
 短连接就是发完一点数据就关掉连接，要发送新数据，就开新连接。
 
 根据网上的说法，http的多个文件用的是短连接？这个要确认下！
+
+## ping
+
+好久没更新博客了，优点迷茫，知道看了蜜蜂和排球的比喻，人啊，还是一次专注做一件事的好！
+
+今天的目标是Digital Ocean搞一搞，毕竟student pack在那儿，结果上不了digital ocean，
+浏览器提示error connection，这必须搞清为啥啊，毕竟shadowsock是能上google的。
+
+工具呢是ping和traceroute，怎么用我也不知，所以要仔细看看。
+
+## 计划
+
+12.27 - 1.2 第一周Mobile Web APP
+
+* Digital Ocean上搞好
+* 读head first mobile web和<动态html参考和开发应用大全>
+* 兼容iOS,Android浏览器和手Q内嵌WebView
+
+1.3 - 1.9 第二周Android Native
+
+* Android Native找个好教程
+* 天气？wishing well?
