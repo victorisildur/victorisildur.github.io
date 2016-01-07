@@ -97,7 +97,9 @@ categories: programming
 今天想把流量优化做一下，所以要配一下namecheap的域名，能域名访问过去。
 这中间涉及几个概念：a record, cname, url redirection
 
-* cname: web1.aa.com, web2.aa.com都映射到一台机器
-* aname: ?
+* aname: name到ip的映射
+* cname: web1.aa.com, web2.aa.com都映射到一台机器, name到name的映射, 只有该name没有其他record时才会用到cname
+* alias: 中文不知道对应什么，也是name到name，和cname的区别是可以与其他record共存
+* url redirection: 返回http 301
 
 好了，现在[isildur.me](http://isildur.me)可以访问了。
