@@ -76,3 +76,28 @@ categories: programming
 </tr>
 </tbody>
 </table>
+
+## 开工
+
+# express
+
+现在用jade模板了！看了下新特性有：更简语法，block继承，方便的控制语句
+
+# Jquery Mobile
+
+主要特性：渐进增强，RWD，ajax页面加载
+
+# 技术路线
+
+我的番茄历史页面，主页是以天为单位的统计，点进去是以番茄为单位的具体统计
+
+## Digital Ocean配置
+
+2天时间把jqm写了个大概，没有美工感觉好丑，也没做流量优化。
+今天想把流量优化做一下，所以要配一下namecheap的域名，能域名访问过去。
+这中间涉及几个概念：a record, cname, url redirection
+
+* cname: web1.aa.com, web2.aa.com都映射到一台机器
+* aname: ?
+
+好了，现在[isildur.me](http://isildur.me)可以访问了。
