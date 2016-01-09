@@ -11,4 +11,5 @@ pptp不知道怎么回事，连接不上，在DO上中转下载了dl.google.com�
 今天总算在sdk manager找到force http选项，能下载了，但是有checksum问题。
 跪，这个实在不知道怎么回事，还是啃pptp吧
 
+跪，pptp被封，ss今天也被封。用了qq的http代理解决了。蛋疼爆炸。
 
