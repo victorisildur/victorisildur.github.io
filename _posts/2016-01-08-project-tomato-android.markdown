@@ -27,3 +27,14 @@ ui部分按照官网的best ui practice在搞，主题是toolbar + custom view +
 1. 进度圈中的button用linear layout和relative layout实现不了，要用frame layout，这样能堆叠起来
 2. 进度是用`onDraw()`画出来的，`canvas.drawArc()`里用`Stroke`画就行了
 3. 番茄历史是用`RecyclerView`画的，注意RV里有LayoutManager，LM里有Adapter，Adapter有ViewHolder，用的是`ViewHolder.onBindViewHolder()`实现数据到View的单向绑定
+
+fab是比较蛋疼的地方，首先是没控件，最后用了`android.support.design.widget.FloatingActionButton`，这个怎么实现的不懂，总之样子还可以，阴影效果也有。
+好吧，这个包的实现也有问题，没法运行时换icon，采用makovkastar的实现。
+
+定位上，我想放到两个material之间，用负值marginTop, marginLeft Hack了一下，实现的不是很好。
+
+## 定时部分
+当按下FAB，期望开始倒计时，相关动作有：
+
+1. 进度圈开始转动
+2. 计时结束：alert
