@@ -31,6 +31,8 @@ ui部分按照官网的best ui practice在搞，主题是toolbar + custom view +
 fab是比较蛋疼的地方，首先是没控件，最后用了`android.support.design.widget.FloatingActionButton`，这个怎么实现的不懂，总之样子还可以，阴影效果也有。
 好吧，这个包的实现也有问题，没法运行时换icon，采用makovkastar的实现。
 
+![ui version 2]({{site.url}}/assets/images/android_snap02.png)
+
 定位上，我想放到两个material之间，用负值marginTop, marginLeft Hack了一下，实现的不是很好。
 
 ## 定时部分
