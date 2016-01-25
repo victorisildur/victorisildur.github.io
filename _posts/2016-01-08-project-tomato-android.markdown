@@ -40,3 +40,15 @@ fab是比较蛋疼的地方，首先是没控件，最后用了`android.support.
 
 1. 进度圈开始转动
 2. 计时结束：alert
+
+## 存储部分
+用的是sqlite，封装的时候遇到几个问题：
+
+1. `db = helper.getReadableDatabase()`之后可以迅速`close()`，官方说cache过了，不用担心
+2. AlertDialog生成传context的时候一定要用`this`而不是`getApplicationContext()`的结果，否则会报错：
+You need to use a Theme.AppCompat theme (or descendant) with this activity.
+这什么问题呢？猜想是getApplicationContext的实现问题。
+StackOverflow上的解释是ui所需的context是Active Activity的上下文，而getApplicationContext提供的是整个app process的上下文。
+
+上机的时候遇到getAllRecords逻辑问题，要判断`cursor.moveToFirst()`的返回！`Adapter`绑定`dataSet`时也要做相应处理。
+
