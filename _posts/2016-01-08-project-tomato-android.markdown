@@ -70,3 +70,10 @@ so，工作状态和休息状态总是交替，但有几个地方需要特别注
 4. 结束状态提示？震动、亮灯、状态栏，timerView也要有相应文字！好吧，最后是加了个rest done状态写的。
 
 ## 震动、亮灯、状态栏
+
+# 状态栏：Notification (中文学名应该叫通知栏)
+
+简单的`builder.build()`, `manager.notify()`就可以实现静态的notification，但是还缺两个功能，一是动态更新时间，二是在notification上实现action
+
+![notification ver 1]({{site.url}}/assets/images/android_notification.png)
+
