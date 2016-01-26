@@ -52,3 +52,7 @@ StackOverflow上的解释是ui所需的context是Active Activity的上下文，�
 
 上机的时候遇到getAllRecords逻辑问题，要判断`cursor.moveToFirst()`的返回！`Adapter`绑定`dataSet`时也要做相应处理。
 
+把start button-> dialog-> count down timer-> add record连起来：
+
+1. 按下start button：把customDialog和context绑起来，这样context才能作为listener供稍后回调。onclick后调用`customDialog.show()`
+2. 按下Dialog确定键：回调listener，listener里开始技术，并add record
