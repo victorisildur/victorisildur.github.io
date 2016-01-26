@@ -55,4 +55,18 @@ StackOverflow上的解释是ui所需的context是Active Activity的上下文，�
 把start button-> dialog-> count down timer-> add record连起来：
 
 1. 按下start button：把customDialog和context绑起来，这样context才能作为listener供稍后回调。onclick后调用`customDialog.show()`
-2. 按下Dialog确定键：回调listener，listener里开始技术，并add record
+2. 按下Dialog确定键：回调listener，listener里开始计数，并add record
+
+## 状态跳转
+考虑这样的情况，我按下start button，开始25min的工作，结束后该怎么办？
+我的希望是，提示工作结束（响铃、震动），开始休息模式，5min之后，休息结束。
+提示休息结束（响铃、震动），给用户快捷方式再次开始工作。
+
+so，工作状态和休息状态总是交替，但有几个地方需要特别注意：
+
+1. 提前结束休息？休息的timer要取消掉
+2. 初始化timer是什么状态？工作
+3. 工作时间和休息时间？搞到values里去
+4. 结束状态提示？震动、亮灯、状态栏，timerView也要有相应文字！好吧，最后是加了个rest done状态写的。
+
+## 震动、亮灯、状态栏
