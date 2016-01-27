@@ -77,3 +77,26 @@ so，工作状态和休息状态总是交替，但有几个地方需要特别注
 
 ![notification ver 1]({{site.url}}/assets/images/android_notification.png)
 
+# 震动，亮灯
+
+明天再写，小细节
+
+### 统计页面
+
+这个页面希望上边是饼状图，下边是柱状图，让用户看自己的历史分布
+
+首先考虑导航，希望做到屏幕下面，因为现在屏幕太大了:(，同时希望能滑动触发，进一步便利切页面。
+
+控件选择ViewPager，这样几个页面都在同一个activity下面，分别是一个page，代码要重构。
+多弄几个Fragment代表每个page，初始化什么的全部托管给Page Class。
+实际上，AppCompatActivity是FragmentActivity的子类，所以天然集成Fragment，我们弄好view pager的管理就好。
+
+Toolbar采用custom view，注意custom view里的click事件要触发`viewPager.setCurrentItem()`，
+viewPager的`onPageChange`事件要触发custom view的样式改变。
+互相依赖。
+
+Fragment的管理靠Adapter，Adapter夹在Fragment和viewPager控件中间，空间事件触发Fragment的换入换出，
+对Adapter来说，把index到Fragment的关系管好就行了。
+如下图所示：
+
+![toolbar]({{site.url}}/assets/images/android_toolbar.png)
