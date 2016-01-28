@@ -110,3 +110,9 @@ Fragment的管理靠Adapter，Adapter夹在Fragment和viewPager控件中间，�
 然后想做的效果是点击饼状图一个扇区时放大扇区，然后发现有事件分发问题，只有最后一个扇区能接收到touch事件，不知道怎么回事。
 这尼玛要delegateTouch，复杂的不行，链接留这里[delegate touch event](http://developer.android.com/training/gestures/viewgroup.html)，考虑绕一下，用下面的列表来触发放大扇区事件。
 
+绕的时候遇到recycler view不支持onItemClick事件，但是RecycleView.ViewHolder有getPosition()方法，因此，在`onCreateViewHolder()`时，这时能同时访问到view holder和view本身，从而
+可以在view的click事件中访问到position信息。
+当然，解耦的比较糟糕，而且用到了final。
+效果如下：
+
+![pie chart]({{site.url}}/assets/images/tomato_piechart.png)
