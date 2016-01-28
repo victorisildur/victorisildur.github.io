@@ -71,17 +71,17 @@ so，工作状态和休息状态总是交替，但有几个地方需要特别注
 
 ## 震动、亮灯、状态栏
 
-# 状态栏：Notification (中文学名应该叫通知栏)
+### 状态栏：Notification (中文学名应该叫通知栏)
 
 简单的`builder.build()`, `manager.notify()`就可以实现静态的notification，但是还缺两个功能，一是动态更新时间，二是在notification上实现action
 
 ![notification ver 1]({{site.url}}/assets/images/android_notification.png)
 
-# 震动，亮灯
+### 震动，亮灯
 
 明天再写，小细节
 
-### 统计页面
+## 统计页面
 
 这个页面希望上边是饼状图，下边是柱状图，让用户看自己的历史分布
 
@@ -100,3 +100,13 @@ Fragment的管理靠Adapter，Adapter夹在Fragment和viewPager控件中间，�
 如下图所示：
 
 ![toolbar]({{site.url}}/assets/images/android_toolbar.png)
+
+今天把饼状图弄了，遇到一个view pager的生命周期和三个fragment生命周期不一致的问题，
+对我们来说，希望在一个page reenter的时候触发fragment的onResume，但是实际上三个fragment的onResume都和view pager绑在一起了，
+这样一来就没法判断page reenter事件，没法重绘page。
+
+解决办法就是自己定义resume接口，在onpageselected事件到来时调用之。期间要注意getItem()的返回要是正在运行的fragment
+
+然后想做的效果是点击饼状图一个扇区时放大扇区，然后发现有事件分发问题，只有最后一个扇区能接收到touch事件，不知道怎么回事。
+这尼玛要delegateTouch，复杂的不行，链接留这里[delegate touch event](http://developer.android.com/training/gestures/viewgroup.html)，考虑绕一下，用下面的列表来触发放大扇区事件。
+
