@@ -116,3 +116,23 @@ Fragment的管理靠Adapter，Adapter夹在Fragment和viewPager控件中间，�
 效果如下：
 
 ![pie chart]({{site.url}}/assets/images/tomato_piechart.png)
+
+# 日视图与周视图，月视图
+
+今天的目标是搞定日视图、周视图、月视图、年视图。下面的列表是排名最高的Activity，上面的折线图是这些Activity的周折线、月折线、年折线。
+应该挺激励人的，恩。
+
+遇到个null object的问题，存储类里返回一个`new List<>()`，按说不是空对象，但return之后实际是null。
+应该是java的某种省内存优化，注意防御性编程！
+
+首先是把Calendar弄好，之前一直用的GregorianCalendar，和系统时间不一致，要换ContentProvider提供的时间。
+好吧，Calendar Provider是用来弄定时事件用的，获取系统时间用`Calendar.getInstance()`就行了，之前之所以时间有问题是因为送db取数据的时候，用的是`getInt()`方法，
+timeInMillis被截断成负数了，自然不对。
+
+然后是引导日统计到周统计、月统计的切换。这里发现用原有的fragment非常难做，因为：
+
+1. 原有的三个fragment由view pager管理，fragment manager不可控
+2. 存储，想要把用户所有历史都存下来？不合适吧
+3. 在单一fragment里实现要不断show, hide，太不经济了
+
+所以，决定用web view做，嘿嘿，也是我擅长的方式。
