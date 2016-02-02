@@ -56,7 +56,28 @@ View是传统React代码，Action通过Dispatcher, Store, 最终结果是更新�
 2. list经常shuffle的情况，或者说children经常reorder的情况，要给每个Child赋一个key。
 3. 性能瓶颈在于dom mutation而不是js执行，react宣称自己nb的地方就是整合、优化了dom变化。
 4. propTypes: {prop1: React.PropTypes.element.isRequired}，React会自己做类型验证。
-5. React生命周期：componentWillMount, componentWillUnmount, 如果很多部件都想用一样的生命事件函数，可以用mixins。
+5. React生命周期：Mount, Update, Unmount, 每个阶段又再分为小阶段。
+ 如果很多部件都想用一样的生命事件函数，可以用mixins。
 6. 对input, textarea, select元素，react用onChange监听。
 7. render返回的实际是一个Virtual DOM，用户总是不直接操作真正dom。
 
+## css动画
+
+transform分为：
+* translate: 平移
+* rotate: 旋转
+* scale: 缩放
+
+animation:
+用keyframe规定事件节点，节点间的转化时间用如下语法规定：
+* animation-name time timing-func time count ...
+* keyframe节点可以规定transform
+
+transition:
+平滑的改变一个css属性值
+* 语法：属性 duration timing-function
+* transition可以smooth change transform，这时属性为all
+
+so，transition是只对一个属性的变化，相对简单；
+animation有了keyframe的帮助，适用于复杂动画。
+两者都可能使用到transform。
