@@ -85,3 +85,5 @@ animation有了keyframe的帮助，适用于复杂动画。
 ## material-ui
 
 material ui是react写的component库，不过import语法和安装方法都看不懂，要先看npm, gulp, browserify!
+
+import, export语法都是es6里的
