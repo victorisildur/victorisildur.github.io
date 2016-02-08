@@ -86,4 +86,25 @@ animation有了keyframe的帮助，适用于复杂动画。
 
 material ui是react写的component库，不过import语法和安装方法都看不懂，要先看npm, gulp, browserify!
 
-import, export语法都是es6里的
+import, export语法都是es6里的, 我们来看看这一句：
+
+```javascript
+import React from 'react';
+import RaisedButton from 'material-ui/lib/raised-button';
+
+const MyAwesomeReactComponent = () => (
+    <RaisedButton label="Default"/>
+);
+
+export default MyAwesomeReactComponent;
+```
+
+import和export和CommonJS有点相似，区别在于CommonJS导出的是一个对象，而export不是。
+同时import功能更多一些。
+`export default`意思是导出的东西我不做命名，使用者随便命名，拿到的都是`MyAwesomeReactComponent`。
+
+const就是常量声明。
+
+`()=>()`是最关键的部分，这是一个arrow function，是比function更简的function，相当于lambda。
+这个arrow fanction意思是参数无，返回`<RaisedButton/>`。
+
