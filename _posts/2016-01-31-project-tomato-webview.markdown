@@ -108,3 +108,12 @@ const就是常量声明。
 `()=>()`是最关键的部分，这是一个arrow function，是比function更简的function，相当于lambda。
 这个arrow fanction意思是参数无，返回`<RaisedButton/>`。
 
+## React和Highcharts的结合
+
+require语法和import语法可以在jsx里混用，我也是比较疑惑它是怎么做到的。
+Highchart的调用用highcharts官方写的方法不顶用，这里我用的是![kirjs](https://github.com/kirjs/react-highcharts)的解决方案。
+粗略看了下它的代码，也是重构一个React Component，在`componentDidMount`的时候去`new Highcharts`对象，在`shouldComponentUpdate()`的时候去重新`new Highcharts()`。
+至于`Highcharts`这个类本身是怎么回事，那就不知道了。
+
+
+
