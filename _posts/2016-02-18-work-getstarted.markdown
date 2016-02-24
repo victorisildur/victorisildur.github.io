@@ -55,3 +55,9 @@ web-mode非常吊，`C-c C-n`可以切换opening/closing tags.
 # js问题
 `document.write()`如果是在embedded script里写，则不会调用`document.open()`，这个open是会清空文档的。
 
+# css问题
+
+rem在padding中计算不准，要绕一下. 
+字会比理想的小，不要用padding算，以ceiling过的rem为准，用line-height确保总大小无偏差。
+
+图片如何压缩？
