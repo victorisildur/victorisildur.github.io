@@ -59,5 +59,10 @@ web-mode非常吊，`C-c C-n`可以切换opening/closing tags.
 
 rem在padding中计算不准，要绕一下. 
 字会比理想的小，不要用padding算，以ceiling过的rem为准，用line-height确保总大小无偏差。
+网上一篇讲rem已死的，主要意思是现在reference pixel流行，浏览器也支持了device pixel ratio，所以为了media query精确，没必要用rem。
 
-图片如何压缩？
+实际项目中，rem确实有问题，但是测量方便。所有大小都和屏幕宽度成正比，包括宽度！
+这种情况下，用px就比较难搞，你该如何表示(高=屏幕宽*0.1)呢？
+很难不是吗。
+
+图片如何压缩? gulp-imagemin! 0-7种优化层次，随你选。
