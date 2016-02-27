@@ -1,0 +1,85 @@
+---
+layout: post
+title: "网页设计模式: mvc与flux"
+date: 2016-02-27 08:27:00
+categories: programming
+---
+
+# Flux
+
+Flux是跟着React一起提出来的，其设计目标是确保数据的单向流动，为此增加了Action这一抽象：
+View想要改数据，必须发Action，Action走一个环路回来，才能再次读写数据。
+
+# MVC
+
+MVC中，Model与View,Controller是完全解耦的，Model只知道自己的状态改变时，要去notify注册过自己的观察者。
+至于观察者（View, Controller）是谁，完全不关心！
+
+View-Controller是策略模式，只要View会呱呱叫，就认为是个鸭子，实际上呱呱叫这个策略（行为）是代理给控制器的。
+不用鸭子的例子，用音乐播放器的例子：音乐播放器View会放音乐，就认为是播放器，实际上放音乐这个行为是代理给Controller的。
+
+代码如下：
+
+```java
+class MusicPlayerController() {
+    MusicPlayerView view;
+    Model model;
+    MusicPlayerController() {
+        this.view = new View(this, model);
+    }
+    public void play() {
+        //...play
+        this.view.playDisplay();
+    }
+}
+
+class MusicPlayerView() {
+    Controller controller;
+    Model model;
+    MusicPlayerView(controller) {
+        this.controller = controller;
+    }
+    public void play() {
+        controller.play(); //策略模式！策略代理给策略执行者执行！
+    }
+}
+
+```
+
+MVC模式的依赖是这样的：
+
+* view: 依赖controller处理业务逻辑, 依赖model获取数据
+* controller: 依赖view处理ui逻辑, 依赖model读写数据
+* model: 什么都不依赖，只在自身被改变时notify观察者
+
+可以看到，model是完全独立的，可以很好的复用。
+view监听model的某些属性，作相应变化就好。
+但是，view, controller是互相依赖的，紧耦合！
+比如view监听到model.loaded变化，依赖controller.showToast，
+controller.showToast又反过来依赖view.alert。
+
+这样做的好处是model复用性强，坏处是view controller每次都要完全重写。
+感觉适用于model逻辑复杂，而view逻辑简单的情况。
+这样重写model代价变大，重写view代价较小。
+
+我的MVD模式的依赖：
+
+* view: 依赖model处理业务逻辑
+* dispatcher: 依赖model处理业务逻辑
+* model: 依赖view处理ui逻辑
+
+所以也是有问题的，view和model紧耦合了。 
+按理说view没有理由要求model做什么的，应该是model做什么view管不着的，要管也是dispatcher管。
+
+
+# Flux
+
+Flux的依赖：
+
+* dispatcher: 依赖store处理业务逻辑
+* store: 依赖view处理ui逻辑
+* ui: 什么都不依赖，产生Action就好！至于Action被如何处理，有没有被处理，都是不管的。
+
+所以Flux的好处就是view职责简单，啥都不依赖，随便复用。
+适用于view重写代价大，业务逻辑重写代价小的场景。
+整个业务逻辑是由一串Action序列完成的。
