@@ -5,22 +5,58 @@ date: 2016-02-27 08:27:00
 categories: programming
 ---
 
-# Flux
+# MVC有什么不好？
 
-Flux是跟着React一起提出来的，其设计目标是确保数据的单向流动，为此增加了Action这一抽象：
-View想要改数据，必须发Action，Action走一个环路回来，才能再次读写数据。
+MVC的核心问题是数据流向太乱，举个例子，邮箱页面左边ui显示多少封未读邮件；右边ui展示邮件列表，其中未读邮件高亮。
+现在我们点开一封未读邮件，在MVC中，邮件列表Model改变，并通知邮件列表ui自己状态已变。
+然后，要继续通知未读邮件Model自己变了，未读邮件Model再去通知view自己状态变了。
+
+![mvc diagram]({{site.url}}/assets/images/mvc.jpg)
+
+这个流程本身是不繁琐的，但注意，在代码中邮件列表Model变了，不但通知注册在自己身上的所有View(观察者)，还要瀑布式的更新相关Model。
+相关Model又去通知自己身上的所有观察者。
+*我们没法知道观察者有几个，是否互相依赖*！
+就像邮箱例子中，我们不知道点开一封邮件之后，哪里会被调用，因为Model的观察者可能在任何一处view代码中。
+瀑布式的Model更新让这个问题加倍严重！
+
+这就是所谓的*代码行为"不可预测"*，其根源在于MVC中Model不关心谁在观察自己，怎么观察自己。
+*从Model代码中看不出Model改变会产生什么后果*！
 
 # MVC
 
-MVC中，Model与View,Controller是完全解耦的，Model只知道自己的状态改变时，要去notify注册过自己的观察者。
-至于观察者（View, Controller）是谁，完全不关心！
+MVC中，Model与View,Controller是完全解耦的。
+这是因为采用了观察者模式，Model只知道自己的状态改变时，要去notify注册过自己的观察者。
+至于观察者（View）是谁，完全不关心！
+
+
 
 View-Controller是策略模式，只要View会呱呱叫，就认为是个鸭子，实际上呱呱叫这个策略（行为）是代理给控制器的。
 不用鸭子的例子，用音乐播放器的例子：音乐播放器View会放音乐，就认为是播放器，实际上放音乐这个行为是代理给Controller的。
 
-代码如下：
+音乐播放其代码如下，可以看到Model是不知道谁在观察自己的，想知道`Model.startPlay()`会影响到哪些地方？
+一行行去看所有View的代码吧！
 
 ```java
+class Model() {
+    List<Observer> observers;
+    boolean isPlaying;
+
+    public void startPlay() {
+        isPlaying = true;
+        notifyObservers();  //不好意思，从这里完全看不出isPlaying属性改变会影响哪些View!
+    }
+
+    public void registerObserver(observer) {
+        observers.add(observer);
+    }
+
+    public void notifyObservers() {
+        for (observer: observers) {
+            observer.update();
+        }
+    }
+}
+
 class MusicPlayerController() {
     MusicPlayerView view;
     Model model;
@@ -28,19 +64,28 @@ class MusicPlayerController() {
         this.view = new View(this, model);
     }
     public void play() {
-        //...play
-        this.view.playDisplay();
+        //play
+        this.model.startPlay(); // Model完全被Controller控制
     }
 }
 
-class MusicPlayerView() {
+class MusicPlayerView() implements Observer {
     Controller controller;
     Model model;
-    MusicPlayerView(controller) {
+    MusicPlayerView(controller, model) {
         this.controller = controller;
+        this.model = model;
+        this.model.registerObserver(this); //注册为model的观察者
     }
+    
     public void play() {
         controller.play(); //策略模式！策略代理给策略执行者执行！
+    }
+    
+    public void update() {
+        //观察者模式！这个View观察的是model的isPlaying属性 
+        if(model.isPlaying)
+            showPlayUI(); //看到这里才会知道model.startPlay()的后果！
     }
 }
 
@@ -59,27 +104,87 @@ view监听model的某些属性，作相应变化就好。
 controller.showToast又反过来依赖view.alert。
 
 这样做的好处是model复用性强，坏处是view controller每次都要完全重写。
-感觉适用于model逻辑复杂，而view逻辑简单的情况。
-这样重写model代价变大，重写view代价较小。
-
-我的MVD模式的依赖：
-
-* view: 依赖model处理业务逻辑
-* dispatcher: 依赖model处理业务逻辑
-* model: 依赖view处理ui逻辑
-
-所以也是有问题的，view和model紧耦合了。 
-按理说view没有理由要求model做什么的，应该是model做什么view管不着的，要管也是dispatcher管。
-
+*适用于Model较多重写，view较少重写的情况*。
 
 # Flux
 
-Flux的依赖：
+Flux是跟着React一起提出来的，其设计目标是确保数据的单向流动，同时翻转了MVC中Model的控制：
+MVC中Controller可以直接写Model，而Flux中Store只接受Action事件，数据对外不可见。
+
+Flux相比MVC有两处改变：
+一、store改变后，直接修改相关view，不再依靠观察者模式解耦。
+二、谢绝瀑布式的Model变动，邮件列表Model变了想影响未读邮件Model? 发Action，等下一周期处理吧！
+
+![flux diagram]({{site.url}}/assets/images/flux.jpg)
+
+我自己实现的flux代码，还是音乐播放器的例子：
+
+```javascript
+var Actions = {
+    START_PLAY: 'start_play';
+}
+/* View */
+var View = function(component) {
+    this.component = component;
+    this.component.on('click', function() {
+        this.component.trigger(Actions.START_PLAY); //点击view，发Action，表明用户想开始播放！
+    }.bind(this));
+}
+View.prototype.showPlayUI = function() {
+    // ui 变化代码
+    this.component.trigger(Actions.PLAYING); //发Action，表明已经播放了！
+    // 发Action可能有后续影响，但View并不关心。只有Dispatcher关心
+}
+
+/* Store */
+var Store = function(view) {
+    this.isPlaying = false;
+    this.view = view;
+}
+Store.prototype.startPlay = function() {
+    this.isPlaying = true;
+    // play逻辑代码
+    this.view.showPlayUI(); //直接影响UI，不再困惑！
+}
+
+var view = new View($('#play_button')); //view被实例化为一个id=play_button的ui dom节点
+var store = new Store(view);
+
+/* Dispather */
+$(document).on(Action.START_PLAY, function() {
+    store.startPlay(); //只依赖store
+})
+$(document).on(Action.PLAYING, function() {
+    some_else_store.playing(); //第二个周期啦！避免了瀑布式的store更新！
+})
+```
+
+从代码可以看出，store状态改变后，我们明确知道哪些view会变。
+同时，级联反应被一个周期接一个周期的处理，处理过程只要看dispatcher代码就能轻松理清楚。
+
+看一下Flux的依赖：
 
 * dispatcher: 依赖store处理业务逻辑
 * store: 依赖view处理ui逻辑
 * ui: 什么都不依赖，产生Action就好！至于Action被如何处理，有没有被处理，都是不管的。
 
-所以Flux的好处就是view职责简单，啥都不依赖，随便复用。
-适用于view重写代价大，业务逻辑重写代价小的场景。
+总结下，Flux的好处就是view职责简单，啥都不依赖，容易重写。
 整个业务逻辑是由一串Action序列完成的。
+*适用于view经常重写，业务逻辑较少重写的情况*。
+
+# 结束语
+移动前端现在的普遍情况是ui经常变，ui组件多，交互动画多。
+数据更新频繁，但数据本身逻辑不重。
+
+如果用MVC，级联式的交互逻辑很快就让人迷失了。如先加载数据，再渲染列表，再去掉加载提示、显示列表相关ui。
+这一连串用MVC表示，就是：
+
+1. Model加载数据，Model.dataList变化，通知观察者
+2. 列表View观察到了，渲染了自己
+3. 加载提示View观察到了，隐藏了自己
+4. 相关View（如添加按钮）观察到了，显示了自己
+
+然而，去看Model代码，不知道会有这么多影响！！
+
+现状是Model又没有移植需求，Model独立了，View逻辑乱了，得不偿失。
+还是用Flux吧。
