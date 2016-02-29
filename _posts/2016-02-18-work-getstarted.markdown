@@ -66,3 +66,11 @@ rem在padding中计算不准，要绕一下.
 很难不是吗。
 
 图片如何压缩? gulp-imagemin! 0-7种优化层次，随你选。
+
+backgrond-size 100%相对于什么？？
+
+# ps技巧
+
+仅当前可见：alt点击眼睛
+复制选框内所有图层：ctrl + shift + c， 然后ctrl+n就是可见区域大小拉！
+组移到最上面： ctrl + shift + ]

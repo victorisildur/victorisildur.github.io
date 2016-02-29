@@ -5,7 +5,7 @@ date: 2016-02-27 08:27:00
 categories: programming
 ---
 
-# Flux
+# 为何要提出Flux
 
 Flux是跟着React一起提出来的，其设计目标是确保数据的单向流动，为此增加了Action这一抽象：
 View想要改数据，必须发Action，Action走一个环路回来，才能再次读写数据。
