@@ -1,0 +1,11 @@
+---
+layout: post
+title: "flux源码阅读"
+date: 2016-03-02 08:27:00
+categories: programming
+---
+
+flux的官方实现都在github上，今天去看了下，有如下细节：
+
+# 用node eventEmiter实现view对store的观察
+
