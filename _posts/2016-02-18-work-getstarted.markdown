@@ -69,6 +69,9 @@ rem在padding中计算不准，要绕一下.
 
 backgrond-size 100%相对于什么？？
 
+display: list-item; 
+box-sizing: border-box; 用border计算宽高，与content-box相对。
+
 # ps技巧
 
 仅当前可见：alt点击眼睛
