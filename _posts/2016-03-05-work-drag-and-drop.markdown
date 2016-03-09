@@ -47,5 +47,11 @@ categories: programming
 2. background复合写法UC不支持。
 3. overflow:hidden的元素必须有position。
 > mdn: container must either have a bounding height or white-space: nowrap
+之所以产生这个感觉是误解，因为父元素不给position，svg会absolute到下面去，那overflow就失效了。
+父元素给position, svg部分在父元素内。
 4. svg的viewbox和width,height的关系. width,height是"物理面积"，viewBox是"逻辑面积"。
+问题在于1600:100的逻辑面积，物理面积200%: 30%按说没有问题，但实际出来被压缩了。
 5. enter, leave, divert, drop的职责还是没有分清。马蛋还要再看！
+
+# css操蛋细节
+1. background-size在qq浏览器上失效：不知道什么鬼，暂时解不了
