@@ -1,0 +1,16 @@
+---
+layout: post
+title: "js细节汇总"
+date: 2016-03-12 08:27:00
+categories: programming
+---
+
+# undefined
+
+```javascript
+if (aaa === undefined)
+    如果aaa是Undefined，会抛出ReferenceError!
+```
+
+# array
+array.prototype.splice会删掉原数组内容！
