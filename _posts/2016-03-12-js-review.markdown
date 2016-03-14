@@ -12,5 +12,9 @@ if (aaa === undefined)
     如果aaa是Undefined，会抛出ReferenceError!
 ```
 
+```javascript
+JSON.parse(undefined) //抛异常unexpected token u
+```
+
 # array
 array.prototype.splice会删掉原数组内容！
