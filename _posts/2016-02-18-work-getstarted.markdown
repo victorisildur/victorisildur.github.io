@@ -65,6 +65,8 @@ rem在padding中计算不准，要绕一下.
 这种情况下，用px就比较难搞，你该如何表示(高=屏幕宽*0.1)呢？
 很难不是吗。
 
+font-size >12px时，width: 10rem是可以正确衡量的。
+
 图片如何压缩? gulp-imagemin! 0-7种优化层次，随你选。
 
 backgrond-size 100%相对于什么？？
