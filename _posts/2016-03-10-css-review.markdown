@@ -28,3 +28,16 @@ white-space: no-wrap;
 # 模块化
 
 ## SMACSS
+Scalable and Modular Architecture CSS，目的是让css模块化，使样式也符合DRY原则。
+它把样式分为如下五类：
+
+* base rules:   无论元素在页面哪里，都应该遵循的原则
+* layout rules: 分割页面的"布局"，它是module的容器
+* module rules: 模块，如sidebar, callout, product list
+* state rules:  layout/module在不同"状态"下的样式
+* theme rules:  主题，不同主题下layout和module的样子
+
+命名规则：
+* layout: 用l- grid-之类的前缀
+* state:  用is-hidden, is-前缀
+* module: 普通命名，注意子类采用相同前缀
