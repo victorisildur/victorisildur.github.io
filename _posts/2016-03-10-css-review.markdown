@@ -41,3 +41,9 @@ Scalable and Modular Architecture CSS，目的是让css模块化，使样式也�
 * layout: 用l- grid-之类的前缀
 * state:  用is-hidden, is-前缀
 * module: 普通命名，注意子类采用相同前缀
+
+模块的一些注意：
+1. 模块尽量不要用element，这样对html结构的依赖就太大了
+2. 选择器不要嵌套太深，越深就越难修改
+3. 子类的概念，一般用`nav nav-inverted`之类的
+
