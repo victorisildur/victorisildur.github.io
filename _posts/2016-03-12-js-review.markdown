@@ -21,4 +21,6 @@ JSON.parse(undefined)
 array.prototype.splice会删掉原数组内容！
 
 # event
-长按时，touchend事件不触发！这是因为中间触发了touchmove事件，解决办法是touchmove的响应函数中调用`e.preventDefault()`即可。
+长按时，touchend事件不触发！
+这是因为中间触发了touchmove事件，解决办法是touchmove的响应函数中调用`e.preventDefault()`即可。
+错了！这是个bug！解决办法是touchstart中调用`e.preventDefault()`!
