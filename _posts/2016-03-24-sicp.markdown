@@ -11,3 +11,40 @@ categories: programming
 
 btw，lisp贯穿全书，这对玩溜emacs很有用
 
+# 组合式
+
+```lisp
+  (+    137     349)
+;;运算符       运算对象
+```
+
+将由运算符所刻画的"过程"，应用于有关的"实际参数"，就能得到组合式的值。
+
+注意，这个过程是递归的，应进一步描述为：
+
+1. 求该组合式的各个子表达式
+2. 将最左子表达式（运算符）的值的那个过程，应用于响应的实际参数
+
+# 定义
+
+```lisp
+(define pi 3.14)
+```
+
+定义为名字关联相应的值，是一种首先的抽象手段。
+
+# 复合过程
+
+```lisp
+(define (square x) (* x x))
+;; (define (<name> <formal parameters>) <body>)
+
+(define (sum-of-squares x y)
+    (+ (square x) (square y))
+)
+```
+
+复合过程的使用与基本过程完全一样，仅从上面sum-of-square的定义，看不出square是一个基本过程（像+,-,*一样），还是一个复合过程。
+
+
+
