@@ -24,3 +24,7 @@ array.prototype.splice会删掉原数组内容！
 长按时，touchend事件不触发！
 这是因为中间触发了touchmove事件，解决办法是touchmove的响应函数中调用`e.preventDefault()`即可。
 错了！这是个bug！解决办法是touchstart中调用`e.preventDefault()`!
+
+# $.fn.remove
+今天遇到一个$.fn.remove失效的问题，暂时不知道什么原因，因为没有任何报错。
+而且之前cached widget全部调用过一遍remove，需要仔细观察前一次的后果，然后分析。
