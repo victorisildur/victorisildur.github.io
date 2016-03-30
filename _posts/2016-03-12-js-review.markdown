@@ -28,3 +28,6 @@ array.prototype.splice会删掉原数组内容！
 # $.fn.remove
 今天遇到一个$.fn.remove失效的问题，暂时不知道什么原因，因为没有任何报错。
 而且之前cached widget全部调用过一遍remove，需要仔细观察前一次的后果，然后分析。
+
+# touch
+今天看了下zepto的touch.js，swipe事件其实就是touchstart和touchend之间offset>30，就认为是swipe
