@@ -49,3 +49,18 @@ Scalable and Modular Architecture CSS，目的是让css模块化，使样式也�
 
 # inline-block
 空格也会算成间隔！所以inline-block的时候，两个inline-block元素中间不要有空格！
+
+# transition
+移动端，对transform进行transition会出bug，响应严重滞后。但是对margin-right一类的进行transition，又会不平滑，非常蛋疼。
+
+进一步测试发现，chrome上是可以的，uc和qq浏览器都反映巨慢无比，而且这和timing-function是linear还是ease，transition-property是all还是transform无关。
+
+km上的方案是，要重新运行animate，用setTimeout法，把任务立马插入队列。这里需要深究为什么！！！
+
+```javascript
+window.setTimeout(function(){
+    elem.addClass('swiping-left')
+}, 0);
+```
+
+再用插入队列的方案，用transition做动画，发现uc里完全不支持transition: transform，qq支持，但是经常卡死，完全不能用。
