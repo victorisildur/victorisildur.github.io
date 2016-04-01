@@ -79,3 +79,9 @@ box-sizing: border-box; 用border计算宽高，与content-box相对。
 仅当前可见：alt点击眼睛
 复制选框内所有图层：ctrl + shift + c， 然后ctrl+n就是可见区域大小拉！
 组移到最上面： ctrl + shift + ]
+
+# 性能问题
+
+1. 进入子设备页，loading很久
+2. 操作子设备，中间态很久
+3. 灯挂掉
