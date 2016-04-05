@@ -87,3 +87,9 @@ window.setTimeout(function(){
 ```
 
 再用插入队列的方案，用transition做动画，发现uc里完全不支持transition: transform，qq支持，但是经常卡死，完全不能用。
+
+# LESS
+
+## @var与@{var}
+
+variable用作value时，写作@var；用作property name, selector name等时，写作@{var}
