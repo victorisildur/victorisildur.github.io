@@ -86,3 +86,9 @@ let其实就是function内的变量：约束变量。函数里用着方便，函
 
 对上层程序来说，数据具体如何组织被屏蔽了，只调用选择函数（相当于getter）就行。
 就好像对"数据的接口"，或"接口的数据"编程一样。
+
+# 约定的“数据界面”
+
+我猜是data interface... 数据如何成为interface?
+最好的例子就是list，以list为interface对list进行map, reduce, filter，就能级联的，模块化的表示操作。
+感觉hadoop就是基于这个思想啊。
