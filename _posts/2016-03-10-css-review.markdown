@@ -93,3 +93,18 @@ window.setTimeout(function(){
 ## @var与@{var}
 
 variable用作value时，写作@var；用作property name, selector name等时，写作@{var}
+
+# input底部色条动画
+思路是input:focus时，将其背景大小从0变100%，
+背景位置center。
+然后给background设transition，这样背景色条就会从中间向两边慢慢扩散。
+
+```css
+.bg {
+    background-image: linear-gradient(#62a8ea, #62a8ea), linear-gradient(#e4eaec, #e4eaec);
+    background-size: 0 2px, 100% 1px;
+}
+.bg:focus {
+    background-size: 100% 2px, 100% 1px;
+}
+```
