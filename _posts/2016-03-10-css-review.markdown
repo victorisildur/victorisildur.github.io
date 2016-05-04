@@ -108,3 +108,33 @@ variable用作value时，写作@var；用作property name, selector name等时�
     background-size: 100% 2px, 100% 1px;
 }
 ```
+
+# 高分屏适配
+x5不支持`<meta name="viewport" content="initial-scale=0.5"/>`的计算，导致只能回到原来的做法。
+公式为：
+
+```javascript
+var rootFontSize = document.clientWidth / 10;
+```
+
+```css
+.px2rem (@name, @px) {
+    @{name}: @px / 75 * 1px;
+}
+
+.px2px (@name, @px) {
+    @{name}: round(@px / 2) * 1px;
+}
+```
+
+px到rem的推导相对简单，px到px的除以2是因为设计稿宽750，而设备无关像素是375，所以测量值要除以2.
+
+# flex失效问题
+x5遇到的另一个问题是flex失效，暂时不清楚是什么原因造成的。
+
+```css
+.flex {
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+}
+```
