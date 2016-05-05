@@ -138,3 +138,13 @@ x5遇到的另一个问题是flex失效，暂时不清楚是什么原因造成�
     -webkit-flex-direction: row;
 }
 ```
+
+weinre看了，就是不认flex，目测和tbs1.4版本关系，未经验证。
+最后是用float + 33.3333%解决的。
+
+# 高分屏1px边框解决
+
+思路是搞个1px的background，然后background为linear-gradient渐变，渐变时50%是有颜色的，50%是透明的。
+
+代码如下：
+
