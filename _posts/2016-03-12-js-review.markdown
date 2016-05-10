@@ -31,3 +31,6 @@ array.prototype.splice会删掉原数组内容！
 
 # touch
 今天看了下zepto的touch.js，swipe事件其实就是touchstart和touchend之间offset>30，就认为是swipe
+
+# JSON
+JSON.parse()如果参数已经是一个javascript object,  会抛unexpected token 'o'的异常
