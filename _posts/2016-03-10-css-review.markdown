@@ -151,3 +151,10 @@ weinre看了，就是不认flex，目测和tbs1.4版本关系，未经验证。
 # line-height
 line-height取值为百分比时，是相对于当前元素的font-size的，而且其默认值不是1，而是1.2或其他值（与font-family有关）。
 经常要手动设置为100%，否则字高对不齐！
+
+# position: absolute
+现象：loading展示不出来。
+
+结论：父元素下有两个absolute的子元素。
+后一个子如果太大的话，会把前一个子覆盖掉。
+
