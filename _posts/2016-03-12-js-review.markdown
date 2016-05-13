@@ -34,3 +34,10 @@ array.prototype.splice会删掉原数组内容！
 
 # JSON
 JSON.parse()如果参数已经是一个javascript object,  会抛unexpected token 'o'的异常
+
+# querySelectorAll
+返回是NodeList对象。
+NodeList.length, NodeList.item(idx)。
+
+NodeList里的值是Element对象。
+这个属性比较多，还不熟悉。
