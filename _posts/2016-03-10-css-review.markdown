@@ -148,6 +148,46 @@ weinre看了，就是不认flex，目测和tbs1.4版本关系，未经验证。
 
 代码如下：
 
+```css
+linear-gradient(180deg, @color, @color 50%, transparent 50%) top    left  / 100% 1px no-repeat,
+linear-gradient(90deg,  @color, @color 50%, transparent 50%) top    right / 1px 100% no-repeat,
+linear-gradient(0,      @color, @color 50%, transparent 50%) bottom right / 100% 1px no-repeat,
+linear-gradient(-90deg, @color, @color 50%, transparent 50%) bottom left  / 1px 100% no-repeat;
+```
+
+后来发现x5内核对这个支持有问题，有些机子（vivo）会显示不出来。
+
+然后用的是和QQ健康一样的解决方案，用after元素搞一个2倍大的1px边框，然后scale 0.5，从而得到0.5px。
+
+代码如下：
+
+```css
+.border-scale(@top, @right, @bottom, @left) {
+position: absolute;
+top: 0;
+left: 0;
+display: block;
+
+content: " ";
+width: 200%;
+height: 200%;
+border-top: @top-border;
+border-right: @right-border;
+border-bottom: @bottom-border;
+border-left: @left-border;
+
+-webkit-transform:scale(.5);
+-webkit-transform-origin: 0 0;
+transform:scale(.5);
+transform-origin: 0 0;
+padding: 1px;
+-webkit-box-sizing: border-box;
+box-sizing: border-box;
+pointer-events:none;
+z-index: 0;
+}
+```
+
 # line-height
 line-height取值为百分比时，是相对于当前元素的font-size的，而且其默认值不是1，而是1.2或其他值（与font-family有关）。
 经常要手动设置为100%，否则字高对不齐！
@@ -158,3 +198,11 @@ line-height取值为百分比时，是相对于当前元素的font-size的，而
 结论：父元素下有两个absolute的子元素。
 后一个子如果太大的话，会把前一个子覆盖掉。
 
+# 长页面优化
+
+页面很长时，滑动页面，会有很大的卡顿。
+场景页还会出现定位元元素"漂移，体验非常糟。
+
+这个没有搜到现成的解决方案，漂移问题通过反复试验发现，是一个父元素下同时有float元素和绝对定位元素，弃用这种写法就ok了.
+
+滑动卡顿问题，仅出现在vivo和红米note上，联想的老机子都没问题。
