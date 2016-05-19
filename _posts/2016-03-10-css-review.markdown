@@ -206,3 +206,8 @@ line-height取值为百分比时，是相对于当前元素的font-size的，而
 这个没有搜到现成的解决方案，漂移问题通过反复试验发现，是一个父元素下同时有float元素和绝对定位元素，弃用这种写法就ok了.
 
 滑动卡顿问题，仅出现在vivo和红米note上，联想的老机子都没问题。
+
+# iOS页面滑动事件
+iOS上，会必现整个页面下移，而不是期望的l-content(overflow-y: auto)下移。
+原因不清楚，最后的解决是l-content设置为overflow-y: scroll; -webkit-overflow-scrolling: touch。
+l-wrapper设置为overflow-y: auto。
