@@ -217,3 +217,9 @@ iOS上，会必现整个页面下移，而不是期望的l-content(overflow-y: a
 l-wrapper设置为overflow-y: auto。
 
 其中，-webkit-overflow-scrolling是iOS特有的特性，iOS会创建原生控件UIScrollView的子类UIWebOverflowScrollView来加速。
+
+# 安卓滚动条
+html, body, l-wrapper的高度都是定死的，l-content是长页面，高度有限制。
+l-content设置了overflow:scroll，但是l-content的滚动条出不来。
+
+这个问题还不知道是什么造成的，kathy说要去掉外层的高度限制，试了试没成功。
