@@ -207,7 +207,13 @@ line-height取值为百分比时，是相对于当前元素的font-size的，而
 
 滑动卡顿问题，仅出现在vivo和红米note上，联想的老机子都没问题。
 
+StackOverflow威武！[android -webkit-overflow-scrolling](http://stackoverflow.com/questions/15906508/chrome-browser-for-android-no-longer-supports-webkit-overflow-scrolling-is-the)
+
+
+
 # iOS页面滑动事件
 iOS上，会必现整个页面下移，而不是期望的l-content(overflow-y: auto)下移。
 原因不清楚，最后的解决是l-content设置为overflow-y: scroll; -webkit-overflow-scrolling: touch。
 l-wrapper设置为overflow-y: auto。
+
+其中，-webkit-overflow-scrolling是iOS特有的特性，iOS会创建原生控件UIScrollView的子类UIWebOverflowScrollView来加速。
