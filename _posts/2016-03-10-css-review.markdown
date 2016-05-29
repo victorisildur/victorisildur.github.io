@@ -223,3 +223,7 @@ html, body, l-wrapper的高度都是定死的，l-content是长页面，高度�
 l-content设置了overflow:scroll，但是l-content的滚动条出不来。
 
 这个问题还不知道是什么造成的，kathy说要去掉外层的高度限制，试了试没成功。
+
+# animation性能问题
+
+animation: transform: translateX发现很卡，按原来理解transform应该很厉害才对
