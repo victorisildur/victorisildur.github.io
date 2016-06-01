@@ -54,3 +54,7 @@ async是说dom解析完后再去执行，加载完立马执行，顺序无保证
 用defer发现要等app_cache里的内容，首屏是快了，js还是有点慢。
 所以还是要用async，只要想办法确保顺序就行了。
 由于我们用的是webpack打包过的，只有一个async文件，所以也是没有问题的。
+
+# 事件代理
+
+由于listener是加在父元素上的，所以e.stopPropagation()是没有用的。
