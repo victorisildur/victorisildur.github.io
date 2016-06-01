@@ -226,4 +226,15 @@ l-content设置了overflow:scroll，但是l-content的滚动条出不来。
 
 # animation性能问题
 
-animation: transform: translateX发现很卡，按原来理解transform应该很厉害才对
+animation: transform: translateX发现很卡，按原来理解transform应该很厉害才对。
+这个后来发现是因为svg带了渐变就会很卡。
+
+# 无限波浪
+
+想要实现无限波浪，核心是结束的点和开始的点一样。
+自己实现的时候，用两张图来轮转，补位的和前一个首尾相连。
+但事实证明这样是不行的，因为这种依赖100%宽度。
+而百分比是不准的。
+samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到1/2处回原点。
+这样的好处是px量的准，也不需要多放一张图。
+实在厉害。
