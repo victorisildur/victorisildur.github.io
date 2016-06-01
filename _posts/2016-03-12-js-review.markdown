@@ -45,3 +45,12 @@ NodeList里的值是Element对象。
 # NaN
 
 一个数除以0的结果是NaN
+
+# defer 与 async
+
+defer是说dom解析完后再去执行，顺序可以保证。
+async是说dom解析完后再去执行，加载完立马执行，顺序无保证。
+
+用defer发现要等app_cache里的内容，首屏是快了，js还是有点慢。
+所以还是要用async，只要想办法确保顺序就行了。
+由于我们用的是webpack打包过的，只有一个async文件，所以也是没有问题的。
