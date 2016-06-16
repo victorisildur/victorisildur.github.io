@@ -65,3 +65,6 @@ js中，所有数字都是64位浮点数，所以最大精确到pow(2, 53) - 1 =
 
 处理时，用big-integer库。
 
+# TypeError: 没有isDefaultPrevented属性
+
+分组管理focusout处理时遇到的，原因是trigger事件时，事件名称是空的
