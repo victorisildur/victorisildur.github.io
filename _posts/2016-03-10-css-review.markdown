@@ -238,3 +238,39 @@ animation: transform: translateX发现很卡，按原来理解transform应该很
 samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到1/2处回原点。
 这样的好处是px量的准，也不需要多放一张图。
 实在厉害。
+
+# css实现loading进度条
+
+这里借用了svg stroke-dasharray 和 stroke-dashoffset属性。
+详见博客[svg stroke](http://www.zhangxinxu.com/wordpress/2015/07/svg-circle-loading/)
+
+实现过程中，iOS不支持`transform: matrix`。
+对此用`transform rotate`代替，注意rotate的轴心是由`transform-origin`确定的，默认为`0px 0px 0px`。
+所以，最终代码如下：
+
+```html
+<style>
+ .dash-animate {
+     animation: dash 60s linear;
+ }
+ @keyframes dash {
+     to {
+         stroke-dashoffset: 0;
+     }
+ }
+</style>
+<svg class="search-count-down-svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid" xmlns="http://www.w3.org/2000/svg">
+    <g>
+        <circle cx="100" cy="100" r="94" stroke-width="6" stroke="#D1D3D7" fill="none"></circle>
+        <circle cx="100" cy="100" r="94" stroke-width="6" stroke="#00A5E0" fill="none"
+                transform-origin="50% 50%" transform="rotate(-90deg)"
+                stroke-dasharray="590.619" stroke-dashoffset="590.619"
+                class="dash-animate"
+                ></circle>
+    </g>
+</svg>
+```
+
+注意dasharray, dashoffset的值都取为2*PI*r，即往头部偏移一个周长，当60s后偏移为0，正好蓝色circle全部显示出来。
+
+这个方案纯css实现，要想重新计时，hide >> show一下就好。
