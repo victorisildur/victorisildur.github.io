@@ -68,3 +68,34 @@ js中，所有数字都是64位浮点数，所以最大精确到pow(2, 53) - 1 =
 # TypeError: 没有isDefaultPrevented属性
 
 分组管理focusout处理时遇到的，原因是trigger事件时，事件名称是空的
+
+# 限流函数
+
+有时我们不希望函数被频繁执行，而是希望其最多久执行一次，这时就需要"限流"
+
+```javascript
+/* @func: 输入一个func，返回的函数最短wait时间调用一次，最长mustRun时间调用一次
+ * @params:
+ *      func{Function}
+ *      wait{int}: wait in ms
+ *      mustRun{int}: mustRun in ms
+ */
+function throttle (func, wait, mustRun) {
+    var timeout,
+        startTime = new Date();
+
+    return function () {
+        var context = this,
+            args = arguments,
+            curTime = new Date();
+
+        window.clearTimeout(timeout);
+
+        if (curTime - startTime > mustRun) {
+            func.apply(context, args);
+        } else {
+            window.setTimeout(func, wait);
+        }
+    };
+}
+```
