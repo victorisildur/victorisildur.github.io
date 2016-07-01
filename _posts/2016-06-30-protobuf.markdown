@@ -6,8 +6,9 @@ categories: programming
 ---
 
 # varint
-以byte为单位，msb == 1代表数字为完结。
-msb == 0代表数字完结。
+
+以byte为单位，`msb == 1`代表数字为完结。
+`msb == 0`代表数字完结。
 
 如果一个数字由多个字节组成，则拼接时使用小端序。
 小端序是以byte为单位，而protobuf以7bit为内容单位，所以官网上称之为least significant group first。
