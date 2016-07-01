@@ -1,0 +1,31 @@
+---
+layout: post
+title: "全面拥抱es2015: 从页面，后台到测试"
+date: 2016-07-01 08:27:00
+categories: programming
+---
+
+# es6 测试
+
+expect库是一个有力的测试工具，我们期望如下代码能够node test.js以下就能跑起来：
+
+```javascript
+import expect from 'expect';
+import {byteToIntArr} from './protobuf';
+
+const byteArr = {
+    '0': 8, '1': 48, '3': 0
+    };
+
+expect(
+    byteToIntArr(byteArr)
+    ).toEqual(48);
+
+console.log('Tests passed!');
+```
+
+然而，直接node运行es6代码会报报错'unexpected reseed word import', 该如何让这段测试用例跑起来呢？
+答案是babel-cli。
+
+安装之后，运行`babel-node --presets es2015 test.js`.
+至于为什么一定要--presets，有空再说，先上车！
