@@ -29,3 +29,12 @@ console.log('Tests passed!');
 
 安装之后，运行`babel-node --presets es2015 test.js`.
 至于为什么一定要--presets，有空再说，先上车！
+
+# Object.assign
+
+Object.assign(target, ...sources)
+
+把多个源的可枚举属性copy到目标对象上去。
+redux里用于在不改变原state的情况下，在reducer里返回新的state。
+
+但为什么要这么做？还不清楚.
