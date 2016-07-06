@@ -37,4 +37,9 @@ Object.assign(target, ...sources)
 把多个源的可枚举属性copy到目标对象上去。
 redux里用于在不改变原state的情况下，在reducer里返回新的state。
 
-但为什么要这么做？还不清楚.
+但为什么要这么做？
+
+> Because reducers are just functions, you can control the order in which they are called, pass additional data, or even make reusable reducers for common tasks such as pagination.
+
+简单的说，纯函数可以毫无顾忌的去组合，而不用担心副作用。
+其他几条还需要在实践中体会。
