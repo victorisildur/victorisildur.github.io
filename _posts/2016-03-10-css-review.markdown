@@ -274,3 +274,8 @@ samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到
 注意dasharray, dashoffset的值都取为2*PI*r，即往头部偏移一个周长，当60s后偏移为0，正好蓝色circle全部显示出来。
 
 这个方案纯css实现，要想重新计时，hide >> show一下就好。
+
+# postcss
+
+@keyframes X5内核不认，一般来说就直接@-webkit-keyframes了，但grunt-autoprefixer可以自动补全，gulp应该也有类似的，但我还没弄。
+
