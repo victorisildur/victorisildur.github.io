@@ -101,5 +101,10 @@ function throttle (func, wait, mustRun) {
 ```
 
 # canvas
+
 `canvas.width`相当于svg的viewBox，画布大小。
 为了canvas在高分辨率屏幕上不模糊，采用css宽高100%，画布宽高乘以dpr的做法。
+
+# Array.map部分不返回
+
+貌似没有办法，只能.filter().map()这样组合实现。
