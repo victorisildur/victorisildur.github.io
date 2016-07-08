@@ -43,3 +43,10 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
 
 简单的说，纯函数可以毫无顾忌的去组合，而不用担心副作用。
 其他几条还需要在实践中体会。
+
+实际使用中, Object.assign会报错undefined is not a function.
+这是因为babel-loader只转es6语法，不转es6标准库。
+
+解决方法有两种，
+一是`import babel-polyfill`，但这个很大，不压缩有200k。
+二是$.extend，功能是一样的，推荐。
