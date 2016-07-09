@@ -50,3 +50,36 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
 解决方法有两种，
 一是`import babel-polyfill`，但这个很大，不压缩有200k。
 二是$.extend，功能是一样的，推荐。
+
+# $.extend的实现
+
+先到这里顺便写下$.extend的实现，基本思想就是递归向下，直到遇到基础类型。
+
+代码如下：
+
+```javascript
+  function extend(target, source, deep) {
+    for (key in source)
+      if (deep && (isPlainObject(source[key]) || isArray(source[key]))) {
+        if (isPlainObject(source[key]) && !isPlainObject(target[key]))
+          target[key] = {}
+        if (isArray(source[key]) && !isArray(target[key]))
+          target[key] = []
+        extend(target[key], source[key], deep)
+      }
+      else if (source[key] !== undefined) target[key] = source[key]
+  }
+```
+
+非深拷贝没什么好讲的，直接key覆盖。
+深拷贝需要递归到底，因为基础类型不是引用的，所以=就是深拷贝。
+
+这里另一个要注意的地方是，isPlainObj(obj)，则obj的复制是引用复制。
+具体来讲：
+
+```
+  function isObject(obj)     { return type(obj) == "object" }
+  function isPlainObject(obj) {
+    return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
+  }
+```
