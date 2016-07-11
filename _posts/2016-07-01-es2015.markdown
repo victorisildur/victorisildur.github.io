@@ -83,3 +83,42 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
     return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
   }
 ```
+
+# Async Action
+
+什么是异步动作？简单的说，我希望在这个瞬间dispatch(actionA), 然而actionA实际要经历网络请求，
+真正的action对象要在未来某个时间点才会抛出来。
+
+要实现这个功能，不用middleWare的话，应该这样写：
+
+```javascript
+$.ajax('aa.com/post/a', {
+    success: function(data) {
+        store.dispatch({
+            type: 'actionA',
+            data: data
+        })
+    }
+});
+```
+
+这样显然是冗余代码，可以这样thunk一下：
+
+```javascript
+function asyncActionA() {
+    return function(dispatch) {
+        dispatch({action: 'BEGIN_REQUEST'});
+        return fetch('aa.com/post/a')
+               .then(response => response.json())
+               .then(json => dispatch({type: 'END_REQUEST', data: json)
+    }
+    
+}
+```
+
+thunk的意思就是把执行推后，这样就可以在瞬时这样调用了：
+
+```javascript
+store.dispatch(asyncActionA());
+```
+
