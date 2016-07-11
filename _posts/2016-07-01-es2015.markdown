@@ -122,3 +122,19 @@ thunk的意思就是把执行推后，这样就可以在瞬时这样调用了：
 store.dispatch(asyncActionA());
 ```
 
+# 箭头函数
+
+在看redux-thunk时遇到这样的级联箭头：
+
+```javascript
+function createThunkMiddleware(extraArgument) {
+    return ({ dispatch, getState }) => next => action => {
+        if (typeof action === 'function') {
+            return action(dispatch, getState, extraArgument);
+        }
+        return next(action);
+    };
+}
+```
+
+搜了下没搜到，不知道什么意思
