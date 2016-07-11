@@ -138,3 +138,36 @@ function createThunkMiddleware(extraArgument) {
 ```
 
 搜了下没搜到，不知道什么意思
+
+# $.on
+
+`$.fn.on(event, selector, callback)` 最终调用的时候，
+callback.apply(element)，所以this是element
+
+然后，$.fn.attr之类的函数，this是如何的？
+
+```javascript
+$ = function(selector, context) {
+    return zepto.init(selector, context);
+}
+
+zepto.init = function(selector) {
+    var dom = zepto.qsa(document, selector);
+    return zepto.Z(dom, context);
+}
+
+zepto.Z = function(dom, selector) {
+    return new Z(dom, selector);
+}
+
+function Z(dom, selector) {
+    var i, len = dom ? dom.length : 0;
+    for (i=0; i<len; i++) this[i] = dom[i];
+    this.length = len;
+    this.selector = selector || '';
+}
+```
+
+所以你看，$.fn被调用时，this也并不是dom，而是一个Z的实例。
+`Z[0] = dom[0], Z[1] = dom[1]`。
+好吧，这不能解释plugin里面this就是dom?? 少年你还有路要走。
