@@ -279,3 +279,6 @@ samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到
 
 @keyframes X5内核不认，一般来说就直接@-webkit-keyframes了，但grunt-autoprefixer可以自动补全，gulp应该也有类似的，但我还没弄。
 
+# linear-gradient
+
+用gulp-autoprefixer时发现的问题，要用to left这样的语法，left这样的语法已经被废弃。
