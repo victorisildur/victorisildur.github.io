@@ -108,3 +108,10 @@ function throttle (func, wait, mustRun) {
 # Array.map部分不返回
 
 貌似没有办法，只能.filter().map()这样组合实现。
+
+# $.ajax跨域
+
+1.a.com和2.a.com是不同的host，数据能取到，但因为Header里
+`Access-Control-Allow-Origin: http://qzs.qq.com`
+
+这里内容有点多，详见[mdn](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS)
