@@ -85,3 +85,9 @@ box-sizing: border-box; 用border计算宽高，与content-box相对。
 1. 进入子设备页，loading很久
 2. 操作子设备，中间态很久
 3. 灯挂掉
+
+# uin
+cookie里有时候是没有的，这个不可依赖！
+
+# device.js
+里面有个验证，device的exports有个`/(qq\.com)/.test(location.hostname)`的逻辑，所以发到测试环境所有device接口都不能用。
