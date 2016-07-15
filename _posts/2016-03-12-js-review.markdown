@@ -5,7 +5,7 @@ date: 2016-03-12 08:27:00
 categories: programming
 ---
 
-# undefined
+## undefined
 
 ```javascript
 if (aaa === undefined)
@@ -17,36 +17,36 @@ JSON.parse(undefined)
 //抛异常unexpected token 'u'
 ```
 
-# array
+## array
 array.prototype.splice会删掉原数组内容！
 
-# event
+## event
 长按时，touchend事件不触发！
 这是因为中间触发了touchmove事件，解决办法是touchmove的响应函数中调用`e.preventDefault()`即可。
 错了！这是个bug！解决办法是touchstart中调用`e.preventDefault()`!
 
-# $.fn.remove
+## $.fn.remove
 今天遇到一个$.fn.remove失效的问题，暂时不知道什么原因，因为没有任何报错。
 而且之前cached widget全部调用过一遍remove，需要仔细观察前一次的后果，然后分析。
 
-# touch
+## touch
 今天看了下zepto的touch.js，swipe事件其实就是touchstart和touchend之间offset>30，就认为是swipe
 
-# JSON
+## JSON
 JSON.parse()如果参数已经是一个javascript object,  会抛unexpected token 'o'的异常
 
-# querySelectorAll
+## querySelectorAll
 返回是NodeList对象。
 NodeList.length, NodeList.item(idx)。
 
 NodeList里的值是Element对象。
 这个属性比较多，还不熟悉。
 
-# NaN
+## NaN
 
 一个数除以0的结果是NaN
 
-# defer 与 async
+## defer 与 async
 
 defer是说dom解析完后再去执行，顺序可以保证。
 async是说dom解析完后再去执行，加载完立马执行，顺序无保证。
@@ -55,21 +55,21 @@ async是说dom解析完后再去执行，加载完立马执行，顺序无保证
 所以还是要用async，只要想办法确保顺序就行了。
 由于我们用的是webpack打包过的，只有一个async文件，所以也是没有问题的。
 
-# 事件代理
+## 事件代理
 
 由于listener是加在父元素上的，所以e.stopPropagation()是没有用的。
 
-# Int精度问题
+## Int精度问题
 
 js中，所有数字都是64位浮点数，所以最大精确到pow(2, 53) - 1 = 9007199254740991。
 
 处理时，用big-integer库。
 
-# TypeError: 没有isDefaultPrevented属性
+## TypeError: 没有isDefaultPrevented属性
 
 分组管理focusout处理时遇到的，原因是trigger事件时，事件名称是空的
 
-# 限流函数
+## 限流函数
 
 有时我们不希望函数被频繁执行，而是希望其最多久执行一次，这时就需要"限流"
 
@@ -100,18 +100,29 @@ function throttle (func, wait, mustRun) {
 }
 ```
 
-# canvas
+## canvas
 
 `canvas.width`相当于svg的viewBox，画布大小。
 为了canvas在高分辨率屏幕上不模糊，采用css宽高100%，画布宽高乘以dpr的做法。
 
-# Array.map部分不返回
+## Array.map部分不返回
 
 貌似没有办法，只能.filter().map()这样组合实现。
 
-# $.ajax跨域
+## $.ajax跨域
 
 1.a.com和2.a.com是不同的host，数据能取到，但因为Header里
 `Access-Control-Allow-Origin: http://qzs.qq.com`
 
 这里内容有点多，详见[mdn](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS)
+
+## 空字符串
+
+这个涉及到类型转换，js期望使用字符串，会把对象类型转为字符串，如 n + 'aa'的情况。
+js期望使用数字，会把非数字转为数字，如 '7' * '4' 的情况。
+js期望使用布尔，会自动转bool，如 if () 的情况。
+
+对字符串来说，空字符串转化为：
+
+* 数字： 0
+* 布尔： false
