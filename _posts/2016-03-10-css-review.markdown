@@ -292,3 +292,7 @@ document.ontouchmove = function(evt) {
 ```
 
 详见这个thread [stackoverflow](http://stackoverflow.com/questions/7768269/ipad-safari-disable-scrolling-and-bounce-effect)
+
+## width: 100%
+
+遇到padding时候，padding不会算进100%里啊，100%一定要配合border-box用啊。
