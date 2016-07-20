@@ -296,3 +296,11 @@ document.ontouchmove = function(evt) {
 ## width: 100%
 
 遇到padding时候，padding不会算进100%里啊，100%一定要配合border-box用啊。
+
+## animation-fill-mode
+
+forwards: 设置对象状态为动画结束时的状态.
+
+backwards: 设置对象状态为动画开始时的状态.
+
+both: 设置对象状态为动画开始or结束时的状态.
