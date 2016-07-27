@@ -1,0 +1,15 @@
+---
+layout: post
+title: "iscroll源码阅读"
+date: 2016-07-25 08:27:00
+categories: programming
+---
+
+## 为什么要读iscroll
+
+这是我见过参数最多的一款插件，但更重要的是，它的效果非常好！
+
+## 使用注意
+
+iscroll依赖组件的宽高，这也是为什么要等onload之后才能初始化它。
+推广思考，iscroll的部件不能hide起来，要自己想办法绕。
