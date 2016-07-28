@@ -42,3 +42,62 @@ me.addEvent = function (el, type, fn, capture) {
 
 而EventListener Interface就是一个带handleEvent对象的方法！
 嗯，确实比绑定纯函数方便那么一点。
+
+## bounce
+
+iscroll非常棒的一个特性就是滑动超出边界后的回弹效果。这是怎么实现的呢？
+
+```javascript
+newX = this.x + deltaX;
+newY = this.y + deltaY;
+
+// Slow down if outside of the boundaries
+if ( newX > 0 || newX < this.maxScrollX ) {
+    newX = this.options.bounce ? this.x + deltaX / 3 : newX > 0 ? 0 : this.maxScrollX;
+}
+if ( newY > 0 || newY < this.maxScrollY ) {
+    newY = this.options.bounce ? this.y + deltaY / 3 : newY > 0 ? 0 : this.maxScrollY;
+}
+this._translate(newX, newY);
+
+_translate: function (x, y) {
+    if ( this.options.useTransform ) {
+        this.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px)' + this.translateZ;
+    } else {
+        x = Math.round(x);
+        y = Math.round(y);
+        this.scrollerStyle.left = x + 'px';
+        this.scrollerStyle.top = y + 'px';
+    }
+    this.x = x;
+    this.y = y;
+}
+
+this.maxScrollX	= this.wrapperWidth - this.scrollerWidth;
+```
+
+注意 `newX = this.x + deltaX/3`。这只保证了超出边界时，拖动速度小于手的速度，即slow down效果。
+放手后的回弹是怎么实现的呢？
+
+```javascript
+// reset if we are outside of the boundaries
+if ( this.resetPosition(this.options.bounceTime) ) {
+    return;
+}
+resetPosition: function (time) {
+   ...
+   this.scrollTo(x, y, time, this.options.bounceEasing);
+}
+scrollTo: function (x, y, time, easing) {
+   ...
+   this._animate(x, y, time, easing.fn);
+}
+_animate: function (destX, destY, duration, easingFn) {
+   function step () {
+      that._translate(newX, newY);
+      rAF(step);
+   }
+}
+```
+
+回弹用的是requestAnimationFrame实现的！
