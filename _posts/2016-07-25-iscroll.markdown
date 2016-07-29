@@ -13,3 +13,91 @@ categories: programming
 
 iscroll依赖组件的宽高，这也是为什么要等onload之后才能初始化它。
 推广思考，iscroll的部件不能hide起来，要自己想办法绕。
+
+## eventType
+
+IScroll类_init()时进行了事件监听，这是自然而然的，但它的eventType方法比较奇怪，来看下：
+
+```javascript
+_initEvents: function (remove) {
+   var eventType = remove ? utils.removeEvent : utils.addEvent,
+   target = this.options.bindToWrapper ? this.wrapper : window;
+
+   eventType(window, 'orientationchange', this);
+   ...
+}
+
+me.addEvent = function (el, type, fn, capture) {
+   el.addEventListener(type, fn, !!capture);
+};
+```
+
+看到了吗，`addEventListener(type, fn)`实际得到的fn是一个ISroll类对象，而不是一个function!
+这是怎么回事呢？
+
+通过下断点我们发现，`IScroll.prototype._move()`实际通过`IScroll.prototype._handleEvent()`调用。
+去看w3c，这样是标准！：
+
+>listener: The object that receives a notification (an object that implements the Event interface) when an event of the specified type occurs. This must be an object implementing the EventListener interface, or simply a JavaScript function
+
+而EventListener Interface就是一个带handleEvent对象的方法！
+嗯，确实比绑定纯函数方便那么一点。
+
+## bounce
+
+iscroll非常棒的一个特性就是滑动超出边界后的回弹效果。这是怎么实现的呢？
+
+```javascript
+newX = this.x + deltaX;
+newY = this.y + deltaY;
+
+// Slow down if outside of the boundaries
+if ( newX > 0 || newX < this.maxScrollX ) {
+    newX = this.options.bounce ? this.x + deltaX / 3 : newX > 0 ? 0 : this.maxScrollX;
+}
+if ( newY > 0 || newY < this.maxScrollY ) {
+    newY = this.options.bounce ? this.y + deltaY / 3 : newY > 0 ? 0 : this.maxScrollY;
+}
+this._translate(newX, newY);
+
+_translate: function (x, y) {
+    if ( this.options.useTransform ) {
+        this.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px)' + this.translateZ;
+    } else {
+        x = Math.round(x);
+        y = Math.round(y);
+        this.scrollerStyle.left = x + 'px';
+        this.scrollerStyle.top = y + 'px';
+    }
+    this.x = x;
+    this.y = y;
+}
+
+this.maxScrollX	= this.wrapperWidth - this.scrollerWidth;
+```
+
+注意 `newX = this.x + deltaX/3`。这只保证了超出边界时，拖动速度小于手的速度，即slow down效果。
+放手后的回弹是怎么实现的呢？
+
+```javascript
+// reset if we are outside of the boundaries
+if ( this.resetPosition(this.options.bounceTime) ) {
+    return;
+}
+resetPosition: function (time) {
+   ...
+   this.scrollTo(x, y, time, this.options.bounceEasing);
+}
+scrollTo: function (x, y, time, easing) {
+   ...
+   this._animate(x, y, time, easing.fn);
+}
+_animate: function (destX, destY, duration, easingFn) {
+   function step () {
+      that._translate(newX, newY);
+      rAF(step);
+   }
+}
+```
+
+回弹用的是requestAnimationFrame实现的！
