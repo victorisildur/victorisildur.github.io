@@ -304,3 +304,9 @@ forwards: 设置对象状态为动画结束时的状态.
 backwards: 设置对象状态为动画开始时的状态.
 
 both: 设置对象状态为动画开始or结束时的状态.
+
+## npm install淘宝源
+
+加--registry命令可解。
+
+`npm install xxx --save --registry=https://registry.npm.taobao.org`
