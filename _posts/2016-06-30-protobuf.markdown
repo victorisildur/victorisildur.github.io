@@ -49,3 +49,17 @@ message HistoryData {
   optional uint32 tag = 2;
 }
 ```
+
+解出来应该是这样：
+
+```javascript
+{
+  details:
+   [ { date: 1469599200, run: 0, walk: 5804, duration: 2447 },
+     { date: 1469685593, run: 0, walk: 38, duration: 20 },
+     { date: 1469771992, run: 0, walk: 0, duration: 0 },
+     { date: 1469858392, run: 0, walk: 0, duration: 0 },
+     { date: 1469944792, run: 0, walk: 0, duration: 0 } ],
+  tag: 0
+}
+```
