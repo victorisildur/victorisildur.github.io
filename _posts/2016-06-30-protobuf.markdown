@@ -5,7 +5,7 @@ date: 2016-06-30 17:27:00
 categories: programming
 ---
 
-# varint
+## varint
 
 以byte为单位，`msb == 1`代表数字为完结。
 `msb == 0`代表数字完结。
@@ -13,7 +13,39 @@ categories: programming
 如果一个数字由多个字节组成，则拼接时使用小端序。
 小端序是以byte为单位，而protobuf以7bit为内容单位，所以官网上称之为least significant group first。
 
-# 测试
+## 测试
 varint解码过程略简单，测试反而需要点技巧。
 npm上有个expect库非常好，要运行es6写的测试用例要用`babel-node --presets es2015 test.js`来跑，
 直接`node test.js`跑识别不了的。
+
+## repeated
+
+之前已完成了varint的解码，我们再来看看wire type中其他的类型：
+
+| Type | Meaning | Used For |
+|------|---------|----------|
+| 0    | Varint  | int32, int64, uint32, uint64, sint32, sint64, bool, enum |
+| 1    | 64-bit  | fixed64, sfixed64, double |
+| 2    | lenth-delimited | sting, bytes, embedded msg, packed repeated fields |
+| 3    | start group | groups |
+| 4    | end group   | groups |
+| 5    | 32-bit      | fixed32, sfixed32, float |
+
+我们想要解的message结构如下：
+
+```javascript
+// 历史记步详情
+message HistoryDetail {
+  optional uint32 date = 1;                   //日期，UTC时间
+  optional uint32 run = 2;                    //跑步步数
+  optional uint32 walk = 3;                   //走路步数
+  optional uint32 duration = 4;               //运动时长
+}
+//历史记步数据
+message HistoryData {
+  // 历史运动详情， 数组
+  repeated HistoryDetail details = 1;
+  //历史数据标记, 手Q回包用
+  optional uint32 tag = 2;
+}
+```
