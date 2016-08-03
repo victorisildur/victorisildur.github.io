@@ -22,14 +22,14 @@ npm上有个expect库非常好，要运行es6写的测试用例要用`babel-node
 
 之前已完成了varint的解码，我们再来看看wire type中其他的类型：
 
-| Type | Meaning | Used For |
-|------|---------|----------|
-| 0    | Varint  | int32, int64, uint32, uint64, sint32, sint64, bool, enum |
-| 1    | 64-bit  | fixed64, sfixed64, double |
-| 2    | lenth-delimited | sting, bytes, embedded msg, packed repeated fields |
-| 3    | start group | groups |
-| 4    | end group   | groups |
-| 5    | 32-bit      | fixed32, sfixed32, float |
+|  Type  |  Meaning  |  Used For  |
+| ------ | --------- | ---------- |
+| 0      | Varint    | int32, int64, uint32, uint64, sint32, sint64, bool, enum |
+| 1      | 64-bit    | fixed64, sfixed64, double |
+| 2      | lenth-delimited | sting, bytes, embedded msg, packed repeated fields |
+| 3      | start group | groups |
+| 4      | end group   | groups |
+| 5      | 32-bit      | fixed32, sfixed32, float |
 
 我们想要解的message结构如下：
 
@@ -63,3 +63,18 @@ message HistoryData {
   tag: 0
 }
 ```
+
+对repeat元素，格式是这样的：
+
+| byte index | content |
+| ---------- | ------- |
+| 0          | tag (field number + wire type) |
+| 1          | payload (in bytes) |
+| ...        | none embedded elements     |
+| payload + 1 | tag |
+| payload + 2 | payload |
+| ...         | none embedded elements |
+
+repeated是如何表示的呢？ 那就是有多个tag里的field number是一样的！
+解码时应注意把他们Push到一个数组里去。
+
