@@ -10,3 +10,5 @@ github_username: victorisildur
 # Build settings
 markdown: redcarpet
 highlighter: pygments
+redcarpet:
+  extensions: ["tables", "no_intra_emphasis", "fenced_code_blocks", "autolink"]

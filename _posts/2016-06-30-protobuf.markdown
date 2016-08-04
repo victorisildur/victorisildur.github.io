@@ -5,7 +5,7 @@ date: 2016-06-30 17:27:00
 categories: programming
 ---
 
-# varint
+## varint
 
 以byte为单位，`msb == 1`代表数字为完结。
 `msb == 0`代表数字完结。
@@ -13,7 +13,89 @@ categories: programming
 如果一个数字由多个字节组成，则拼接时使用小端序。
 小端序是以byte为单位，而protobuf以7bit为内容单位，所以官网上称之为least significant group first。
 
-# 测试
+## 测试
 varint解码过程略简单，测试反而需要点技巧。
 npm上有个expect库非常好，要运行es6写的测试用例要用`babel-node --presets es2015 test.js`来跑，
 直接`node test.js`跑识别不了的。
+
+## repeated
+
+之前已完成了varint的解码，我们再来看看wire type中其他的类型：
+
+|  Type  |  Meaning  |  Used For  |
+| ------ | --------- | ---------- |
+| 0      | Varint    | int32, int64, uint32, uint64, sint32, sint64, bool, enum |
+| 1      | 64-bit    | fixed64, sfixed64, double |
+| 2      | lenth-delimited | sting, bytes, embedded msg, packed repeated fields |
+| 3      | start group | groups |
+| 4      | end group   | groups |
+| 5      | 32-bit      | fixed32, sfixed32, float |
+
+我们想要解的message结构如下：
+
+```javascript
+// 历史记步详情
+message HistoryDetail {
+  optional uint32 date = 1;                   //日期，UTC时间
+  optional uint32 run = 2;                    //跑步步数
+  optional uint32 walk = 3;                   //走路步数
+  optional uint32 duration = 4;               //运动时长
+}
+//历史记步数据
+message HistoryData {
+  // 历史运动详情， 数组
+  repeated HistoryDetail details = 1;
+  //历史数据标记, 手Q回包用
+  optional uint32 tag = 2;
+}
+```
+
+解出来应该是这样：
+
+```javascript
+{
+  details:
+   [ { date: 1469599200, run: 0, walk: 5804, duration: 2447 },
+     { date: 1469685593, run: 0, walk: 38, duration: 20 },
+     { date: 1469771992, run: 0, walk: 0, duration: 0 },
+     { date: 1469858392, run: 0, walk: 0, duration: 0 },
+     { date: 1469944792, run: 0, walk: 0, duration: 0 } ],
+  tag: 0
+}
+```
+
+对repeat元素，格式是这样的：
+
+| byte index | content |
+| ---------- | ------- |
+| 0          | tag (field number + wire type) |
+| 1          | payload (in bytes) |
+| ...        | none embedded elements     |
+| payload + 1 | tag |
+| payload + 2 | payload |
+| ...         | none embedded elements |
+
+repeated是如何表示的呢？ 那就是有多个tag里的field number是一样的！
+解码时应注意把他们Push到一个数组里去。
+
+## message依赖
+
+对上面的message示例，HistoryData这个message，是依赖HistoryDetail这个message结构的。
+所以在解码时，要首先把整个package结构预处理一下，解一下依赖。
+然后才能在解HistoryData时正确解HistoryDetail.
+
+具体来说，就是后面的builder依赖于前面构建的builder，代码大致如下：
+
+```javascript
+const build = msgPackage => {
+   let builders = {};
+   msgPackage.messages.forEach(message => {
+      let builder = new Builder(message, builders);
+      builders[builder.name] = builder;
+   });
+   return builders;
+};
+
+```
+
+注意`expect().toEqual()`不要做动态object判断，会认为不是一个object.
