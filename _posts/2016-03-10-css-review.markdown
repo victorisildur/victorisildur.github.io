@@ -310,3 +310,25 @@ both: 设置对象状态为动画开始or结束时的状态.
 加--registry命令可解。
 
 `npm install xxx --save --registry=https://registry.npm.taobao.org`
+
+## date input样式
+
+去除默认样式：
+
+```css
+input [type='month'] {
+    -webkit-appearance: none !important;
+    background-color: transparent !important;
+}
+```
+
+没什么用的写法：
+
+```css
+::webkit-datetime-edit-fields-wrapper {
+    background-color: #fff !important;
+}
+::webkit-autofill {
+    background-color: #fff !important;
+}
+```
