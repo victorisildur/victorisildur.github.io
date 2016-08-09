@@ -101,3 +101,32 @@ _animate: function (destX, destY, duration, easingFn) {
 ```
 
 回弹用的是requestAnimationFrame实现的！
+
+## snap
+
+snap是在touchend, touchcancel, mousecancel等事件时，运行_end()方法。
+
+```javascript
+if ( this.scroller.options.snap ) {
+	var snap = this.scroller._nearestSnap(this.scroller.x, this.scroller.y);
+
+	var time = this.options.snapSpeed || Math.max(
+		Math.max(
+			Math.min(Math.abs(this.scroller.x - snap.x), 1000),
+			Math.min(Math.abs(this.scroller.y - snap.y), 1000)
+		), 300);
+
+	if ( this.scroller.x != snap.x || this.scroller.y != snap.y ) {
+		this.scroller.directionX = 0;
+		this.scroller.directionY = 0;
+		this.scroller.currentPage = snap;
+		this.scroller.scrollTo(snap.x, snap.y, time, this.scroller.options.bounceEasing);
+	}
+}
+```
+
+so，关键在于这个`_nearestSnap()`方法，它决定了要不要做snap动作，以及动作做多少快。
+
+求`_nearestSnap()`前，首先运行`_initSnap()`方法，它帮忙算了所有snap元素的坐标。
+
+
