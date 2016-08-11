@@ -130,3 +130,6 @@ js期望使用布尔，会自动转bool，如 if () 的情况。
 * 数字： 0
 * 布尔： false
 
+## 非函数返回
+
+在script标签里直接return, 不使用function包裹，是非法的，会报Illegal return statement.

@@ -66,3 +66,11 @@ function setData(node, name, value) {
 ```
 
 存到内存里的一个变量data = {}里啦！ id由`$.uuid`生成，当然任意咯。
+
+## ajax
+
+`INVALID_STATE_ERR: DOM Exception 11`
+
+这是个XMLHttpRequest对象抛出的异常，如果`xhr.open`前调用了xhr.withCredentials就会出问题。
+
+详见这个issue: [issue 921](https://github.com/madrobby/zepto/issues/921)
