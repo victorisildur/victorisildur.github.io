@@ -99,3 +99,27 @@ const build = msgPackage => {
 ```
 
 注意`expect().toEqual()`不要做动态object判断，会认为不是一个object.
+
+## 字符串格式的bytearray
+
+处理中发现输入值并不都是形如`{0:100, 1:255, 2:13...}`这样的bytearr，也有形如`CgwI2YWrvQUQABgAIAAQAA==`这样的字符串。
+
+咨询小孩后知道，这是base64编码后的ByteArray，解码需用到atob, Uint8Array, ArrayBuffer三个没用过的类，代码如下：
+
+```javascript
+/* @func: 有概率输入是uint8Array base64后的字符串
+ */
+export const base64ToByteArr  = str => {
+    let raw = window.atob(str),
+    len = raw.length,
+    arr = new Uint8Array(new ArrayBuffer(len));
+    for (let i = 0; i<len; i++) {
+        arr[i] = raw.charCodeAt(i);
+    }
+    return arr;
+};
+```
+
+ArrayBuffer是用户占位的Array，MDN上的描述如下：
+
+> The ArrayBuffer object is used to represent a generic, fixed-length raw binary data buffer. You cannot directly manipulate the contents of an ArrayBuffer; instead, you create one of the typed array objects or a DataView object which represents the buffer in a specific format, and use that to read and write the contents of the buffer.

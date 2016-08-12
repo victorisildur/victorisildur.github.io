@@ -332,3 +332,12 @@ input [type='month'] {
     background-color: #fff !important;
 }
 ```
+
+## overflow-x失效
+
+手Q上怎么搞overflow-x, important都不行。
+`body {position: fixed;}`才成功了。
+参考这个thread: [overflow-xhidden-doesnt-prevent-content-from-overflowing-in-mobile-browsers](http://stackoverflow.com/questions/14270084/overflow-xhidden-doesnt-prevent-content-from-overflowing-in-mobile-browsers)
+
+这个BFC能解释吗？ 这种问题靠谷歌大法去解有点挫啊。
+
