@@ -6,8 +6,8 @@
 </description>
     <link>http://victorisildur.github.io/</link>
     <atom:link href="http://victorisildur.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 15 Aug 2016 20:09:25 +0800</pubDate>
-    <lastBuildDate>Mon, 15 Aug 2016 20:09:25 +0800</lastBuildDate>
+    <pubDate>Mon, 15 Aug 2016 20:33:00 +0800</pubDate>
+    <lastBuildDate>Mon, 15 Aug 2016 20:33:00 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -139,7 +139,7 @@
 &lt;p&gt;求&lt;code class=&quot;highlighter-rouge&quot;&gt;_nearestSnap()&lt;/code&gt;前，首先运行&lt;code class=&quot;highlighter-rouge&quot;&gt;_initSnap()&lt;/code&gt;方法，它帮忙算了所有snap元素的坐标。&lt;/p&gt;
 
 </description>
-        <pubDate>Mon, 15 Aug 2016 20:09:25 +0800</pubDate>
+        <pubDate>Mon, 15 Aug 2016 20:33:00 +0800</pubDate>
         <link>http://victorisildur.github.io/2016/08/15/2016-07-25-iscroll.html</link>
         <guid isPermaLink="true">http://victorisildur.github.io/2016/08/15/2016-07-25-iscroll.html</guid>
         

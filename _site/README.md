@@ -1,5 +1,9 @@
-个人博客
+## My Blog
 
-jekyll实现
+Aware, Aquire, Achieve
 
-啊哈哈哈有mac了，可以本地看效果了，哈哈哈哈真爽
+## Stack
+
+Based on jekyll, special thanks to [CloudCannon](https://github.com/CloudCannon/Strata-Jekyll-Theme)'s wonderful design
+
+
