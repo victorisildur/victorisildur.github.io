@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">莱昂式unix源码阅读5: 低速io设备</h2>
+                <p class="post-meta">Nov 7, 2015</p>
+        </header>
+
+        <section>
+            <p>低速io设备是指速度小于1000字符/s。
+这一块莱昂式直接陷入细节去讲了，导致完全没看懂。</p>
+
+<h1 id="section">字符设备</h1>
+<p>device switch结构数组记录了所有字符设备。
+v6用它来操控设备。</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">4635</span><span class="o">:</span>
+<span class="k">struct</span> <span class="n">cdevsw</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">d_open</span><span class="p">)();</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">d_close</span><span class="p">)();</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">d_read</span><span class="p">)();</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">d_write</span><span class="p">)();</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">d_sgtty</span><span class="p">)();</span>
+<span class="p">}</span> <span class="n">cdevsw</span><span class="p">[];</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">cdevsw[]</code>数组记录整个系统的字符设备配置信息，在v6里，共有5种有效地字符设备。</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">4669</span><span class="o">:</span>
+<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">cdevsw</span><span class="p">[])()</span> <span class="p">{</span>
+    <span class="o">&amp;</span><span class="n">klopen</span><span class="p">,</span>  <span class="o">&amp;</span><span class="n">klclose</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">klread</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">klwrite</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">klsgtty</span><span class="p">,</span>  <span class="cm">/*console*/</span>
+    <span class="o">&amp;</span><span class="n">pcopen</span><span class="p">,</span>  <span class="o">&amp;</span><span class="n">pcclose</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pcread</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pcwrite</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pcsgtty</span><span class="p">,</span>  <span class="cm">/*pc*/</span>
+    <span class="o">&amp;</span><span class="n">lpopen</span><span class="p">,</span>  <span class="o">&amp;</span><span class="n">lpclose</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lpread</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lpwrite</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lpsgtty</span><span class="p">,</span>  <span class="cm">/*lp*/</span>
+    <span class="o">&amp;</span><span class="n">nulldev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">nulldev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mmread</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mmwrite</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">nodev</span><span class="p">,</span>    <span class="cm">/*mem*/</span>
+    <span class="o">&amp;</span><span class="n">nulldev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">nulldev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rkread</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rkwrite</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">nodev</span><span class="p">,</span>    <span class="cm">/*rk*/</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>我们知道，unix将设备当做文件。对设备，其inode中记录了：</p>
+<ol>
+  <li>i_addr[0].d_major即设备号</li>
+  <li>i_mode &amp; IFMT为设备类型，对字符设备而言，该值为IFCHR</li>
+</ol>
+
+<p>在openi函数中，我们其实已经接触过设备文件的代码：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">6710</span><span class="o">:</span>
+<span class="n">maj</span> <span class="o">=</span> <span class="n">rip</span><span class="o">-&gt;</span><span class="n">i_addr</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">d_major</span><span class="p">;</span>
+<span class="k">switch</span><span class="p">(</span><span class="n">rip</span><span class="o">-&gt;</span><span class="n">i_mode</span> <span class="o">&amp;</span> <span class="n">IFMT</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="k">case</span> <span class="n">IFCHR</span><span class="p">:</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">maj</span> <span class="o">&gt;=</span> <span class="n">nchrdev</span><span class="p">)</span>
+            <span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">cdevsw</span><span class="p">[</span><span class="n">maj</span><span class="p">].</span><span class="n">d_open</span><span class="p">)(</span><span class="n">dev</span><span class="p">,</span><span class="n">rw</span><span class="p">);</span>
+    <span class="p">...</span>
+<span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>读写操作中，也有类似的过程。代码分别在readi(6221)和writei(6276)中。
+几乎一摸一样。</p>
+
+<h1 id="section-1">缓冲区</h1>
+<p>和块设备一样，字符设备的输入输出也是靠缓冲区做到的。
+以缓冲区为界，函数可分为高低两个层次。底层负责与实际设备交互。高层函数只与缓冲区打交道。</p>
+
+<p>字符缓冲区有两个结构,cblock和clist。
+系统共有NCLIST个缓冲区资源。<code class="highlighter-rouge">struct cblock cfree[NCLIST]</code></p>
+
+<p>clist是字符链表的头结点。而cfreelist是空闲cblock链表的头。
+<code class="highlighter-rouge">cinit()</code>函数(8234)使用头插法建立cfreelist链表。</p>
+
+<p>getc和putc函数用来从缓冲区链表中get核put char。这是汇编写的。</p>
+
+<h1 id="section-2">交互式终端</h1>
+
+<p>v6采用dl11/kl11终端。它拥有4个设备寄存器，接收两组，发送两组。</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8016</span>
+<span class="k">struct</span> <span class="n">klregs</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">klrcsr</span><span class="p">;</span> <span class="c1">//接收状态寄存器
+</span>    <span class="kt">int</span> <span class="n">klrbuf</span><span class="p">;</span> <span class="c1">//接收数据缓存寄存器
+</span>    <span class="kt">int</span> <span class="n">kltcsr</span><span class="p">;</span> <span class="c1">//发送状态寄存器
+</span>    <span class="kt">int</span> <span class="n">kltbuf</span><span class="p">;</span> <span class="c1">//发送数据缓存寄存器
+</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>寄存器内容我们简单列一下，好有点直观概念：</p>
+
+<ol>
+  <li>接收状态寄存器
+    <ul>
+      <li>0位：阅读器使能</li>
+      <li>1位：数据终端准备就绪</li>
+      <li>6位：接收器中断允许</li>
+      <li>7位：接收器完成</li>
+    </ul>
+  </li>
+  <li>接收器数据缓存寄存器
+    <ul>
+      <li>0~7位：接收到的字符，只读</li>
+      <li>15位：设置时表示已出错</li>
+    </ul>
+  </li>
+</ol>
+
+<p>v6里PDP11就一个终端console。其设备寄存器的起始地址为KLADDR:</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8008</span>  <span class="err">#</span><span class="n">define</span> <span class="n">KLADDR</span> <span class="mo">0177560</span>
+</code></pre>
+</div>
+
+<p>console的中断矢量地址是060（用于接收寄存器），064（用于发送寄存器）。
+其中断处理程序分别是klrint, klxint</p>
+
+<h1 id="tty">tty</h1>
+<p>无论使用哪一种硬件借口，每个终端端口都会有一个tty型结构与其相关联：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8015</span><span class="o">:</span> <span class="k">struct</span> <span class="n">tty</span> <span class="n">kl11</span><span class="p">[</span><span class="n">NKL11</span><span class="o">+</span><span class="n">NDL11</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>前面说过，inode中的i_addr[0].d_major记录的是设备号，
+那么，i_addr[0].d_minor记录的就是该端口在这个kl11数组里的下标。</p>
+
+<p>minor号还有一个作用是用来计算该端口的设备寄存器的起始地址：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8039</span><span class="o">:</span> <span class="p">(</span><span class="n">klopen</span><span class="p">)</span>
+<span class="n">addr</span> <span class="o">=</span> <span class="n">KLADDR</span> <span class="o">+</span> <span class="mi">8</span><span class="o">*</span><span class="n">dev</span><span class="p">.</span><span class="n">d_minor</span>
+</code></pre>
+</div>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">7926</span>
+<span class="k">struct</span> <span class="n">tty</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">clist</span> <span class="n">t_rawq</span><span class="p">;</span>  <span class="c1">//input chars right off device
+</span>    <span class="k">struct</span> <span class="n">clist</span> <span class="n">t_canq</span><span class="p">;</span>  <span class="c1">//input chars after erase and kill
+</span>    <span class="k">struct</span> <span class="n">clist</span> <span class="n">t_outq</span><span class="p">;</span>  <span class="c1">//output list to device
+</span>    <span class="kt">int</span> <span class="n">t_flags</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">t_addr</span>           <span class="c1">//device address
+</span>    
+    <span class="kt">char</span> <span class="n">t_delct</span><span class="p">;</span>         <span class="c1">//number of delimiters in raw q
+</span>    <span class="kt">char</span> <span class="n">t_col</span><span class="p">;</span>           <span class="c1">//
+</span>    <span class="kt">char</span> <span class="n">t_erase</span><span class="p">;</span>         <span class="c1">//erase character
+</span>    <span class="kt">char</span> <span class="n">t_kill</span><span class="p">;</span>          <span class="c1">//kill character
+</span>    <span class="kt">char</span> <span class="n">t_state</span><span class="p">;</span>         <span class="c1">//internal state
+</span>
+    <span class="kt">char</span> <span class="n">t_char</span><span class="p">;</span>          <span class="c1">//temp char
+</span>    <span class="kt">int</span>  <span class="n">t_speed</span><span class="p">;</span>     
+    <span class="kt">int</span>  <span class="n">t_dev</span><span class="p">;</span>           <span class="c1">//device name
+</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>tty有三个队列：</p>
+
+<ol>
+  <li>原始输入队列t_rawq</li>
+  <li>“加工后”的输入队列t_canq</li>
+  <li>输出队列t_outq</li>
+</ol>
+
+<p>加工其实就是把退格键考虑进去了的队列。
+比如cakr退格e，加工后就只剩cake</p>
+
+<p>tty的设置，开关暂时不管，反之无非是对寄存器操作下而已。
+我主要关心read,write</p>
+
+<p>#read过程</p>
+
+<p>当用户在设备上按键后，会引发一个接收中断，其处理流程如下：
+klin -&gt; klrint -&gt; ttyinput</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8355</span><span class="o">:</span> <span class="p">(</span><span class="n">ttyinput</span><span class="p">)</span>
+<span class="c1">//ttyinput的这一句将设备传入的字符放入raw队列。
+</span><span class="n">putc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">t_rawq</span><span class="p">);</span> 
+<span class="c1">//唤醒对raw感兴趣的进程。或者输入了换行，则唤醒所有进程
+</span><span class="k">if</span><span class="p">(</span><span class="n">t_flags</span><span class="o">&amp;</span><span class="n">RAW</span> <span class="o">||</span> <span class="n">c</span><span class="o">==</span><span class="sc">'\n'</span> <span class="o">||</span> <span class="n">c</span><span class="o">=</span><span class="mo">004</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">wakeup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tp</span><span class="o">-&gt;</span><span class="n">t_rawq</span><span class="p">);</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>#write过程
+进程通过cdevsw[].d_write进程输出：
+klwrite -&gt; ttwrite -&gt; ttyoutput -&gt; ttstart</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8558</span><span class="o">:</span> <span class="p">(</span><span class="n">ttwrite</span><span class="o">::</span><span class="n">atp</span><span class="p">)</span>
+<span class="n">tp</span> <span class="o">=</span> <span class="n">atp</span><span class="p">;</span> <span class="c1">// tty结构指针
+</span><span class="k">while</span><span class="p">((</span><span class="n">c</span><span class="o">=</span><span class="n">cpass</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">spl5</span><span class="p">();</span>
+    <span class="p">....</span>
+    <span class="n">spl0</span><span class="p">();</span>
+    <span class="n">ttyoutput</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">tp</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">ttstart</span><span class="p">(</span><span class="n">tp</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>过程就是通过cpass取得用户空间的输出字符，然后通过ttyoutput将其放入输出队列。
+最后，调用ttstart启动输出。</p>
+
+<p>ttyoutput把字符放入输出队列</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8477</span><span class="o">:</span> <span class="n">ttyoutput</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">tp</span><span class="p">)</span>
+<span class="k">if</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">putc</span><span class="p">(</span><span class="n">c</span><span class="o">|</span><span class="mo">0200</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rtp</span><span class="o">-&gt;</span><span class="n">t_outq</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>ttstart启动设备，讲一个字符输出出去。</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8520</span><span class="o">:</span> <span class="n">ttstart</span>
+<span class="k">if</span><span class="p">(</span> <span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="n">getc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tp_outq</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">c</span><span class="o">&lt;=</span><span class="mo">0177</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">-&gt;</span><span class="n">tttbuf</span> <span class="o">=</span> <span class="n">c</span> <span class="o">|</span> <span class="p">(</span><span class="n">partab</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mo">0200</span><span class="p">);</span>
+        <span class="p">...</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>设备发送这个字符成功后，会引起一个发送中断，表明自己已经可以接收下一个字符了。</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">8070</span><span class="o">:</span>   <span class="n">klxint</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
+<span class="k">register</span> <span class="k">struct</span> <span class="n">tty</span> <span class="o">*</span><span class="n">tp</span><span class="p">;</span>
+<span class="n">tp</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">kl11</span><span class="p">[</span><span class="n">dev</span><span class="p">.</span><span class="n">d_minor</span><span class="p">];</span>
+<span class="n">ttstart</span><span class="p">(</span><span class="n">tp</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="n">tp</span><span class="o">-&gt;</span><span class="n">outq</span><span class="p">.</span><span class="n">c_cc</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">tp</span><span class="o">-&gt;</span><span class="n">t_outq</span><span class="p">.</span><span class="n">c_cc</span> <span class="o">==</span> <span class="n">TTLOWAT</span><span class="p">)</span>
+    <span class="n">wakeup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tp</span><span class="o">-&gt;</span><span class="n">t_outq</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>可见klxint讲再次调用ttstart以接收下一个字符。</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/06/lions-unix-filesystem.html">莱昂式unix源码阅读4: file system</a></h2>
+                    </header>
+                    <section>
+                        <p>#构成</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/06/lions-unix-filesystem.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/11/08/apue-more.html">unix环境高级编程1: more</a></h2>
+                    </header>
+                    <section>
+                        <p>看了两周的Unix源码了，手都要锈掉了，赶紧码一发代码。
+代码都来源于APUE的配套实践教程。
+第一回，先搞个more的实现。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/08/apue-more.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

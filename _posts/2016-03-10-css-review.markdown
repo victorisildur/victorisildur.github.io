@@ -3,6 +3,7 @@ layout: post
 title: "css细节汇总"
 date: 2016-03-10 08:27:00
 categories: programming
+excerpt: css细节辑录
 ---
 
 ## Text

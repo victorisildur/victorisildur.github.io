@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">2015-06-09-非常简单的js双向绑定框架（二）：控制器继承</h2>
+                <p class="post-meta">Jun 9, 2015</p>
+        </header>
+
+        <section>
+            <h1 id="section">初衷</h1>
+<p>上一篇已经实现了数据的双向绑定，但model的控制范围是整个文档，在实际工程中必须要有作用范围���以便做ui模块的拆分。
+这一篇，我们希望实现像angularjs一样的控制器继承：</p>
+<ol>
+  <li>父controller的Model可以在子controller里被访问到</li>
+  <li>子controller的model不影响父controller</li>
+  <li>controller继承关系在html中指定，而不是js中指定</li>
+</ol>
+
+<h1 id="section-1">目标</h1>
+<p>html里，用isi-controller属性去声明控制器：</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;body&gt;</span>
+	<span class="nt">&lt;div</span> <span class="na">isi-controller=</span><span class="s">"ParentController"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;input</span> <span class="na">data-bind=</span><span class="s">"name"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;div</span> <span class="na">isi-controller=</span><span class="s">"SubController"</span><span class="nt">&gt;</span>
+			<span class="nt">&lt;input</span> <span class="na">data-bind=</span><span class="s">"name"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;/div&gt;</span>
+	<span class="nt">&lt;/div&gt;</span>
+<span class="err">&lt;</span>/body
+</code></pre>
+</div>
+
+<p>希望上面的input name 改了，下面的会跟着变，而下面的变了，上面的不变。
+js里，用和上面isi-controller属性值同名的函数定义控制器：</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">ParentController</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Model</span><span class="p">();</span>
+	<span class="nx">model</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'parent'</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">ParentController</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Model</span><span class="p">();</span>
+	<span class="nx">model</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'sub'</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>对用户来说，只要写这些，就完事儿了。</p>
+<h1 id="section-2">实现</h1>
+<h2 id="section-3">版本1</h2>
+<p>这个版本采用最简单直观的思路：框架去找$(‘[isi-controller]’)的元素，然后给这些元素分别去绑定监听器、执行控制器函数
+代码先列了：
+index.html:</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>simple MVVM<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"js/ParentController.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"js/SubController.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"js/frame_v2.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body</span> <span class="na">isi-controller=</span><span class="s">"ParentController"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">data-bind=</span><span class="s">"name"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">isi-controller=</span><span class="s">"SubController"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">data-bind=</span><span class="s">"name"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre>
+</div>
+
+<p>ParentController.js:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">ParentController</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Model</span><span class="p">();</span>
+    <span class="nx">model</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'parent'</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>SubController.js:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">SubController</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Model</span><span class="p">();</span>
+    <span class="nx">model</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span><span class="s1">'sub'</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>frame_v2.js: (对照上一篇，主要改动在绑监听器和new Model的自动化)</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">pubsub</span> <span class="o">=</span> <span class="p">...</span> <span class="c1">//见上一篇</span>
+<span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="p">...</span>  <span class="c1">//见上一篇</span>
+<span class="c1">// listener capture view changes --&gt; publish model.change event</span>
+<span class="kd">var</span> <span class="nx">changeHandler</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">target</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span>
+        <span class="nx">propName</span> <span class="o">=</span> <span class="nx">target</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">'data-bind'</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span> <span class="nx">propName</span> <span class="o">&amp;&amp;</span> <span class="nx">propName</span> <span class="o">!==</span> <span class="s1">''</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="nx">pubsub</span><span class="p">.</span><span class="nx">pub</span><span class="p">(</span><span class="s1">'model.change'</span><span class="p">,</span> <span class="nx">propName</span><span class="p">,</span> <span class="nx">target</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">stopPropagation</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/*----------- Init --------------*/</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cm">/* first step:
+     * find controllers' dom
+     */</span>
+    <span class="kd">var</span> <span class="nx">controllerRanges</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s1">'[isi-controller]'</span><span class="p">);</span>
+    <span class="cm">/* second step:
+     * bind listeners for each controllers' range,
+     * view.change event --&gt; change each controllers' range
+     */</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nx">len</span><span class="o">=</span><span class="nx">controllerRanges</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">len</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">controllerRanges</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'change'</span><span class="p">,</span> <span class="nx">changeHandler</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+        <span class="c1">// view.change event --&gt; change view</span>
+        <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">index</span><span class="p">){</span>
+            <span class="nx">pubsub</span><span class="p">.</span><span class="nx">sub</span><span class="p">(</span><span class="s1">'view.change'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">propName</span><span class="p">,</span> <span class="nx">newVal</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">elements</span> <span class="o">=</span> <span class="nx">controllerRanges</span><span class="p">[</span><span class="nx">index</span><span class="p">].</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s1">'[data-bind='</span> <span class="o">+</span> <span class="nx">propName</span> <span class="o">+</span><span class="s1">']'</span><span class="p">),</span>
+                    <span class="nx">tagName</span><span class="p">;</span>
+                <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nx">l</span><span class="o">=</span><span class="nx">elements</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">l</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">tagName</span> <span class="o">=</span> <span class="nx">elements</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">tagName</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">();</span>
+                    <span class="k">if</span><span class="p">(</span><span class="nx">tagName</span><span class="o">===</span><span class="s1">'input'</span> <span class="o">||</span> <span class="nx">tagName</span><span class="o">===</span><span class="s1">'textarea'</span> <span class="o">||</span> <span class="nx">tagName</span><span class="o">===</span><span class="s1">'select'</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="nx">elements</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">value</span> <span class="o">=</span> <span class="nx">newVal</span><span class="p">;</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="nx">elements</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">newVal</span><span class="p">;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">});</span>
+        <span class="p">})(</span><span class="nx">i</span><span class="p">);</span>
+    <span class="p">}</span>
+     <span class="cm">/* third step:
+     * execute each controller function
+     */</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nx">len</span><span class="o">=</span><span class="nx">controllerRanges</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">len</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">controllerName</span> <span class="o">=</span> <span class="nx">controllerRanges</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">'isi-controller'</span><span class="p">);</span>
+        <span class="nb">eval</span><span class="p">(</span><span class="nx">controllerName</span><span class="o">+</span><span class="s1">'()'</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>看看效果：
+<img src="http://img.blog.csdn.net/20150610091048831" alt="这里写图片描述" />
+悲剧了。没有实现第二个初衷：子控制器不影响父控制器。
+这个问题该如何解决呢？</p>
+
+<h1 id="section-4">版本二，子不影响父</h1>
+<p>仔细看代码，之所以会出现问题，是因为view.change信道的作用范围是有问题的。不管哪个model发出的view.change事件，两个控制器的view都会改变。
+所以，我们给发布view.change事件的时候，多发布一个控制器名，好让接收view.change的时候知道应不应该修改html:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">controllerName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">controllerName</span><span class="p">:</span><span class="nx">controllerName</span><span class="p">,</span>
+        <span class="na">props</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="na">set</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">propName</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">[</span><span class="nx">propName</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+            <span class="nx">pubsub</span><span class="p">.</span><span class="nx">pub</span><span class="p">(</span><span class="s1">'view.change'</span><span class="p">,</span> <span class="nx">propName</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">controllerName</span><span class="p">);</span> <span class="c1">//就是这里！</span>
+        <span class="p">}</span>       
+    <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>控制器里new Model的时候注意把controller的名字初始化进去：
+ParentController.js:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">ParentController</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Model</span><span class="p">(</span><span class="s1">'ParentController'</span><span class="p">);</span>
+    <span class="nx">model</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'parent'</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>最后接收view.change信道消息的时候，判断下controllerName:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">pubsub</span><span class="p">.</span><span class="nx">sub</span><span class="p">(</span><span class="s1">'view.change'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">propName</span><span class="p">,</span> <span class="nx">newVal</span><span class="p">,</span> <span class="nx">controllerName</span><span class="p">)</span> <span class="p">{</span>
+				<span class="p">....</span>
+                <span class="nx">thisControllerName</span> <span class="o">=</span> <span class="nx">controllerRanges</span><span class="p">[</span><span class="nx">index</span><span class="p">].</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">'isi-controller'</span><span class="p">),</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">thisControllerName</span> <span class="o">!==</span> <span class="nx">controllerName</span><span class="p">)</span>
+                    <span class="k">return</span><span class="p">;</span>
+                <span class="p">....</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>当然，监听器发布model.change的时候也是一样，要把控制器名称发布出去。代码就不贴了。
+再看看效果：
+<img src="http://img.blog.csdn.net/20150610094145521" alt="这里写图片描述" />
+妥了</p>
+
+<p>所有代码：
+<a href="https://github.com/victorisildur/javascript/tree/master/simpleMvvmFrame">github/victorisildur</a></p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/2015/05/30/%E9%A1%B5%E9%9D%A2%E5%88%B6%E4%BD%9C%E5%9F%BA%E7%A1%80.html">2015-05-30-页面制作基础</a></h2>
+                    </header>
+                    <section>
+                        <h1 id="section">标签</h1>
+<p><img src="http://img.blog.csdn.net/20150530114406097" alt="这里写图片描述" /></p>
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/2015/05/30/%E9%A1%B5%E9%9D%A2%E5%88%B6%E4%BD%9C%E5%9F%BA%E7%A1%80.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/javascript/2015/06/09/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%B8%80.html">2015-06-09-非常简单的js双向绑定框架（一）</a></h2>
+                    </header>
+                    <section>
+                        <h1 id="section">初衷</h1>
+<p>搞了近5个月的angularjs项目，用起来非常顺手。最爽的是两个功能：</p>
+<ol>
+  <li>控制器的继承特性</li>
+  <li>数据的双向绑定</li>
+  <li>表达式控制显示与否
+前者减少了很多model的重复声明，赋值。后者大大简化了动态编辑，动态显示。比如我的表格需要根据某一列排序，我只用改动数据模型的顺序，视图会自动更新。
+但是，作为“Get your hands dirty”的小项目，用脏值检测和dom树编译太难了，目标1周的话搞不掂。所以借鉴knockoutjs的方法：</li>
+</ol>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/javascript/2015/06/09/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%B8%80.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

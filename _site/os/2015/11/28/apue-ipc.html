@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix环境高级编程9: 进程间通信</h2>
+                <p class="post-meta">Nov 28, 2015</p>
+        </header>
+
+        <section>
+            <p>select与poll! 这个我在tornado的时候研究过！
+大体印象就是异步io的东西，今天有机会具体看一下拉</p>
+
+<h2 id="talk-">talk: 从多个数据源读</h2>
+
+<p>talk是个Unix聊天程序，命令为<code class="highlighter-rouge">talk username@ttyname</code>可惜没人连我机子，只能yy下实际效果。
+之所以要说talk，是因为它面临这样的问题：
+一方面，程序要读键盘输入，然后发出去。
+另一方面，程序还有读socket，然后打印到屏幕。
+这两个读不能简单的交替执行，否则会阻塞。</p>
+
+<p>这种情况，可以使用select系统调用。他的原理如下：</p>
+
+<ol>
+  <li>获得所需的文件描述符列表</li>
+  <li>将列表传给select</li>
+  <li>select挂起，知道任何一个文件描述符有数据到达</li>
+  <li>select设置一个变量中的若干位，用来通知你哪个文件描述符有数据</li>
+</ol>
+
+<p>我们来看个同时接收两个输入源（fd1, fd2）的例子：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code>    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="cm">/* a list of fds to watch*/</span>
+        <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+        <span class="n">FD_SET</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+        <span class="n">FD_SET</span><span class="p">(</span><span class="n">fd2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+        
+        <span class="n">timeout</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+        <span class="n">timeout</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        
+        <span class="cm">/* wait for input */</span>
+        <span class="n">retval</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">maxfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">timeout</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">oops</span><span class="p">(</span><span class="s">"select"</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> 
+        <span class="p">{</span>
+            <span class="cm">/* check bits for each fd */</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="n">FD_ISSET</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">showdata</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fd1</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="n">FD_ISSET</span><span class="p">(</span><span class="n">fd2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">showdata</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fd2</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"no input after %d seconds</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">atoi</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">3</span><span class="p">]));</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>poll与select功能基本一样，select是berkeley搞得，poll是贝尔实验室搞的。</p>
+
+<h2 id="ipc">通过文件的IPC</h2>
+
+<p>server:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>#每秒写一次文件
+while true; do
+    date &gt; /tmp/current_date
+    sleep 1
+done
+</code></pre>
+</div>
+
+<p>client:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>cat /tmp/current_date
+</code></pre>
+</div>
+
+<p>注意，unix不限制同时打开文件的进程数量！
+这个方法是有race的！就是server清空文件的一刹那，如果client去读，将读不到完整地。
+这时需要文件锁（flock, lockf,fcntl）。</p>
+
+<p>在打开文件上上锁解锁的代码：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">F_SETLKW</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lockinfo</span><span class="p">);</span> <span class="c1">// lockinfo.l_type = F_WRLCK
+</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">F_SETLKW</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lockinfo</span><span class="p">);</span> <span class="c1">// lockinfo.l_type = F_UNLCK
+</span></code></pre>
+</div>
+
+<h2 id="ipc-1">命名管道IPC</h2>
+
+<p>我们已经看过了常规的管道，只能连接父子进程。这太挫了。
+命名管道可以连接不相关的进程，并且独立于进程存在。又称FIFO。</p>
+
+<p>创建删除监听会话等操作如下：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="c1">// create fifo
+</span><span class="n">mkfifo</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">mode_t</span> <span class="n">mode</span><span class="p">);</span>
+<span class="c1">// delete fifo
+</span><span class="n">unlink</span><span class="p">(</span><span class="n">fifoname</span><span class="p">);</span>
+<span class="c1">// listen fifo
+</span><span class="n">open</span><span class="p">(</span><span class="n">fifoname</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span> <span class="c1">//阻塞进程，直到某一进城打开FIFO进行写操作
+// chat
+</span><span class="n">open</span><span class="p">(</span><span class="n">fifoname</span><span class="p">,</span> <span class="n">O_WRONLY</span><span class="p">);</span> <span class="c1">//阻塞进程，直到某一进城打开FIFO进行读操作
+// end chat
+</span><span class="n">close</span><span class="p">();</span>
+</code></pre>
+</div>
+
+<h2 id="section">共享内存</h2>
+
+<p>操作都在<code class="highlighter-rouge">sys/shm.h</code>里。我们看个例子就懂了：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cm">/* server */</span>
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;sys/shm.h&gt;
+#include &lt;time.h&gt;
+</span>
+<span class="cp">#define TIME_MEM_KEY  99
+#define SEG_SIZE      ((size_t)100)
+#define oops(m,x) {perror(m); exit(x);}
+</span>
+<span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span>  <span class="n">seg_id</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">mem_ptr</span><span class="p">,</span> <span class="o">*</span><span class="n">ctime</span><span class="p">();</span>
+    <span class="kt">long</span> <span class="n">now</span><span class="p">;</span>
+    <span class="kt">int</span>  <span class="n">n</span><span class="p">;</span>
+
+    <span class="cm">/* create shm segment */</span>
+    <span class="n">seg_id</span> <span class="o">=</span> <span class="n">shmget</span><span class="p">(</span><span class="n">TIME_MEM_KEY</span><span class="p">,</span> <span class="n">SEG_SIZE</span><span class="p">,</span> <span class="n">IPC_CREAT</span><span class="o">|</span><span class="mo">0777</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">seg_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"shmget"</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+    <span class="cm">/* attach to shm */</span>
+    <span class="n">mem_ptr</span> <span class="o">=</span> <span class="n">shmat</span><span class="p">(</span><span class="n">seg_id</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">mem_ptr</span> <span class="o">==</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"shmat"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+
+    <span class="cm">/* run, write shm */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">n</span><span class="o">&lt;</span><span class="mi">60</span><span class="p">;</span> <span class="n">n</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">);</span>
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">mem_ptr</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="n">shmctl</span><span class="p">(</span><span class="n">seg_id</span><span class="p">,</span> <span class="n">IPC_RMID</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cm">/* client */</span>
+<span class="cp">#define TIME_MEM_KEY 99
+#define SEG_SIZE      ((size_t)100)
+#define oops(m,x) {perror(m); exit(x);}
+</span>
+<span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span>  <span class="n">seg_id</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">mem_ptr</span><span class="p">,</span> <span class="o">*</span><span class="n">ctime</span><span class="p">();</span>
+    <span class="kt">long</span> <span class="n">now</span><span class="p">;</span>
+    
+    <span class="n">seg_id</span> <span class="o">=</span> <span class="n">shmget</span><span class="p">(</span><span class="n">TIME_MEM_KEY</span><span class="p">,</span> <span class="n">SEG_SIZE</span><span class="p">,</span> <span class="mo">0777</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">seg_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"shmget"</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">mem_ptr</span> <span class="o">=</span> <span class="n">shmat</span><span class="p">(</span><span class="n">seg_id</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">mem_ptr</span> <span class="o">==</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"shmat"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"the time, direct from memory: ..%s"</span><span class="p">,</span> <span class="n">mem_ptr</span><span class="p">);</span>
+    <span class="n">shmdt</span><span class="p">(</span><span class="n">mem_ptr</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<h2 id="section-1">竞态条件</h2>
+
+<p>fifo, socket由内核来处理竞态条件。用户不用操心race问题。
+共享内存or共享文件就要操心这个了。怎么办呢？
+答案是信号量和文件锁。</p>
+
+<p>文件锁之前有提到过，读的时候上RD锁，这样其他进程就不能去写之。
+写的时候上WR锁，这样其他进程就不能去读它。</p>
+
+<p>shm的情况适合用信号量（semaphores），信号量是内核变量！可以被所有进程访问！
+这个必须贴代码，上课时候老写伪代码写得人都迷茫了：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cm">/* server */</span>
+<span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    <span class="cm">/* create two semaphores */</span>
+    <span class="n">semset_id</span> <span class="o">=</span> <span class="n">semget</span><span class="p">(</span><span class="n">TIME_SEM_KEY</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mo">0666</span><span class="o">|</span><span class="n">IPC_CREAT</span><span class="o">|</span><span class="n">IPC_EXCL</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">semset_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"semget"</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+    <span class="cm">/* set sems to 0 */</span>
+    <span class="n">set_sem_value</span><span class="p">(</span><span class="n">semset_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">set_sem_value</span><span class="p">(</span><span class="n">semset_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">cleanup</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">n</span><span class="o">&lt;</span><span class="mi">60</span><span class="p">;</span> <span class="n">n</span><span class="o">++</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">);</span>
+        <span class="n">wait_and_lock</span><span class="p">(</span><span class="n">semset_id</span><span class="p">);</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">mem_ptr</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+        <span class="n">release_lock</span><span class="p">(</span><span class="n">semset_id</span><span class="p">);</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">cleanup</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">set_sem_value</span><span class="p">(</span><span class="kt">int</span> <span class="n">semset_id</span><span class="p">,</span> <span class="kt">int</span> <span class="n">semnum</span><span class="p">,</span> <span class="kt">int</span> <span class="n">val</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">union</span> <span class="n">semun</span> <span class="n">initval</span><span class="p">;</span>
+    <span class="n">initval</span><span class="p">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">semctl</span><span class="p">(</span><span class="n">semset_id</span><span class="p">,</span> <span class="n">semnum</span><span class="p">,</span> <span class="n">SETVAL</span><span class="p">,</span> <span class="n">initval</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"semctl"</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">wait_and_lock</span><span class="p">(</span><span class="kt">int</span> <span class="n">semset_id</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">sembuf</span> <span class="n">actions</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="cm">/* sem[0] is n readers */</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="n">SEM_UNDO</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="cm">/* wait until no readers */</span>
+    
+    <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="n">SEM_UNDO</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>   <span class="cm">/* incr num writers */</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">semop</span><span class="p">(</span><span class="n">semset_id</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"semop:Locking"</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">release_lock</span><span class="p">(</span><span class="kt">int</span> <span class="n">semset_id</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">sembuf</span> <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="n">SEM_UNDO</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span>  <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>  <span class="cm">/* decr writer count */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">semop</span><span class="p">(</span><span class="n">semset_id</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"semop: unlocking"</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/* client */</span>
+<span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    <span class="cm">/* get two sems */</span>
+    <span class="n">semset_id</span> <span class="o">=</span> <span class="n">semget</span><span class="p">(</span><span class="n">TIME_SEM_KEY</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">wait_and_lock</span><span class="p">(</span><span class="n">semset_id</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"the time, direct from memory: ..%s"</span><span class="p">,</span> <span class="n">mem_ptr</span><span class="p">);</span>
+
+    <span class="n">release_lock</span><span class="p">(</span><span class="n">semset_id</span><span class="p">);</span>
+    <span class="n">shmdt</span><span class="p">(</span><span class="n">mem_ptr</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">wait_and_lock</span><span class="p">(</span><span class="kt">int</span> <span class="n">semset_id</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">union</span> <span class="n">semun</span> <span class="n">sem_info</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">sembuf</span> <span class="n">actions</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="n">SEM_UNDO</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="n">SEM_UNDO</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span>  <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    
+    <span class="k">if</span> <span class="p">(</span> <span class="n">semop</span><span class="p">(</span><span class="n">semset_id</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"semop: locking"</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">release_lock</span><span class="p">(</span><span class="kt">int</span> <span class="n">semset_id</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">union</span> <span class="n">semun</span> <span class="n">sem_info</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">sembuf</span> <span class="n">actions</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="n">SEM_UNDO</span><span class="p">;</span>
+    <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span>  <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span> <span class="n">semop</span><span class="p">(</span><span class="n">semset_id</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"semop: unlocking"</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>这里有几个注意：</p>
+
+<ol>
+  <li>SEM_UNDO标志允许内核在进程退出的时候恢复semop</li>
+  <li>sembuf.sem_op = 0表示挂起直到信号量为0</li>
+  <li>sembuf.sem_op = 1表示信号量加1</li>
+  <li>sembuf.sem_op = -1表示信号量减1</li>
+</ol>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/27/apue-thread.html">unix环境高级编程8: 多线程</a></h2>
+                    </header>
+                    <section>
+                        <p>##一些语法</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/27/apue-thread.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/network/2015/11/30/network-getstarted.html">unix网络编程1: 基本框架</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">初衷</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/network/2015/11/30/network-getstarted.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

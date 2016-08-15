@@ -3,6 +3,7 @@ layout: post
 title: "work: get started"
 date: 2016-01-31 08:27:00
 categories: programming
+excerpt: 工作笔记，工作细节与经验辑录
 ---
 
 # 工具链

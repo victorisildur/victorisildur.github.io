@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix网络编程2: TCP详解</h2>
+                <p class="post-meta">Dec 1, 2015</p>
+        </header>
+
+        <section>
+            <p>要理解为什么TCP不是完全可靠地，从而进行防御性编程，我们必须详细了解TCP协议！</p>
+
+<p>其中最重要的是TCP的状态机：</p>
+
+<p><img src="/assets/images/tcp_fsm.jpg" alt="tcp fsm" /></p>
+
+<p>为了方便的测试，我们采用stevens写的sock程序，
+在这里下载：<a href="http://www.icir.org/christian/sock.html">sock</a></p>
+
+<p>然而，遇到一个问题，就是测试TIME_WAIT状态的时候，确实发现server不能重新绑定到之前杀掉的端口。
+但是客户端提示“connection closed by peer”. 
+netstat也看不到杀掉端口的驻留。
+(先不纠结这个问题，先看完再说)</p>
+
+<h1 id="rst">什么时候发RST</h1>
+
+<ol>
+  <li>访问没有listen的端口。好吧，tcpdump发现只测试到client不停发SYN，server并没有返回RST</li>
+  <li>异常终止连接。用RST可以代替FIN，表示“异常释放连接”。服务器要有相应的处理。</li>
+  <li>检测半连接。
+考虑这样的情况，server网断了，重启了。
+client不知道这一情况，在server重启之后给server发送一个tcp段，server由于重启了，不知道这个连接的信息。
+这种情况，它就会返回一个RST。</li>
+</ol>
+
+<h1 id="section">呼入连接请求丢咧</h1>
+
+<p>一个并发服务器调用一个新的进程来处理client请求。因此处于被动连接请求的服务器应该始终准备处理下一个呼入的连接请求。
+但是，当多个连接请求到来时，server正忙于fork，或者os切到了其他进程，这时候该怎么办呢？</p>
+
+<p>这里其实是有请求队列的，队列中维护的是已被TCP接受、但还没被应用层接受的连接。
+如果新请求到来时队列已经满了，TCP将不理会收到的SYN，也不发送任何报文。
+运行一个例子：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>/* server */
+sock -v -s -q1 -O30 5555
+/* client 01 */
+sock -v 5555
+/* client 02 */
+sock -v 5555
+/* client 03 */
+sock -v 5555
+/* client 04 */
+sock -v 5555
+</code></pre>
+</div>
+
+<p>队列长度1，<code class="highlighter-rouge">-O30</code>选项迫使TCP在接受任何新连接前等30秒。然后我们打开4个客户连接。
+观察<code class="highlighter-rouge">tcpdump -i lo 'tcp and port 5555'</code>，后两个客户程序将得不到任何回应，客户不断重发SYN，客户的主动打开最终将超时。</p>
+
+<h2 id="section-1">插播一碗鸡汤</h2>
+
+<p>写毫无意义的大论文写了两天，一行代码也没写，今天看到了多隆的事迹，再一次感受到浓浓的鸡汤。
+和第一次知道多隆不同的是，在阿里用到了tfs, tair，这居然是一个人搞出来的！？一个人顶十个人的战斗力，太可怕了。抛开种种表象不谈，他的内心一定是100%被代码占据的。</p>
+
+<p>经常性的一大早来，告诉同事：xxx的源代码我已经看过了，我们把xxx部门改一下就可以了。
+看源代码的能力这得是有多强！换个角度想，就好像刚打篮球的时候，看到球技nb的，总会豪情壮志地想：暑假好好练，开学我也要这么nb! 
+然而今天变nb了才发现，这个过程用了我10年，是每周5次练习、揣摩、请教、领会的过程！</p>
+
+<p>打篮球用了10年，写代码呢？</p>
+
+<h2 id="tcp">TCP的成块数据流</h2>
+
+<p>TCP成块数据流发送时采用滑动窗口协议，窗口的大小是接收方可以控制的，BSD默认2048B。</p>
+
+<p>滑动窗口协议这里比较复杂，我暂时还没有详细研读它的动力，这里有一篇动力性的文章，明天看一看：<a href="https://cloud.github.com/downloads/chenshuo/documents/LearningNetworkProgramming.pdf">网络编程学习经验</a></p>
+
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/network/2015/11/30/network-getstarted.html">unix网络编程1: 基本框架</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">初衷</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/network/2015/11/30/network-getstarted.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/network/2015/12/07/network-programming.html">unix网络编程3: 网络编程学习目标</a></h2>
+                    </header>
+                    <section>
+                        <p>TCP/IP详解，UNIX网络编程都看不下去，转而先看网络编程程序员的经验之谈：
+网络编程的组成，以及学习重点。
+希望接下来的学习能更高效。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/network/2015/12/07/network-programming.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

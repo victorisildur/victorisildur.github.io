@@ -3,6 +3,7 @@ layout: post
 title: "iscroll源码阅读"
 date: 2016-07-25 08:27:00
 categories: programming
+excerpt: iscroll实现细节: 细腻的回弹、惯性效果
 ---
 
 ## 为什么要读iscroll

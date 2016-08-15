@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix环境高级编程6: io、重定向、管道</h2>
+                <p class="post-meta">Nov 25, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="section">一些概念</h2>
+
+<ol>
+  <li>io重定向是谁完成的？
+是shell! 不是程序！ 程序总是指明了要向stdout输出。
+shell在未通知程序的情况下偷偷换掉了。</li>
+  <li>文件描述符是什么？
+是进程打开文件数组的索引号。
+进程打开文件的时候，为此文件分配的fd总是数组中最低可用位置的索引。</li>
+</ol>
+
+<h2 id="stdin">如何将stdin定向到文件</h2>
+
+<p>第一种思路非常简单，利用lowest available fd原则，我们可以先关掉fd0的文件，让fd0空闲。
+然后再打开一个文件。
+这样新打开的文件自然会占用fd0.</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;fcntl.h&gt;
+</span>
+<span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">line</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+    
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">"/etc/passwd"</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"could not open data as fd 0</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>第二种方法是open-close-dup-close法。先打开文件，再复制到fd0上去。
+我们看看代码：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">newfd</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">line</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+
+    <span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">"/etc/passwd"</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">newfd</span> <span class="o">=</span> <span class="n">dup</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"could not dup fd to 0"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+    <span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>值得注意的是，<code class="highlighter-rouge">close(0)</code>和<code class="highlighter-rouge">dup(fd)</code>这两步可以合成一个系统调用<code class="highlighter-rouge">dup2(fd,0)</code>.
+也就是说，open-dup2-close就行了！</p>
+
+<h2 id="shellio">shell是如何重定向子进程io的？</h2>
+
+<p>关键在于fork和exec之间的间隙！fork之后，子进程仍在运行shell程序。
+我们应注意到，exec之后，进程的属性和进程的所有连接不会变化！
+所以只要在exec之前把fd0,1,2该换的换掉就好了。</p>
+
+<h2 id="section-1">管道</h2>
+
+<p>函数原型：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span><span class="n">result</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="kt">int</span> <span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+</code></pre>
+</div>
+
+<p>这个函数打开了两个fd。第一个用于读，第二个用于写。
+fd都在一个进程里，管道有什么用呢？
+所以，管道主要用于父子进程间的通信。
+子进程和父进程共享了管道，一个读一个写，完成通信。</p>
+
+<p>我们来试着写一个pipe程序，其功能是<code class="highlighter-rouge">pipe prog1 prog2</code>时，prog1的输入流入prog2的输出。</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#define oops(m, x) {perror(m);exit(x);}
+</span>
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">ac</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">av</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">thepipe</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">newfd</span><span class="p">,</span> <span class="n">pid</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ac</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"usage: pipe cmd1 cmd2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pipe</span><span class="p">(</span><span class="n">thepipe</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"cannot get a pipe"</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">())</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">oops</span><span class="p">(</span><span class="s">"cannot fork"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    
+    <span class="cm">/* parent process
+     * cmd2, its stdin modified to thepipe[0]
+     */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">thepipe</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">dup2</span><span class="p">(</span><span class="n">thepipe</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">oops</span><span class="p">(</span><span class="s">"could not redirent stdin"</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">thepipe</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+        <span class="n">execlp</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">av</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">oops</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">4</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* child process
+     * cmd1, its stdout modified to thepipe[1]
+     */</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">thepipe</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">dup2</span><span class="p">(</span><span class="n">thepipe</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">oops</span><span class="p">(</span><span class="s">"could not redirect stdout"</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">thepipe</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">execlp</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">av</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">oops</span><span class="p">(</span><span class="n">av</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/16/apue-process.html">unix环境高级编程5: 进程</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="shell">shell是如何实现的？</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/16/apue-process.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/11/26/apue-socket.html">unix环境高级编程7: server、socket</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">进程间通信</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/26/apue-socket.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

@@ -3,6 +3,7 @@ layout: post
 title: "网页设计模式: mvc与flux"
 date: 2016-02-27 08:27:00
 categories: programming
+excerpt: 页面逻辑分层：mvc, mvx, flux的哲学对比
 ---
 
 # MVC有什么不好？

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix网络编程1: 基本框架</h2>
+                <p class="post-meta">Nov 30, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="section">初衷</h2>
+
+<p>计算机网络学了总觉得没感觉，知道了TCP, CIDR，RIP, BGP, ARP之后又怎样呢？还不是只管ajax一下。
+了解最深无非是tornado响应请求的时候看一下转码问题，还是无法解决长连接断掉这样的bug。</p>
+
+<p>修炼内功啊，年轻人！</p>
+
+<h2 id="section-1">基本框架</h2>
+
+<p>unix内核提供了<code class="highlighter-rouge">socket()</code>, <code class="highlighter-rouge">connect()</code>, <code class="highlighter-rouge">listen()</code>, <code class="highlighter-rouge">accept()</code>, <code class="highlighter-rouge">send()</code>, <code class="highlighter-rouge">recv()</code>一系列系统调用。
+然而只是会写最简单的tcp程序，这太挫了，但也是没办法的事。
+一点点来吧。</p>
+
+<p>先看几个语言上的问题：</p>
+
+<ol>
+  <li><code class="highlighter-rouge">gethostbyname()</code>是如何实现的？定义在<code class="highlighter-rouge">netdb.h</code>里，它首先查找本地数据库<code class="highlighter-rouge">/etc/hosts</code>，找不到的话去查dns服务器。
+返回<code class="highlighter-rouge">hostent</code>结构体：</li>
+</ol>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="k">struct</span>  <span class="n">hostent</span> <span class="p">{</span>
+    <span class="kt">char</span>    <span class="o">*</span><span class="n">h_name</span><span class="p">;</span>        <span class="cm">/* official name of host */</span>
+    <span class="kt">char</span>    <span class="o">**</span><span class="n">h_aliases</span><span class="p">;</span>    <span class="cm">/* alias list */</span>
+    <span class="kt">int</span>     <span class="n">h_addrtype</span><span class="p">;</span>     <span class="cm">/* host address type */</span>
+    <span class="kt">int</span>     <span class="n">h_length</span><span class="p">;</span>       <span class="cm">/* length of address */</span>
+    <span class="kt">char</span>    <span class="o">**</span><span class="n">h_addr_list</span><span class="p">;</span>  <span class="cm">/* list of addresses from name server */</span>
+<span class="p">};</span>
+<span class="cp">#define h_addr  h_addr_list[0]  </span><span class="cm">/* address, for backward compatibility */</span><span class="cp">
+</span>
+<span class="cm">/* 我们用到的地方 */</span>
+<span class="n">hp</span> <span class="o">=</span> <span class="n">gethostbyname</span><span class="p">(</span><span class="n">hname</span><span class="p">);</span>
+<span class="p">..</span>
+<span class="n">sap</span><span class="o">-&gt;</span><span class="n">sin_addr</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="k">struct</span> <span class="n">in_addr</span> <span class="o">*</span><span class="p">)</span> <span class="n">hp</span><span class="o">-&gt;</span><span class="n">h_addr</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<p>好吧，这里又遇到问题，<code class="highlighter-rouge">in_addr</code>是个什么结构？</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="k">struct</span> <span class="n">in_addr</span> <span class="p">{</span>
+    <span class="n">in_addr_t</span> <span class="n">s_addr</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="k">typedef</span> <span class="n">__uint32_t</span>      <span class="n">in_addr_t</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<p>所以这里是把char[]转unit_32了。验证程序在这里：</p>
+
+<ol>
+  <li><code class="highlighter-rouge">getservbyname()</code>如何实现的？</li>
+</ol>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cm">/* 函数原型 */</span>
+<span class="k">struct</span> <span class="n">servent</span> <span class="o">*</span> <span class="n">getservbyname</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">proto</span><span class="p">);</span>
+<span class="k">struct</span>  <span class="n">servent</span> <span class="p">{</span>
+    <span class="kt">char</span>    <span class="o">*</span><span class="n">s_name</span><span class="p">;</span>        <span class="cm">/* official name of service */</span>
+    <span class="kt">char</span>    <span class="o">**</span><span class="n">s_aliases</span><span class="p">;</span>    <span class="cm">/* alias list */</span>
+    <span class="kt">int</span>     <span class="n">s_port</span><span class="p">;</span>         <span class="cm">/* port service resides at */</span>
+    <span class="kt">char</span>    <span class="o">*</span><span class="n">s_proto</span><span class="p">;</span>       <span class="cm">/* protocol to use */</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>这个函数就是给定服务名（如domain）和协议名（如udp），返回服务端口之类的。
+查找表保存在<code class="highlighter-rouge">/etc/services</code>里。</p>
+
+<ol>
+  <li>为什么要用<code class="highlighter-rouge">bzero()</code>清空struct</li>
+</ol>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="o">*</span> <span class="n">sap</span><span class="p">;</span>
+<span class="n">bzero</span><span class="p">(</span><span class="n">sap</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">sap</span><span class="p">));</span> 
+</code></pre>
+</div>
+
+<p>好吧，暂时想不到其他方法。</p>
+
+<ol>
+  <li><code class="highlighter-rouge">size_t</code>是什么？</li>
+</ol>
+
+<p><code class="highlighter-rouge">size_t</code>是<code class="highlighter-rouge">sizeof()</code>的返回类型。
+一般是unsigned int。
+我们写点简单代码来验证下：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">intvar</span><span class="p">,</span> <span class="o">*</span><span class="n">ptr_intvar</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">charvar</span><span class="p">,</span> <span class="o">*</span><span class="n">ptr_charvar</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">st</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">b</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">struct</span> <span class="n">st</span> <span class="n">stvar</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">st</span> <span class="o">*</span> <span class="n">ptr_stvar</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">intvar</span><span class="p">));</span>      <span class="c1">//4
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ptr_intvar</span><span class="p">));</span>  <span class="c1">//8
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">charvar</span><span class="p">));</span>     <span class="c1">//1
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ptr_charvar</span><span class="p">));</span> <span class="c1">//8
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">stvar</span><span class="p">));</span>       <span class="c1">//16
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ptr_stvar</span><span class="p">));</span>   <span class="c1">//8
+</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>可以看到，凡是指针，大小都为8（64位系统）。
+int,char之类的基本类型返回字节数。
+结构体返回结构体各成员sizeof之和。</p>
+
+<ol>
+  <li>为什么要<code class="highlighter-rouge">htonl()</code>,<code class="highlighter-rouge">ntohl()</code>,<code class="highlighter-rouge">htons()</code>,<code class="highlighter-rouge">ntohs()</code>一系列方法？</li>
+</ol>
+
+<p>网络字节序用的是big endian。也就是我们易读的那种。
+而host machine的字节序取决于cpu。所以要转一下。
+我们可以验证下自己mac上用的是大端还是小端：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;arpa/inet.h&gt;
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">16</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d --&gt; "</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>      <span class="c1">// 16              00,00,00,00, 00,00,00,10
+</span>    <span class="n">printf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">htonl</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>    <span class="c1">// 268435456       10,00,00,00, 00,00,00,00
+</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>诺，是小端。所以转换下还是很必要地。</p>
+
+<h2 id="tcp">技巧6：记住，TCP是流！</h2>
+
+<p><code class="highlighter-rouge">read(sd, len)</code>是看不到边界的！
+请求读len也可能只读到一部分！</p>
+
+<p>对此，我们需要两个工具：</p>
+<ol>
+  <li><code class="highlighter-rouge">readn(sd, *bp, len)</code>，读取定长字符。读不满就一直循环的读。</li>
+  <li>自定义packet。
+在packet头部包含packet长度信息。
+这样我们就能基于readn开发readvrec。
+每次读一个变长packet!</li>
+</ol>
+
+<h2 id="tcp-1">技巧9：TCP是可靠的，但不是绝对可靠</h2>
+
+<p>这里主要讨论了peer意外崩溃的各种情况。
+具体要看TCP状态机了。在TCP/IP详解里有，留待以后补上。</p>
+
+<p>好吧，不看协议，技巧10理解不了。先把协议看掉再说。</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/28/apue-ipc.html">unix环境高级编程9: 进程间通信</a></h2>
+                    </header>
+                    <section>
+                        <p>select与poll! 这个我在tornado的时候研究过！
+大体印象就是异步io的东西，今天有机会具体看一下拉</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/28/apue-ipc.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/network/2015/12/01/network-tcp-01.html">unix网络编程2: TCP详解</a></h2>
+                    </header>
+                    <section>
+                        <p>要理解为什么TCP不是完全可靠地，从而进行防御性编程，我们必须详细了解TCP协议！</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/network/2015/12/01/network-tcp-01.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

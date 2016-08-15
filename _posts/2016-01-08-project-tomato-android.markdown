@@ -3,6 +3,7 @@ layout: post
 title: "tomato项目: native部分"
 date: 2016-01-08 10:51:00
 categories: programming
+excerpt: 安卓部分
 ---
 
 ## sdk下载问题

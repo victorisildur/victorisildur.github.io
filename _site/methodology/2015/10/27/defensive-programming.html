@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">代码大全2: 防御性编程</h2>
+                <p class="post-meta">Oct 27, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="assert">assert</h2>
+
+<p>assert就是编程珠玑里的断言，用来确认前置条件和后置条件的。</p>
+
+<div class="language-c++ highlighter-rouge"><pre class="highlight"><code><span class="cp">#define ASSERT( condition, message ) { \
+    if ( !(condition) = {              \
+        LogError( "assertion failed:", \
+            #condition, message );     \
+        exit( EXIT_FAILURE );          \
+    }                                  \
+}
+</span></code></pre>
+</div>
+
+<p>当然，你也不能全依靠断言，系统总有理解能力之外的异常，鲁棒的代码应该既有断言也有异常处理。</p>
+
+<p>nonono, assert用来处理never gonna happen的问题，异常用来处理预料之中的问题。</p>
+
+<h2 id="exception">exception</h2>
+
+<p>异常处理要注意抽象的一致性。类只应向上抛自己这一层抽象的异常，例：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Employee</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">TaxId</span> <span class="nf">GetTexId</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">EOFException</span> <span class="o">{</span>
+     <span class="c1">// 很糟！EOF是下层的概念，不应被暴漏给上层。上层只应收到和employee有关的异常。</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Employee</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">TaxId</span> <span class="nf">GetTaxId</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">EmployeeDataNotAvailable</span> <span class="o">{</span>
+     <span class="c1">// good，上层能理解是employee数据不可用</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h2 id="barricade">barricade</h2>
+
+<p>船舱隔板一样的作用。或者像消毒室一样。
+我们在internal class和external class之间搞一层专门做数据验证，对错误敏感的类。
+曾经的RESTFUL类就是一个例子。</p>
+
+<h2 id="debugging-aids">debugging aids</h2>
+
+<p>开发的时候多搞点帮助debug的功能，比如一些附加按钮，提前发现问题总是好的！</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/methodology/2015/10/26/table-driven.html">代码大全1: Table-driven method</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">代码大全系列</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/methodology/2015/10/26/table-driven.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/10/31/lions-unix.html">莱昂式unix源码阅读1: boot与进程</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">预备知识</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/10/31/lions-unix.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

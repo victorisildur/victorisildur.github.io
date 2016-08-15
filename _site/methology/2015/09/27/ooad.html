@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">面向对象分析与设计1：优秀软件三部曲、灵活的设计</h2>
+                <p class="post-meta">Sep 27, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="section">如何写出最优的软件？</h2>
+
+<p>三部曲：</p>
+
+<ol>
+  <li>
+    <p>完成用户需求</p>
+  </li>
+  <li>
+    <p>应用面向对象原则，提高代码灵活性</p>
+  </li>
+  <li>
+    <p>努力提高可维护性、可复用性（通过设计模式）</p>
+  </li>
+</ol>
+
+<h2 id="section-1">三部曲例子</h2>
+
+<h1 id="string">string比较不是个好主意</h1>
+
+<p>匹配吉他的例子，如何search吉他呢？直观的想法是遍历吉他列表，把每个库存吉他的产地、售价、制作人进行string比较</p>
+
+<p>这个方法差，因为string compare对大小写的情况会得出不一致的结论</p>
+
+<p>我们希望用枚举代替产地、售价、制作人</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="cm">/* guitar 的私有变量 type 用遍历表示 */</span>
+<span class="kd">public</span> <span class="kd">enum</span> <span class="n">Type</span> <span class="o">{</span>
+    <span class="n">ACOUSTIC</span><span class="o">,</span> <span class="n">ELECTRIC</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">switch</span><span class="o">(</span><span class="k">this</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="nl">ACOUSTIC:</span> <span class="k">return</span> <span class="s">"acoustic"</span><span class="o">;</span>
+            <span class="k">case</span> <span class="nl">ELECTRIC:</span> <span class="k">return</span> <span class="s">"electric"</span><span class="o">;</span>
+            <span class="k">default</span><span class="o">:</span>       <span class="k">return</span> <span class="s">"not found"</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="cm">/* search时直接比较enum对象 */</span>
+<span class="cm">/* 因为是enum对象，所以不会出现拼写错误or大小写问题，因为有问题的话是编译不过的 */</span>
+<span class="k">if</span><span class="o">(</span><span class="n">searchGuitar</span><span class="o">.</span><span class="na">getType</span><span class="o">()</span> <span class="o">!=</span> <span class="n">guitar</span><span class="o">.</span><span class="na">getType</span><span class="o">())</span>
+    <span class="k">continue</span><span class="o">;</span>
+</code></pre>
+</div>
+
+<p>总结, 这是一个讲合理选择数据结构，提高健壮性的例子</p>
+
+<h1 id="care">就对象的各个属性去比较？要是有个属性我们不care呢？</h1>
+
+<p>还是搜索吉他的例子，要是我只想搜某个产地的吉他，其他都不care，传的是Null呢？显然enum的比较会fail掉</p>
+
+<p>怎么办？这就需要我们方法论的第二步：运用一点面向对象设计模式。</p>
+
+<p>个人思路是单一职责原则，把搜索方法从库存对象剥离出来，因为库存只负责存，不应负责找。</p>
+
+<p>单另的搜索对象，拿到用户感兴趣的属性，去库存里找。但好像归结到代码层，还是要在search方法里加重复的</p>
+
+<p><code class="highlighter-rouge">if(seachGuitar.someProp != null &amp;&amp; seachGuitar.someProp != guitar.someProp)</code></p>
+
+<p>书里是怎么解决的呢？</p>
+
+<p>好吧，理解错了，这个例子是说客户搜索吉他的时候永远不会按价格和序列号去搜，所以每次都会传null，所以吉他类经常会有
+<code class="highlighter-rouge">price = null; serialNumber = null;</code>的情况，这很不好，说明吉他类并不是单一职责的，它有两个属性在搜索情景下总是用不到</p>
+
+<p>so, 对搜索这个情景，我们应该用一个职责更单一的对象承担搜索任务，而不是用吉他这个对象。</p>
+
+<p>so, 从吉他的众多属性中，剥离开price, serialNumber和其他属性，把其他属性搞成另一个类，GuitarSpec，意思是这些属性是通用的，是搜索时候职责单一的</p>
+
+<p>代码长得像这样：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Guitar</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">serialNumber</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">double</span> <span class="n">price</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">GuitarSpec</span> <span class="n">spec</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">GuitarSpec</span> <span class="nf">getSpec</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>总结，这是一个讲面向对象原则（单一职责）的例子</p>
+
+<h1 id="section-2">对吉他对象的各个属性去比较？要是来了新需求，吉他对象多了几个属性呢？</h1>
+
+<p>个人想法：要把取各个属性，然后比较、返回的过程抽象。不能在search方法里硬编码取各个属性的操作。应放到GuitarSpec类里</p>
+
+<p>书上思路: 完全和我想的一样！而且要把GuitarSpec用在Guitar的构造器上。这样才能保证对spec的抽象对所有地方生效。</p>
+
+<p>这就是设计模式里的委托！把Invertory.search(spec) 委托给了 GuitarSpec.match(spec). hoho~</p>
+
+<p>总结，这是一个讲设计模式（委托）的例子</p>
+
+<h2 id="section-3">如何做出用户想要的？需求和使用用例！</h2>
+
+<h1 id="section-4">需求</h1>
+
+<p>需求没什么好讲的，就是你的系统要完成些什么事儿，是从开发人员的角度写的</p>
+
+<h1 id="use-case">使用用例(Use Case)</h1>
+
+<p>use case是从用户角度写的，它详细写明了系统完成某一特定功能的过程中，用户、系统发生了些什么，看起来很像流水账
+use case其实很有用，它让你想象一边系统是如何被使用的，有可能发生什么异常情况。往往在写的过程中，就会发现需求定的有问题。</p>
+
+<p>例子就是狗门，只写需求的话可能觉得有个键控制门的开关就行了，写了use case，你会想，门忘了关怎么办？门关了狗还没回来怎么办？
+so, use case会返回来影响需求</p>
+
+<h1 id="section-5">需求是不断变化的</h1>
+
+<p>而你能做的就是封装变化的部分（用设计模式），让自己在变化中游刃有余！</p>
+
+<h2 id="section-6">分析</h2>
+
+<p>现实世界太残酷了，不加分析就去写的代码一到生产环境就会发现，卧槽这有bug，卧槽这个状态没考虑到。
+分析就是降低这种风险的方法。是的，就是我曾经很鄙视的方法论:)</p>
+
+<p>例子是给狗门加一个自动狗叫检测单元。
+不加分析的话我们容易把狗叫检测写成只对一种狗叫去检测，而生产环境中我的宠物狗可能有多种细微不同的叫声。
+怎么避免呢？其实use case里就有了，use case里我们的步骤是检测到狗是自家狗，注意名词是狗！
+相比直接按狗叫的思路先代码码起来，从use case出发去设计类，我们更能看清狗叫检测器的实质是狗检测器。
+它其中存储的应该是狗对象，而不是狗叫对象。
+而狗对象里显然又应该包括多种狗叫。</p>
+
+<p>通过分析use case，我们应该知道 what to focus on!</p>
+
+<h2 id="good-design--flexible-software">good design = flexible software</h2>
+
+<p>等式说的很清楚，灵活地设计才是好设计。
+我们再回头来看一看之前写的搜索吉他的代码，我们应该审查一下，要是情况发生了改变，代码还好不好改？换句话说，代码够不够灵活？</p>
+
+<p>显然，每增加一种乐器，我们就要新写一个<code class="highlighter-rouge">Instrument</code>的子类，新写一个<code class="highlighter-rouge">InstrumentSpec</code>的子类。</p>
+
+<p>针对这种情况，其实我也不知道怎么办，我们不是已经做了抽象吗？
+乐器抽象成了<code class="highlighter-rouge">Instrument</code>接口，乐器的参数抽象成了<code class="highlighter-rouge">InstrumentSpec</code>接口。
+为什么还会不灵活呢？</p>
+
+<p>这里有三个概念需要注意：</p>
+
+<ol>
+  <li>只有子类的行为(behavior)不同的时候，子类才有存在的意义！而<code class="highlighter-rouge">Instrument</code>各个子类只是乐器属性不同而已。</li>
+  <li>抽象一层，是为了封装变化，但<code class="highlighter-rouge">InstrumentSpec</code>并没有封装变化，它包含的属性（Builder, Wood…）随着乐器不同疯狂变化！</li>
+</ol>
+
+<p>仔细想一想，我们之所以需要<code class="highlighter-rouge">Instrument</code>子类，是因为不同乐器，其spec不同。
+之所以需要<code class="highlighter-rouge">InstrumentSpec</code>子类，是因为不同乐器，其builder,type,wood等属性不同。
+一些乐器spec还有更多属性。</p>
+
+<p>所以，子类其实没有解决真正的问题：变化的部分没有被封装起来。</p>
+
+<p>对乐器来说，变化的部分，也就是乐器spec，已经被<code class="highlighter-rouge">InstrumentSpec</code>类封装，没有必要在搞什么子类了。
+对乐器spec来说，变换的部分是它的属性，属性数目不定。
+我们很容易的想到，应该把所有属性塞到一个map里去。
+也就是用Map封装spec properties!</p>
+
+<p>这开始看起来不合理，这不是每次给库存里加一个乐器，
+都要构造map -&gt; 构造spec -&gt; 构造乐器吗？</p>
+
+<p>是的，但是，这是client的事儿，client可以想办法去封装一些固定的乐器。
+对我们的程序，即库存管理程序，代码的灵活性变高了！</p>
+
+<h2 id="section-7">状态机</h2>
+
+<p>不是简单的定义状态int而已，要把行为委托给状态处理。
+状态要继承各个行为接口。</p>
+
+<p>状态机模式和策略模式的UML图一模一样！
+你可以说”把呱呱叫委托给鸭子状态去行为”。</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/09/26/gcc.html">gcc的使用</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">基本指令</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/09/26/gcc.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/methology/2015/09/27/ooad2-architect.html">面向对象分析与设计2：面对大型问题</a></h2>
+                    </header>
+                    <section>
+                        <p>上一次看ooad还是9月底，10月被小论文占了，10月底11月初被unix源码阅读占了。
+不过这本书可读性非常高，用非常鲜明的例子讲述了软件工程里的惯例和原则，读之令人喜悦。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/methology/2015/09/27/ooad2-architect.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

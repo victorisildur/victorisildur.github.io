@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix环境高级编程2: who与cp</h2>
+                <p class="post-meta">Nov 8, 2015</p>
+        </header>
+
+        <section>
+            <p>郁闷，github contributions老是没有，原来是没config email的原因</p>
+
+<h2 id="who">who</h2>
+<p>今天来看看who与的实现。</p>
+
+<h1 id="manwho">如何用man看who的实现</h1>
+
+<p>我们<code class="highlighter-rouge">man who</code>一下，可以看到说明，who就是收集了<code class="highlighter-rouge">/var/run/utmpx</code>这个文件的信息。
+<code class="highlighter-rouge">SEE ALSO</code>里有写<code class="highlighter-rouge">utmpx(5)</code>，意思是utmp在man的第五部分。</p>
+
+<p>我们继续<code class="highlighter-rouge">man 5 utmpx</code>，发现这是个数据库，和老式的utmp不一样的，多维护了一些诸如进程id，退出状态之类的信息。
+不过也是兼容的，当用户对utmpx操作，系统会自动对utmp做同步。
+想要调用读utmpx，就要<code class="highlighter-rouge">#include &lt;utmpx.h&gt;</code>。</p>
+
+<h1 id="utmpxh">utmpx.h</h1>
+
+<p>utmpx.h里定义了一些变量，函数，可能对我们有用：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#define UTMPX_FILE "/var/run/utmpx"
+</span><span class="k">struct</span> <span class="n">utmpx</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">ut_user</span><span class="p">[</span><span class="n">_UTX_USERSIZE</span><span class="p">];</span>
+    <span class="k">struct</span> <span class="n">timeval</span> <span class="n">ut_tv</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h1 id="section">第一版：直接读文件</h1>
+
+<p>从直观猜测，<code class="highlighter-rouge">/var/run/utmpx</code>这个文件就是一堆utmpx的序列。
+读文件然后解析就好：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;utmpx.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;fcntl.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">utmpx</span> <span class="n">record</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">reclen</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd</span><span class="o">=</span><span class="n">open</span><span class="p">(</span><span class="n">UTMPX_FILE</span><span class="p">,</span><span class="n">O_RDONLY</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="n">UTMPX_FILE</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">record</span><span class="p">,</span> <span class="n">reclen</span><span class="p">)</span> <span class="o">==</span> <span class="n">reclen</span><span class="p">)</span>
+        <span class="n">show_info</span><span class="p">(</span><span class="o">&amp;</span><span class="n">record</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">show_info</span><span class="p">(</span><span class="k">struct</span> <span class="n">utmpx</span> <span class="o">*</span> <span class="n">utbufp</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">utbufp</span><span class="o">-&gt;</span><span class="n">ut_user</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>然而效果并非如我们所想，只打印出了一行有内容，其他都是空行。
+这说明文件并不简单组织的，我们要另想办法。</p>
+
+<h1 id="section-1">第二版: 用库函数</h1>
+
+<p>仔细读utmpx.h，里面有很多getter,setter，为什么不用呢？
+我们用里面的<code class="highlighter-rouge">getutxent()</code>，也就是get utmpx entry来重写who:</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">utmpx</span> <span class="o">*</span> <span class="n">records</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span> <span class="p">(</span><span class="n">records</span> <span class="o">=</span> <span class="n">getutxent</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="n">show_info</span><span class="p">(</span><span class="n">records</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">show_info</span><span class="p">(</span><span class="k">struct</span> <span class="n">utmpx</span> <span class="o">*</span> <span class="n">utbufp</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s "</span><span class="p">,</span> <span class="n">utbufp</span><span class="o">-&gt;</span><span class="n">ut_user</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s "</span><span class="p">,</span> <span class="n">utbufp</span><span class="o">-&gt;</span><span class="n">ut_id</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">utbufp</span><span class="o">-&gt;</span><span class="n">ut_host</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>well done!</p>
+
+<h2 id="cp">cp</h2>
+
+<p>首先搞清上次写more没搞清的File descriptor。
+这是个非负整数，可以理解为进程打开文件的索引。
+习惯上，0是stdin，1是stdout，2是stderr。</p>
+
+<p>#cp流程</p>
+
+<p>creat和write系统调用的形式是：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;fcntl.h&gt;
+</span><span class="kt">int</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">creat</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode_t</span> <span class="n">mode</span><span class="p">);</span>
+
+<span class="cp">#include &lt;unistd.h&gt;
+</span><span class="cm">/* buf内存数据，amt要写的字节数, result要写入成功的字节数 */</span>
+<span class="kt">ssize_t</span> <span class="n">result</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">amt</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>cp的流程应该是：读模式打开src,写模式打开dst，读src到buf，写buf到dst。
+直到遇到src文件的eof，说明cp完毕了。最后close源文件和目的文件。</p>
+
+<p>代码见<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/cp/cp01.c">cp01.c</a></p>
+
+<p>#缓冲
+BUFFERSIZE对程序运行时间有影响吗？有！而且很大。
+这是因为系统调用要切到内核态，保存用户态栈、寄存器。切内核态栈、寄存器。然后再恢复回去。</p>
+
+<p>一般来说，我们希望尽量减少系统调用的次数，用sys call的时候，容量参数填的越大越好。</p>
+
+<h2 id="section-2">错误处理</h2>
+
+<p><code class="highlighter-rouge">errno.h</code>里的全局变量<code class="highlighter-rouge">errno</code>指示了出错原因：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#define EPERM  1   </span><span class="cm">/*operation not permitted*/</span><span class="cp">
+#define ENOENT 2   </span><span class="cm">/*no entry: no such file or directory*/</span><span class="cp">
+#define ESRCH  3   </span><span class="cm">/*no such process*/</span><span class="cp">
+#define EINTR  4   </span><span class="cm">/*interrupted sys call*/</span><span class="cp">
+#define EIO    5   </span><span class="cm">/*io error*/</span><span class="cp">
+</span></code></pre>
+</div>
+
+<p><code class="highlighter-rouge">perror()</code>这个函数，就是自动的去读<code class="highlighter-rouge">errno</code>，然后打印错误信息。
+前面代码也用到过，非常方便。</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/08/apue-more.html">unix环境高级编程1: more</a></h2>
+                    </header>
+                    <section>
+                        <p>看了两周的Unix源码了，手都要锈掉了，赶紧码一发代码。
+代码都来源于APUE的配套实践教程。
+第一回，先搞个more的实现。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/08/apue-more.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/11/10/apue-ls.html">unix环境高级编程3: ls</a></h2>
+                    </header>
+                    <section>
+                        <p>apue编程实践一共有15章，后面的章节涉及事件编程、线程、网络。
+必须快点看了，一天2章。出去玩之前搞定：</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/10/apue-ls.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

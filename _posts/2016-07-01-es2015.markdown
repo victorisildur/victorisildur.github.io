@@ -3,6 +3,7 @@ layout: post
 title: "全面拥抱es2015: 从页面，后台到测试"
 date: 2016-07-01 08:27:00
 categories: programming
+excerpt: 面向未来编程，从babel es2015开始
 ---
 
 # es6 测试

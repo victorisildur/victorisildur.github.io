@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix环境高级编程3: ls</h2>
+                <p class="post-meta">Nov 10, 2015</p>
+        </header>
+
+        <section>
+            <p>apue编程实践一共有15章，后面的章节涉及事件编程、线程、网络。
+必须快点看了，一天2章。出去玩之前搞定：</p>
+
+<ol>
+  <li>事件</li>
+  <li>进程</li>
+  <li>shell</li>
+  <li>io重定向、管道</li>
+</ol>
+
+<p>今天先搞定文件系统。</p>
+
+<h2 id="ls">ls</h2>
+
+<p>目录的结构。读unix的时候我们知道，目录也是文件，和普通文件不同的是，其inode有个标志位不一样（具体是什么？）。
+目录的内容是entry list，每个entry维护了文件信息、文件指针，或是子目录。</p>
+
+<p>每个目录至少含有两个entry: <code class="highlighter-rouge">.</code>和<code class="highlighter-rouge">..</code>。entry的格式在<code class="highlighter-rouge">&lt;dirent.h&gt;</code>中定义：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="k">struct</span> <span class="n">dirent</span> <span class="p">{</span>
+    <span class="n">ino_t</span>        <span class="n">d_ino</span><span class="p">;</span>        <span class="cm">/* file number of the entry*/</span>
+    <span class="n">__unit16_t</span>   <span class="n">d_reclen</span><span class="p">;</span>     <span class="cm">/* length of this record */</span>
+    <span class="n">__unit8_t</span>    <span class="n">d_type</span><span class="p">;</span>       <span class="cm">/* file type: fifo,dir,sock,blk,lnk... */</span>
+    <span class="n">__unit16_t</span>   <span class="n">d_namlen</span><span class="p">;</span>     <span class="cm">/* length of string in d_name */</span>
+    <span class="kt">char</span>         <span class="n">d_name</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span> <span class="cm">/* entry name */</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>怎么读目录呢？man一下发现<code class="highlighter-rouge">readdir</code>这个函数。返回值就是<code class="highlighter-rouge">dirent</code>。
+还有配套的opendir,closedir。
+都在<code class="highlighter-rouge">dirent.h</code>里。</p>
+
+<p>接下来思路就相当直观了，ls时，open当前目录；一个个entry读，打印；最后close目录。</p>
+
+<h1 id="section">第一版</h1>
+
+<p>就是opendir, readdir, closedir，非常简单。</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;dirent.h&gt;
+</span>
+<span class="kt">void</span> <span class="n">do_ls</span><span class="p">(</span><span class="kt">char</span> <span class="n">dirname</span><span class="p">[]);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">ac</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">av</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ac</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">do_ls</span><span class="p">(</span><span class="s">"."</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="k">while</span> <span class="p">(</span><span class="o">--</span><span class="n">ac</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%s:</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span> <span class="o">++</span><span class="n">av</span><span class="p">);</span>
+            <span class="n">do_ls</span><span class="p">(</span><span class="o">*</span><span class="n">av</span><span class="p">);</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">do_ls</span><span class="p">(</span><span class="kt">char</span> <span class="n">dirname</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">DIR</span> <span class="o">*</span> <span class="n">dir_ptr</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">dirent</span> <span class="o">*</span> <span class="n">direntp</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">dir_ptr</span><span class="o">=</span><span class="n">opendir</span><span class="p">(</span><span class="n">dirname</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"ls1: cannot open %s</span><span class="se">\b</span><span class="s">"</span><span class="p">,</span> <span class="n">dirname</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">while</span> <span class="p">((</span><span class="n">direntp</span> <span class="o">=</span> <span class="n">readdir</span><span class="p">(</span><span class="n">dir_ptr</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">direntp</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">);</span>
+        <span class="n">closedir</span><span class="p">(</span><span class="n">dir_ptr</span><span class="p">);</span>
+    <span class="p">}</span>
+        
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h2 id="ls--l">第二版，ls -l</h2>
+
+<p><code class="highlighter-rouge">ls -l</code>包含了哪些信息？</p>
+
+<ol>
+  <li>mode: -普通文件,d目录</li>
+  <li>链接数：inode链接次数</li>
+  <li>owner</li>
+  <li>group</li>
+  <li>size</li>
+  <li>last-modified time</li>
+  <li>文件名</li>
+</ol>
+
+<p>这些信息是哪里来的呢？stat! 这是<code class="highlighter-rouge">sys/stat.h</code>里提供的方法。
+函数原型：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cm">/* bufp输出stat指针
+*  result 0: 成功，-1: 遇到错误
+*/</span>
+<span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">stat</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">fname</span><span class="p">,</span> <span class="k">struct</span> <span class="n">stat</span> <span class="o">*</span> <span class="n">bufp</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>这块代码就不写了，咱们要加快点速度了。</p>
+
+<p>关于stat里的一些补充说明：</p>
+
+<ol>
+  <li>stat-&gt;st_mode包含16位，4位用作文件类型，9位用作许可权限，3位用作文件特殊属性。</li>
+  <li><code class="highlighter-rouge">set-user-ID</code>位。
+给可执行文件这一位置位，意思是不管谁执行这个程序，
+内核都认为是文件的owner在执行它。
+这就是为什么我们没有<code class="highlighter-rouge">/etc/passwd</code>文件的权限，却可以通过passwd命令改密码的原因。</li>
+  <li><code class="highlighter-rouge">sticky</code>位。
+意思是一些常用程序，如编辑器、编译器等，即使没有人在用，也要放到交换空间里。
+这样其装载速度要快很多。
+现在页已经代替了交换技术，这个不那么重要了。</li>
+  <li>文件类型：普通文件、目录文件、设备文件、socket文件、符号链接、命名管道。</li>
+</ol>
+
+<h2 id="pwd">pwd</h2>
+
+<p>上面的stat方法，opendir方法就好像变魔术一样，传入路径名就行了。
+路径到inode是如何映射的呢？
+我们写个pwd就知道了。</p>
+
+<p>先回顾下新建一个文件发生了什么：</p>
+
+<ol>
+  <li>文件属性的存储：内核先找到一个空的inode，如inode 47。
+内核把文件信息如创建者，文件大小，时间，权限等记录其中。</li>
+  <li>存储数据：新文件需要三个磁盘block，因此内核从free block list里找出3个自由块。
+如627，200，992. 内核缓冲区的数据依次复制到这三个块。</li>
+  <li>记录Block分配：inode节点的磁盘分布区记录了这三个block序列（627,200,992）</li>
+  <li>添加文件名到目录：内核将entry (47,newfilename)添加到目录文件。</li>
+</ol>
+
+<p>unix上，每个运行中的程序都有一个当前目录。细节的讲，ppda有一个当前目录的Inode号。
+只与cd时这个inode怎么变，写个pwd就知道了。</p>
+
+<p>步骤如下：</p>
+
+<ol>
+  <li>得到“.”的inode号，称其为n</li>
+  <li>chdir ..</li>
+  <li>找到inode号==n的entry的名字</li>
+  <li>重复1</li>
+</ol>
+
+<p>代码比较复杂，详见链接<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/pwd/pwd01.c">pwd01.c</a></p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/08/apue-who.html">unix环境高级编程2: who与cp</a></h2>
+                    </header>
+                    <section>
+                        <p>郁闷，github contributions老是没有，原来是没config email的原因</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/08/apue-who.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/11/11/apue-console.html">unix环境高级编程4: 设备控制与事件驱动编程</a></h2>
+                    </header>
+                    <section>
+                        <p>看完了普通文件系统，接下来看设备。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/11/apue-console.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

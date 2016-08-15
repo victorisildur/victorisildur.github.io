@@ -3,6 +3,7 @@ layout: post
 title: "用js解析protobuf"
 date: 2016-06-30 17:27:00
 categories: programming
+excerpt: 项目中遇到解码Protobuffer的需求，但是官方的实现实在太大啦，所以还是自己写一个来的高性能。能覆盖主流的message定义方法就行。
 ---
 
 ## varint

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">从html上写ng-model，到$digest循环调用$$watchers之间发生了什么</h2>
+                <p class="post-meta">Aug 15, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="section">目标</h2>
+<ol>
+  <li>搞清楚$digest循环时调用的$$watchers是哪里来的</li>
+</ol>
+
+<h2 id="section-1">简单结论</h2>
+
+<h1 id="dom-ready">当dom ready后发生了这么几件事：</h1>
+
+<ol>
+  <li>
+    <p>AngularInit() 拿到ng-app名</p>
+  </li>
+  <li>
+    <p>bootstrap() 生成 injector</p>
+  </li>
+  <li>
+    <p>injector实例化$rootScope, $rootElement, $compile, $injector.</p>
+  </li>
+  <li>
+    <p>$compile(element)</p>
+  </li>
+</ol>
+
+<h1 id="compile">最后一步$compile中，又分如下几步：</h1>
+
+<ol>
+  <li>
+    <p>遍历dom树</p>
+  </li>
+  <li>
+    <p>找ng-开头的directive的节点</p>
+  </li>
+  <li>
+    <p>执行directive的compile, pre link, post link函数</p>
+  </li>
+  <li>
+    <p>组合prelink postlink函数，如果post link中有 $scope.watch(expr, listener)的话，就把listener加到$scope[expr].$$watchers中去</p>
+  </li>
+  <li>
+    <p>因为angular对input元素内置的post link函数是会在listener中改dom，也会监听dom的值改scope, 所以:</p>
+  </li>
+</ol>
+
+<p>scope值变化 –&gt; $$watcher中的listener改dom; 
+dom值变化   –&gt; $scope变化</p>
+
+<p>至此，双向绑定完成！</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/javascript/2015/08/14/ng-directive.html">angular js自定义directive与集成jquery插件</a></h2>
+                    </header>
+                    <section>
+                        <p>##需求</p>
+<ol>
+  <li>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</li>
+</ol>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/javascript/2015/08/14/ng-directive.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/javascript/2015/08/24/reactjs-getstarted.html">Reactjs的一些理解</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">宗旨</h2>
+<p>我认为React的component是关键，它是抽象过的节点，对此官网是这样说的：</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/javascript/2015/08/24/reactjs-getstarted.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

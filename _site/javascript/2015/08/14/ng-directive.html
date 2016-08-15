@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">angular js自定义directive与集成jquery插件</h2>
+                <p class="post-meta">Aug 14, 2015</p>
+        </header>
+
+        <section>
+            <p>##需求</p>
+<ol>
+  <li>
+    <p>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</p>
+  </li>
+  <li>
+    <p>页面需要一个长得像iphone一样的switch，同样希望能在angular中用。</p>
+  </li>
+</ol>
+
+<p>##思路
+必须自己写angular的directive！</p>
+
+<p>先不讲概念，看下直观效果</p>
+
+<p>datetimepicker:</p>
+
+<p><img src="http://victorisildur.github.io/assets/images/datetimepicker.png" alt="datetimepicker" /></p>
+
+<p>toggle-switch:</p>
+
+<p><img src="http://victorisildur.github.io/assets/images/toggle-switch.png" alt="toggle-switch" /></p>
+
+<p>其中datetimepicker直接复用了jquery的datetimepicker插件，只是做了angularjs的ngModel接入。主要用到的directive概念：</p>
+
+<p>compile, pre link, post link</p>
+
+<p>toggle-switch全部自己写起，主要用到的directive概念：</p>
+
+<p>$formatter, $parser, $viewChangeListeners, $render</p>
+
+<p>##实现</p>
+
+<h1 id="jquery">与jquery插件的集成</h1>
+
+<p>html中正常引用jquery.datetimepicker插件和angularjs</p>
+
+<p>同时写自定义的<datetime-picker></datetime-picker></p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;datetime-picker</span> <span class="na">ng-model=</span><span class="s">"myDatetime.datetime"</span><span class="nt">&gt;&lt;/datetime-picker&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"datetimepicker-master/jquery.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"datetimepicker-master/jquery.datetimepicker.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"angular.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"app.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+<p>重点是如何把ng-model的值myDatetime.datetime双向绑定上去：</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">app</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">'datetimePicker'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="na">require</span><span class="p">:</span> <span class="s2">"ngModel"</span><span class="p">,</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"&lt;input&gt;"</span><span class="p">,</span>
+        <span class="na">replace</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="na">link</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">elem</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">ngModelCtrl</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">ngModelCtrl</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+            <span class="nx">$</span><span class="p">(</span><span class="nx">elem</span><span class="p">).</span><span class="nx">datetimepicker</span><span class="p">({</span>
+                <span class="na">format</span><span class="p">:</span> <span class="s1">'Y-m-d H:i:s'</span><span class="p">,</span>
+                <span class="na">step</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+                <span class="na">lang</span><span class="p">:</span> <span class="s1">'ch'</span><span class="p">,</span>
+                <span class="na">onSelectTime</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">datetime</span><span class="p">){</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">datetime</span><span class="p">);</span>
+                    <span class="nx">scope</span><span class="p">.</span><span class="nx">$apply</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                        <span class="nx">ngModelCtrl</span><span class="p">.</span><span class="nx">$setViewValue</span><span class="p">(</span><span class="nx">datetime</span><span class="p">);</span>
+                    <span class="p">});</span>
+                <span class="p">}</span>
+            <span class="p">});</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<p>这段代码做了这几个事儿：</p>
+
+<p>compile阶段：
+把<strong>datetime-picker</strong>替换成<strong>input</strong></p>
+
+<p>link阶段：
+具体的说是post link阶段，把<em>input</em>元素绑定上$().datetimepicker
+同时设置插件选择time时的监听器，用户选择时间后，触发：</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">$scope</span><span class="p">.</span><span class="nx">$apply</span><span class="p">(</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">ngModelCtrl</span><span class="p">.</span><span class="nx">$setViewValue</span><span class="p">(</span><span class="nx">datetime</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<p>ngModelCtrl, 这是什么？</p>
+
+<p>打印下link函数传入的第四个参数ngModel，可以看到是一个带有$modelValue, $viewValue, $viewChangeListener, $render, $parsers, $formatters的对象</p>
+
+<p>它是require: ngModel之后可以被同时注入指令的ngModelController，用来处理数据绑定、验证、css更新等不实际操作DOM的事情（而且已经到post link阶段了，你也不应该去操作dom）</p>
+
+<p>到这里ngModelCtrl.$setViewValue就好理解了：</p>
+
+<p>用jquery插件传来的值，赋给<em>input</em>元素，这样视图层就有了新的datetime值</p>
+
+<p>然后因为我们外层用$scope.$apply()包裹，所以触发了$digest循环，循环过程中$scope.myDatetime.datetime被更新。</p>
+
+<p>至此，jquery插件对angular视图和Model的更新就都完成了</p>
+
+<p>或者，我们不想触发$digest循环，angular还要去搞脏值检测，多麻烦，有没有办法直接手动改掉Model的值呢？也是有的，这里对link()第一个参数scope的model属性操作就可以了：</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">ngModelCtrl</span><span class="p">.</span><span class="nx">$setViewValue</span><span class="p">(</span><span class="nx">datetime</span><span class="p">);</span>
+<span class="nx">scope</span><span class="p">.</span><span class="nx">model</span> <span class="o">=</span> <span class="nx">datetime</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<h1 id="directive-toggle-switch">如何手写directive toggle-switch?</h1>
+
+<p>toggle-switch难点在于思路上。</p>
+
+<p>首先，switch从逻辑上来说，就是个0,1开关，和 input type=”checkbox”实在太像。很容易就想去写个input ng-model=”open”，然后通过样式操作让它变得像个iphone的开关。</p>
+
+<p>这个的想法有个问题：iphone switch长成那样，显然是要把checkbox覆盖掉的，你没法直接点到checkbox！</p>
+
+<p>正确思路是：画一个switch，用ng-model的true false值控制其样式，每次click的时候，model值取反。</p>
+
+<p>核心代码如下：</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;toggle-switch</span> <span class="na">ng-model=</span><span class="s">"alimonitorObj.ifWangwang"</span><span class="nt">&gt;&lt;/toggle-switch&gt;</span>
+</code></pre>
+</div>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// 模板</span>
+<span class="nl">template</span><span class="p">:</span> <span class="s1">'&lt;div role="radio" class="toggle-switch" ng-class="{ \'disabled\': disabled }"&gt;'</span> <span class="o">+</span>
+            <span class="s1">'&lt;div class="toggle-switch-animate" ng-class="{\'switch-off\': !model, \'switch-on\': model}"&gt;'</span> <span class="o">+</span>
+              <span class="s1">'&lt;span class="switch-left" ng-bind="onLabel"&gt;&lt;/span&gt;'</span> <span class="o">+</span>
+              <span class="s1">'&lt;span class="knob" ng-bind="knobLabel"&gt;&lt;/span&gt;'</span> <span class="o">+</span>
+              <span class="s1">'&lt;span class="switch-right" ng-bind="offLabel"&gt;&lt;/span&gt;'</span> <span class="o">+</span>
+            <span class="s1">'&lt;/div&gt;'</span> <span class="o">+</span>
+          <span class="s1">'&lt;/div&gt;'</span><span class="p">,</span>
+
+<span class="c1">// link</span>
+<span class="nx">link</span><span class="err">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">ngModelCtrl</span><span class="p">){</span>
+    <span class="nx">element</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'click'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">scope</span><span class="p">.</span><span class="nx">$apply</span><span class="p">(</span><span class="nx">scope</span><span class="p">.</span><span class="nx">toggle</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="nx">ngModelCtrl</span><span class="p">.</span><span class="nx">$render</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">scope</span><span class="p">.</span><span class="nx">model</span> <span class="o">=</span> <span class="nx">ngModelCtrl</span><span class="p">.</span><span class="nx">$viewValue</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="nx">scope</span><span class="p">.</span><span class="nx">toggle</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">toggle</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">scope</span><span class="p">.</span><span class="nx">disabled</span><span class="p">)</span> <span class="p">{</span>
+           <span class="nx">scope</span><span class="p">.</span><span class="nx">model</span> <span class="o">=</span> <span class="o">!</span><span class="nx">scope</span><span class="p">.</span><span class="nx">model</span><span class="p">;</span>
+           <span class="nx">ngModelCtrl</span><span class="p">.</span><span class="nx">$setViewValue</span><span class="p">(</span><span class="nx">scope</span><span class="p">.</span><span class="nx">model</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>这段代码做了如下几个事：</p>
+
+<ol>
+  <li>
+    <p>把 <em>toggle-switch</em> 元素替换成 <em>div class=”toggle-switch”</em> 元素，其中部分css class由model决定</p>
+  </li>
+  <li>
+    <p>$render:</p>
+
+    <p>从控制器里设置mySwitchStatus.ifOpen = true到 <em>div class=”switch-open”</em>，经历了这么几步骤：</p>
+
+    <p><img src="http://victorisildur.github.io/assets/images/formatters-render.png" alt="formatters-render" /></p>
+
+    <ol>
+      <li>
+        <p>控制器初始化，触发$digest循环</p>
+      </li>
+      <li>
+        <p>检测到$scope.mySwitchStatus.ifOpen是脏值</p>
+      </li>
+      <li>
+        <p>执行$$watcher列表中 mySwitchStatus.ifOpen的$watch函数ngModelWatch()</p>
+      </li>
+      <li>
+        <p>ngModel()中：</p>
+      </li>
+    </ol>
+
+    <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="nx">modelValue</span> <span class="o">!==</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$modelValue</span><span class="p">)</span> <span class="p">{</span>
+   <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$modelValue</span> <span class="o">=</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$$rawModelValue</span> <span class="o">=</span> <span class="nx">modelValue</span><span class="p">;</span>
+   <span class="kd">var</span> <span class="nx">formatters</span> <span class="o">=</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$formatters</span><span class="p">,</span>
+       <span class="nx">idx</span> <span class="o">=</span> <span class="nx">formatters</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+   <span class="kd">var</span> <span class="nx">viewValue</span> <span class="o">=</span> <span class="nx">modelValue</span><span class="p">;</span>
+   <span class="k">while</span> <span class="p">(</span><span class="nx">idx</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nx">viewValue</span> <span class="o">=</span> <span class="nx">formatters</span><span class="p">[</span><span class="nx">idx</span><span class="p">](</span><span class="nx">viewValue</span><span class="p">);</span>
+   <span class="p">}</span>
+   <span class="k">if</span> <span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">$viewValue</span> <span class="o">!==</span> <span class="nx">viewValue</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$viewValue</span> <span class="o">=</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$$lastCommittedViewValue</span> <span class="o">=</span> <span class="nx">viewValue</span><span class="p">;</span>
+     <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$render</span><span class="p">();</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
+    </div>
+
+    <ol>
+      <li>
+        <p>ngModel()中：依次执行$formatters中的函数, mySwitchStatus.ifOpen中的值被最终转换成dom中的字符串</p>
+      </li>
+      <li>
+        <p>$viewValue被赋值为formatters处理后的字符串</p>
+      </li>
+      <li>
+        <p>执行$render()</p>
+      </li>
+    </ol>
+
+    <p>所以这里的 $render保证了$scope.mySwitchStatus.ifOpen变化后，scope.model随之变化</p>
+
+    <p>（？？不应该是自动的吗？？ 似乎scope.model 和 ngModelCtrl.$modelValue不一样）</p>
+
+    <p>这样，初始状态下 div class=”switch-open”就完成了</p>
+
+    <p>然后就是监听elem.click事件，触发时scope.model反向，并更新$viewValue</p>
+
+    <p>整个过程结束</p>
+
+    <p>这里至于为什么$watcher长成这个样,</p>
+
+    <p>ctrl.$viewViewValue如何最终影响到视图dom，就要另开一篇讲了。</p>
+  </li>
+</ol>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/javascript/2015/08/10/d3js.html">d3.js学习</a></h2>
+                    </header>
+                    <section>
+                        <p>d3.js在stream和scheduler上都有用，它结合svg之后，可以做出很漂亮的可视化数据，而且编程风格非常优雅</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/javascript/2015/08/10/d3js.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/javascript/2015/08/15/angular-compile-watchers.html">从html上写ng-model，到$digest循环调用$$watchers之间发生了什么</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">目标</h2>
+<ol>
+  <li>搞清楚$digest循环时调用的$$watchers是哪里来的</li>
+</ol>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/javascript/2015/08/15/angular-compile-watchers.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

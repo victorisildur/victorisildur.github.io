@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">zepto源码阅读</h2>
+                <p class="post-meta">Aug 1, 2016</p>
+        </header>
+
+        <section>
+            <h2 id="on-one">$.on $.one</h2>
+
+<p>用on的话，会增量的加事件监听，在redux这种反复subscribe的情景下，很容易出bug。
+因此，用one是很好的选择。</p>
+
+<p>来看看.one是如何实现的:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// one</span>
+<span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">one</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// one -&gt; on</span>
+<span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">on</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">one</span><span class="p">){</span>
+   <span class="p">...</span>
+   <span class="k">return</span> <span class="nx">$this</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">_</span><span class="p">,</span> <span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">one</span><span class="p">)</span> <span class="nx">autoRemove</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+         <span class="nx">remove</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span>
+         <span class="k">return</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">)</span>
+      <span class="p">}</span>
+      <span class="nx">add</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">event</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">delegator</span> <span class="o">||</span> <span class="nx">autoRemove</span><span class="p">)</span>
+      <span class="p">...</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// on -&gt; add</span>
+<span class="kd">function</span> <span class="nx">add</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">fn</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">delegator</span><span class="p">,</span> <span class="nx">capture</span><span class="p">){</span>
+    <span class="kd">var</span> <span class="nx">callback</span>  <span class="o">=</span> <span class="nx">delegator</span> <span class="o">||</span> <span class="nx">fn</span>
+    <span class="nx">handler</span><span class="p">.</span><span class="nx">proxy</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+        <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">_args</span> <span class="o">==</span> <span class="kc">undefined</span> <span class="p">?</span> <span class="p">[</span><span class="nx">e</span><span class="p">]</span> <span class="p">:</span> <span class="p">[</span><span class="nx">e</span><span class="p">].</span><span class="nx">concat</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">_args</span><span class="p">))</span>
+    <span class="p">}</span>
+    <span class="nx">element</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">realEvent</span><span class="p">(</span><span class="nx">handler</span><span class="p">.</span><span class="nx">e</span><span class="p">),</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">proxy</span><span class="p">,</span> <span class="nx">eventCapture</span><span class="p">(</span><span class="nx">handler</span><span class="p">,</span> <span class="nx">capture</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>所以就是一触发，立马remove这个监听器，从而实现只触发一次。</p>
+
+<p>另一个问题是，.off是否会把所有.on添加的listener都删除掉？
+答案是能删掉，来看看实现吧：</p>
+
+<h2 id="data">$.data</h2>
+
+<p>我们知道，$.data可以存任意object，这是如何实现的？</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">dataAttr</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="nx">camelize</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">camelCase</span><span class="p">,</span>
+    <span class="nx">exp</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">expando</span> <span class="o">=</span> <span class="s1">'Zepto'</span> <span class="o">+</span> <span class="p">(</span><span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()),</span> <span class="nx">emptyArray</span> <span class="o">=</span> <span class="p">[];</span>
+  
+<span class="c1">// Store value under camelized key on node</span>
+<span class="kd">function</span> <span class="nx">setData</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">id</span> <span class="o">=</span> <span class="nx">node</span><span class="p">[</span><span class="nx">exp</span><span class="p">]</span> <span class="o">||</span> <span class="p">(</span><span class="nx">node</span><span class="p">[</span><span class="nx">exp</span><span class="p">]</span> <span class="o">=</span> <span class="o">++</span><span class="nx">$</span><span class="p">.</span><span class="nx">uuid</span><span class="p">),</span>
+      <span class="nx">store</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="o">||</span> <span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">attributeData</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">name</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="nx">store</span><span class="p">[</span><span class="nx">camelize</span><span class="p">(</span><span class="nx">name</span><span class="p">)]</span> <span class="o">=</span> <span class="nx">value</span>
+    <span class="k">return</span> <span class="nx">store</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>存到内存里的一个变量data = {}里啦！ id由<code class="highlighter-rouge">$.uuid</code>生成，当然任意咯。</p>
+
+<h2 id="ajax">ajax</h2>
+
+<p><code class="highlighter-rouge">INVALID_STATE_ERR: DOM Exception 11</code></p>
+
+<p>这是个XMLHttpRequest对象抛出的异常，如果<code class="highlighter-rouge">xhr.open</code>前调用了xhr.withCredentials就会出问题。</p>
+
+<p>详见这个issue: <a href="https://github.com/madrobby/zepto/issues/921">issue 921</a></p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/programming/2016/07/01/es2015.html">全面拥抱es2015: 从页面，后台到测试</a></h2>
+                    </header>
+                    <section>
+                        面向未来编程，从babel es2015开始
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/programming/2016/07/01/es2015.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/programming/2016/08/08/linux-cmd.html">linux命令细节汇总</a></h2>
+                    </header>
+                    <section>
+                        <p>linux cmd的零碎积累</p>
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/programming/2016/08/08/linux-cmd.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

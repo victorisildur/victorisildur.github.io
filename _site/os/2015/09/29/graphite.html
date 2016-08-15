@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">Graphite架构</h2>
+                <p class="post-meta">Sep 29, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="section">初衷</h2>
+
+<p>毕业论文用的仿真器，纯c++写的，用pin统计指令，用c++对网络、存储建模</p>
+
+<p>我们主要改造其中的网络部分</p>
+
+<h2 id="section-1">网络</h2>
+
+<h1 id="section-2">调用流程</h1>
+
+<p>首先要知道网络的packet哪里来的？其实就是memory_model里，当检测到cache miss之后，就会调用</p>
+
+<div class="language-c++ highlighter-rouge"><pre class="highlight"><code><span class="n">_memory_manager</span><span class="o">-&gt;</span><span class="n">sendMsg</span><span class="p">();</span>
+<span class="cm">/* 进去执行 */</span>
+<span class="n">getNetwork</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">netSend</span><span class="p">(</span><span class="n">packet</span><span class="p">);</span>
+<span class="cm">/* 进去执行 */</span>
+<span class="k">if</span><span class="p">(</span><span class="n">model</span><span class="o">-&gt;</span><span class="n">hasBroadcastCapability</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">forwardPacket</span><span class="p">(</span><span class="n">packet</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cm">/* 进去执行 */</span>
+<span class="n">next_network_model</span><span class="o">-&gt;</span><span class="n">__routePacket</span><span class="p">();</span>
+</code></pre>
+</div>
+
+<p>这样会最终调用到/common/network/models/目录下的哪些模型</p>
+
+<p>network_model_xxx_xxx.cc都继承了<code class="highlighter-rouge">NetworkModel</code>类，重写了<code class="highlighter-rouge">routePacket()</code>方法</p>
+
+<p>这样其实也是一种delegate</p>
+
+<p>所以，我们首先把注意力集中在network_model_hop_by_hop.cc的<code class="highlighter-rouge">routePacket()</code>方法里</p>
+
+<h1 id="link">link</h1>
+
+<p>就是两个路由器之间的链路咯，相当于收费站之间的高速公路</p>
+
+<p>参数：</p>
+
+<ul>
+  <li>link delay</li>
+  <li>link type</li>
+</ul>
+
+<h1 id="router">router</h1>
+
+<p>就是路由器咯，有input port, switching fabric, output port构成</p>
+
+<p>参数：</p>
+
+<ul>
+  <li>router_delay</li>
+  <li>num_flits_per_output_buffer</li>
+</ul>
+
+<h2 id="pin">pin</h2>
+
+<p>所有app, benchmark都在pin之上运行，pintool上加了很多监听器，监听诸如<code class="highlighter-rouge">ThreadStart</code>, <code class="highlighter-rouge">ThreadFini</code>, <code class="highlighter-rouge">INS_AddInstrumentFunction</code></p>
+
+<p>其中最后一个里面截获了memory相关的指令</p>
+
+<p>所以勒，/pin/pin_sim.cc先把各种监听器绑好，指令来了调仿真器的函数，然后<code class="highlighter-rouge">PIN_StartProgram()</code>开始真正运行app/benchmark</p>
+
+<p>最后，我们是在什么地方调用pin_sim.cc，并关联ping_pong的呢？</p>
+
+<ol>
+  <li>根Makefile引用<code class="highlighter-rouge">/tests/apps/Makefile</code></li>
+  <li><code class="highlighter-rouge">/tests/apps/Makefile</code>中有工作目标<code class="highlighter-rouge">%_app_test</code>, 并引用<code class="highlighter-rouge">/tests/Makefile.tests</code></li>
+  <li><code class="highlighter-rouge">/tests/Makefile.tests</code>中，有工作目标是用来执行的：</li>
+</ol>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="nv">EXEC</span> <span class="o">?=</span> <span class="nv">$(CURDIR)</span>/<span class="nv">$(TARGET)</span> <span class="nv">$(APP_FLAGS)</span>
+<span class="nv">PIN_RUN</span> <span class="o">=</span> <span class="nv">$(PIN_BIN)</span> <span class="nv">$(PIN_DEBUG_FLAGS)</span> -injection child -tool_exit_timeout 1 -mt -t <span class="nv">$(PIN_TOOL)</span>
+
+<span class="nv">run_fn</span> <span class="o">=</span> <span class="err">$</span><span class="o">(</span><span class="k">if</span> <span class="err">$</span><span class="o">(</span>findstring build,<span class="nv">$(BUILD_MODE)</span><span class="o">)</span>, ,<span class="err">$</span><span class="o">(</span><span class="k">if</span> <span class="err">$</span><span class="o">(</span>findstring pin,<span class="err">$</span><span class="o">(</span>1<span class="o">))</span>,<span class="err">$</span><span class="o">(</span>call launch_fn<span class="o">)</span> <span class="nv">$(PIN_RUN)</span> <span class="err">$</span><span class="o">(</span>3<span class="o">)</span> -- <span class="err">$</span><span class="o">(</span>2<span class="o">)</span>,<span class="err">$</span><span class="o">(</span>call launch_fn<span class="o">)</span> <span class="nv">$(VALGRIND)</span> <span class="err">$</span><span class="o">(</span>2<span class="o">)</span> <span class="err">$</span><span class="o">(</span>3<span class="o">)))</span>
+<span class="nv">RUN</span> <span class="o">?=</span> <span class="nb">cd</span> <span class="nv">$(SIM_ROOT)</span> ; <span class="err">$</span><span class="o">(</span>call run_fn,<span class="nv">$(MODE)</span>,<span class="nv">$(EXEC)</span>,<span class="nv">$(SIM_FLAGS)</span><span class="o">)</span>
+
+<span class="c"># Build targets
+</span><span class="nl">all</span><span class="o">:</span> <span class="nf">$(TARGET)</span>
+     <span class="err">$(RUN)</span>
+</code></pre>
+</div>
+
+<p>我们的pin在哪儿？在<code class="highlighter-rouge">PIN_RUN</code>里，我们的<code class="highlighter-rouge">ping_ping</code>在哪儿？在<code class="highlighter-rouge">EXEC</code>里，因为<code class="highlighter-rouge">TARGET</code>是在<code class="highlighter-rouge">/tests/app/ping_ping/Makefile</code>里设置的，置为了<code class="highlighter-rouge">ping_pong</code>!</p>
+
+<p>所以，其实真正起的是一个pin_bin，参数里带ping_pong可执行文件，执行起来之后，特殊指令会触发模拟器里的方法</p>
+
+<p>具体一点，触发的是<code class="highlighter-rouge">core-&gt;initiateMemoryAccess()</code>方法</p>
+
+<p>还有可能触发redirect_memory.cc中的</p>
+
+<p><code class="highlighter-rouge">rewriteMemOp()</code> -&gt; 
+<code class="highlighter-rouge">PinMemoryManager-&gt;redirectMemOp()</code> -&gt; 
+<code class="highlighter-rouge">m_core-&gt;accessMemory()</code></p>
+
+<h2 id="section-3">不懂的地方</h2>
+
+<p>为啥要redirectMemOp()? 好像里面也没有做什么事</p>
+
+<h2 id="section-4">注包率试验设计</h2>
+
+<p>基本思路是去改all_to_all，不过要先确定下all_to_all用到了广播</p>
+
+<ol>
+  <li>
+    <p>all_to_all.cc里调用<code class="highlighter-rouge">CAPI_message_send_w</code></p>
+  </li>
+  <li>
+    <p>capi.cc里调用<code class="highlighter-rouge">core-&gt;coreSendW()</code>，其中的<code class="highlighter-rouge">receiving_tile</code>参数赋值为<code class="highlighter-rouge">CAPI_ENDPOINT_ALL</code>。</p>
+  </li>
+  <li>
+    <p>core.cc里调用<code class="highlighter-rouge">tile-&gt;getNetwork()-&gt;netBroadcast()</code></p>
+  </li>
+</ol>
+
+<p>好了，基于这个，我们就可以设计注包率实验了。基本想法是每个线程按固定频率发包，单播包随机发，广播包占x%</p>
+
+<p>注包率的计算公式是 flits/cycle/core</p>
+
+<h2 id="section-5">如何说明算法好呢？</h2>
+
+<p>现在必须借助注包率实验，高注包率的情况下，Latency表现必须好，要不就只能扯contention_delay低，然而contention_delay感觉并不是主要指标。</p>
+
+<p>干，graphite没法做注包率试验，仅靠benchmark很难说明我的效果好多少，试验效果不理想啊</p>
+
+<p>现在打算注包率试验部分换booksim做</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/09/28/gnu-make.html">GNU Make项目管理</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">初衷</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/09/28/gnu-make.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/10/13/booksim.html">修改booksim/noxim源码，实现loadaware broadcast</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="booksim">booksim干嘛的</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/10/13/booksim.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix环境高级编程5: 进程</h2>
+                <p class="post-meta">Nov 16, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="shell">shell是如何实现的？</h2>
+
+<p>才想起来，用的就是exec系统调用咯。
+其高层有多种实现，我们来写一个<code class="highlighter-rouge">execvp()</code>的实现：</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span> <span class="n">arglist</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+    <span class="n">arglist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">"ls"</span><span class="p">;</span>
+    <span class="n">arglist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">"-l"</span><span class="p">;</span>
+    <span class="n">arglist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"*** about to exec ls -l</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">execvp</span><span class="p">(</span><span class="s">"ls"</span><span class="p">,</span> <span class="n">arglist</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"*** ls is done.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">execvp(const char * file, const char * argv[])</code>第一个参数是要执行的文件名。
+文件在PATH环境变量所指定的目录中查找file。</p>
+
+<h1 id="fork">fork版本</h1>
+<p>上一个版本的问题在于程序只执行一次。
+想要shell长存，就要采用fork方案。
+fork本身比较简单，值得注意的点是主线程要等子线程结束。
+wait的例子如下：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/process/waitdemo.c">wait demo 01</a></p>
+
+<p>然后的思路就很直观了，不断地fgets读命令行参数，遇到回车后fork，主进程等子进程，然后再次读命令行参数。
+子进程用execvp去执行相应地程序。</p>
+
+<p>程序如下：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/process/psh02.c">prompting shell 02</a></p>
+
+<h1 id="sigint">SIGINT信号？</h1>
+
+<p>没问题？那是你use case不够！如果在子进程执行的时候按下ctrl+c会怎样？
+你会发现父进程被一起杀掉了！</p>
+
+<p>思路是给父进程设置sigmask。子进程则不设。这个留作练习。</p>
+
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/11/apue-console.html">unix环境高级编程4: 设备控制与事件驱动编程</a></h2>
+                    </header>
+                    <section>
+                        <p>看完了普通文件系统，接下来看设备。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/11/apue-console.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/11/25/apue-io.html">unix环境高级编程6: io、重定向、管道</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">一些概念</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/25/apue-io.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

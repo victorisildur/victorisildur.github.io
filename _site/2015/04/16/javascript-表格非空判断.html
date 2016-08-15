@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">2015-04-16-javascript 表格非空判断</h2>
+                <p class="post-meta">Apr 16, 2015</p>
+        </header>
+
+        <section>
+            <p>#引子
+jquery自带的</p>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;input</span> <span class="na">required</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+<p>非常好用，但是只能在一个form里做非空校验</p>
+
+<p>如果我们想用js对任何元素及其子元素做非空校验，该怎么办呢？</p>
+
+<p>#attr
+我们借鉴required方式，给我们想要非空的元素加</p>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;element</span> <span class="na">i-require</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+<p>然后用jquery的attr方法判断即可！</p>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'i-require'</span><span class="p">)</span> <span class="o">!==</span> <span class="kc">undefined</span>
+</code></pre>
+</div>
+
+<p>#深度优先遍历算法</p>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">checkNoneEmpty</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">element</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span> <span class="o">!</span> <span class="p">(</span><span class="nx">element</span> <span class="k">instanceof</span> <span class="nx">jQuery</span><span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="nx">element</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span> <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'i-require'</span><span class="p">)</span> <span class="o">!==</span> <span class="kc">undefined</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">val</span><span class="p">();</span>
+            <span class="k">if</span><span class="p">(</span> <span class="o">!</span> <span class="nx">value</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span> <span class="nx">element</span><span class="p">.</span><span class="nx">children</span><span class="p">().</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">has_empty</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+            <span class="nx">element</span><span class="p">.</span><span class="nx">children</span><span class="p">().</span><span class="nx">each</span><span class="p">(</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">index</span> <span class="p">,</span> <span class="nx">child</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span> <span class="nx">checkNoneEmpty</span><span class="p">(</span><span class="nx">child</span><span class="p">)</span> <span class="o">===</span> <span class="kc">false</span> <span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">has_empty</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+                    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">});</span>
+            <span class="k">if</span><span class="p">(</span> <span class="nx">has_empty</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">};</span>
+</code></pre>
+</div>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/2015/04/09/javascript%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F.html">2015-04-09-javascript正则表达式</a></h2>
+                    </header>
+                    <section>
+                        <p>#引子
+遇到的问题：</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/2015/04/09/javascript%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html">2015-05-09-javascript原型链与原型继承</a></h2>
+                    </header>
+                    <section>
+                        <p>#引子</p>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
+		<span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
+	<span class="p">},</span>
+	<span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+		<span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">object</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<h1 id="section">原型链</h1>
+<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述" /></p>
+<ol>
+  <li>Func.prototype = object : {constructor, [[Prototype]]}</li>
+  <li>object.[[constructor]] = Func</li>
+  <li>new Func().[[Prototype]] = Func.prototype</li>
+  <li>var a = new Func()执行三步：</li>
+</ol>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">unix环境高级编程7: server、socket</h2>
+                <p class="post-meta">Nov 26, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="section">进程间通信</h2>
+
+<ol>
+  <li>两个管道。管道是单向的，打开两个管道，能确保coroutine（协同进程）工作。</li>
+  <li>popen。popen运行了一个进程，返回指向该程序标准输入或输出的连接。
+这有什么卵用呢？我们来看个例子：</li>
+</ol>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">popen</span><span class="p">(</span><span class="s">"who|sort"</span><span class="p">,</span><span class="s">"r"</span><span class="p">);</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%3d %s"</span><span class="p">,</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+    <span class="n">pclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>这个popen是怎么实现的？有什么卵用呢？</p>
+
+<p>其实现其实就是搞一个子进程去<code class="highlighter-rouge">exec("/bin/sh","-c",cmd,NULL)</code>，这样就执行了任意shell命令如例子中的<code class="highlighter-rouge">who|sort</code>.
+返回的文件描述符是父进程与子进程之间的管道。
+具体是父到子的管道，还是子到父的管道，那就要看popen的第二个参数是r还是w了。
+父进程把这个文件返回给main函数，然后就完成任务。</p>
+
+<p>so…popen就是一种从进程获得数据的方法。
+与之对应的是fopen，从文件获取数据；以及从函数获取数据。</p>
+
+<h2 id="socket-">socket: 连接远端进程</h2>
+
+<p>管道是的进程间通信就像在读写文件，但他有两个缺陷。一，管道通过fork贡献，所以只能连接相关的进程。二，同样因为上面的理由，它只能连接同一台机器的进程。</p>
+
+<h1 id="section-1">服务器端</h1>
+
+<p>socket服务器的步骤我们比较熟悉，就是bind-&gt;listen-&gt;accept-&gt;rw-&gt;close。</p>
+
+<p>写个时间服务器的例子 <a href="https://github.com/victorisildur/UNIX/blob/master/APUE/socket/timeserver1.c">time server</a></p>
+
+<h1 id="section-2">客户端</h1>
+
+<p>流程建立socket-&gt;connet-&gt;read-&gt;打印-&gt;close. 例子：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/socket/timeclient1.c">time client</a></p>
+
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/os/2015/11/25/apue-io.html">unix环境高级编程6: io、重定向、管道</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">一些概念</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/25/apue-io.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/11/27/apue-thread.html">unix环境高级编程8: 多线程</a></h2>
+                    </header>
+                    <section>
+                        <p>##一些语法</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/27/apue-thread.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

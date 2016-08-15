@@ -3,6 +3,7 @@ layout: post
 title: "html细节汇总"
 date: 2016-04-11 17:27:00
 categories: programming
+excerpt: html细节辑录
 ---
 
 # base标签

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">2015-05-29-javascript 基础</h2>
+                <p class="post-meta">May 29, 2015</p>
+        </header>
+
+        <section>
+            <h1 id="section">严格模式</h1>
+<h2 id="section-1">好处</h2>
+<p>消除语法模糊，避免一些安全问题
+提高编译、运行速度</p>
+<h2 id="section-2">区别</h2>
+<ol>
+  <li>不支持全局变量的隐式声明</li>
+  <li>不支持对象的重名属性</li>
+  <li>不支持argument.callee</li>
+</ol>
+
+<h1 id="section-3">变量标示符</h1>
+<ol>
+  <li>字符，_，$开头</li>
+  <li>除了开头，允许数字</li>
+</ol>
+
+<h1 id="section-4">内置类型</h1>
+<p><img src="http://img.blog.csdn.net/20150529162811847" alt="这里写图片描述" /></p>
+
+<p>引用类型：Object
+原始类型：Null, Undefined, Boolean, Number, String
+<img src="http://img.blog.csdn.net/20150529163157783" alt="这里写图片描述" /></p>
+
+<h1 id="section-5">类型识别</h1>
+<h2 id="typeof">typeof</h2>
+<p>识别除null外的标准类型</p>
+<h2 id="objectprototypetostring">Object.prototype.toString</h2>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">obj</span><span class="p">).</span><span class="nx">slice</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">).</span><span class="nx">toLowerCase</span><span class="p">()</span>
+</code></pre>
+</div>
+<p>Array, Date,RegExp,Error 内置对象都可以</p>
+<h2 id="instanceof">instanceof</h2>
+<p>不能判别原始对象类型： string, number, boolean</p>
+
+<h1 id="section-6">内置对象</h1>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/2015/05/23/javascript-scope-chain.html">2015-05-23-javascript scope chain</a></h2>
+                    </header>
+                    <section>
+                        <h1 id="scope-chain">scope chain</h1>
+<p>一个函数有一个scope chain
+函数每调用一次，该函数的scope上创建一个对象，函数的局部变量被当做属性赋值给这个新对象。
+所以对嵌套函数</p>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">A</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="s1">'A'</span><span class="p">;</span>
+	<span class="kd">function</span> <span class="nx">B</span><span class="p">()</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="s1">'B'</span>
+	<span class="p">}</span>
+	<span class="kd">function</span> <span class="nx">C</span><span class="p">()</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="s1">'C'</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>scope A   &lt;—  scope B
+       ^
+       |
+       |___ scope C
+当A()被调用。 scope A上有新对象，新对象有a属性。
+                           scope B上有新对象， 新对象有b属性。
+                           scope C上有新对象， 新对象有c属性。
+                           B函数内能通过scope chain找到a 属性
+                           C函数也能通过scope chain找到a 属性，两者是同一对象。因为都是在A()的这次调用里新建的对象的a属性。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/2015/05/23/javascript-scope-chain.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/2015/05/30/%E9%A1%B5%E9%9D%A2%E5%88%B6%E4%BD%9C%E5%9F%BA%E7%A1%80.html">2015-05-30-页面制作基础</a></h2>
+                    </header>
+                    <section>
+                        <h1 id="section">标签</h1>
+<p><img src="http://img.blog.csdn.net/20150530114406097" alt="这里写图片描述" /></p>
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/2015/05/30/%E9%A1%B5%E9%9D%A2%E5%88%B6%E4%BD%9C%E5%9F%BA%E7%A1%80.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

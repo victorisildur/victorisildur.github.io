@@ -3,6 +3,7 @@ layout: post
 title: "编程的本质"
 date: 2016-03-24 08:27:00
 categories: programming
+excerpt: 听这名字就得读啊，都抽象到数学高度了
 ---
 
 # 为什么读这本书

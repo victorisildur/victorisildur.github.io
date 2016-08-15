@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">2015-07-06-nodejs使用中遇到的问题</h2>
+                <p class="post-meta">Jul 6, 2015</p>
+        </header>
+
+        <section>
+            <h1 id="json">json</h1>
+<ul>
+  <li>XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空</li>
+  <li>XMLHttpRequest.setRequestHeader必须在request open后再设置</li>
+</ul>
+
+<h1 id="rest">REST</h1>
+<ul>
+  <li>Express()生成的app, 可以用use(router)，也可以直接app.post, app.delete</li>
+  <li>重定向：
+    <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">//express router中：</span>
+<span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">'http://aaa.com'</span><span class="p">);</span>
+<span class="c1">//nodejs</span>
+<span class="nx">res</span><span class="p">.</span><span class="nx">writeHeader</span><span class="p">(</span><span class="mi">301</span><span class="p">,</span> <span class="p">{</span><span class="na">Location</span><span class="p">:</span> <span class="s1">'http://aaa.com'</span><span class="p">});</span>
+<span class="c1">// syntax: response.writeHead(statusCode[, statusMessage][, headers])</span>
+<span class="c1">// 301之后浏览器会重新请求</span>
+<span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+</code></pre>
+    </div>
+  </li>
+</ul>
+
+<h1 id="api">api</h1>
+<ul>
+  <li>中间件之间共享数据aaa，免得老是res.render({aaa:aaa}):
+    <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">res</span><span class="p">.</span><span class="nx">locals</span> <span class="o">=</span> <span class="p">{</span><span class="na">aaa</span><span class="p">:</span> <span class="nx">aaa</span><span class="p">}</span>
+<span class="c1">// 然后就可以在所有模板里  &lt;%= aaa %&gt;了</span>
+</code></pre>
+    </div>
+  </li>
+</ul>
+
+<h1 id="linux">linux</h1>
+<ul>
+  <li>统计文件行数：
+    <div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="c"># 简单</span>
+wc -l filename <span class="o">[</span>filename <span class="o">[</span>filename <span class="o">[</span>..]]]
+<span class="c"># 文件 --&gt; cat --&gt; wc -l</span>
+find scripts/ -name <span class="s1">'*.js'</span>  ! -path <span class="s1">'scripts/lib/*'</span> | xargs cat | wc -l
+<span class="c"># 这里用到了expr1 ! expr2 (== expr1 &amp;&amp; !expr2)</span>
+</code></pre>
+    </div>
+  </li>
+</ul>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/life/2015/06/27/%E5%8D%9A%E5%AE%A2%E8%BF%81%E7%A7%BB.html">2015-06-27-博客迁移</a></h2>
+                    </header>
+                    <section>
+                        <p>今天review了x易的课，发现csdn博客实在是。。。没有关注度
+今天开始转github.io，用jekyllrb写博客，目标找工作前拿到人生第一个star!
+步骤：</p>
+<ol>
+  <li>github.io配套设施搞好</li>
+  <li>nodejs写一个转换脚本</li>
+  <li>迁移！</li>
+</ol>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/life/2015/06/27/%E5%8D%9A%E5%AE%A2%E8%BF%81%E7%A7%BB.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/nodejs/2015/07/09/how-to-migrate-blogs-from-csdn.html">How to migrate blogs from CSDN</a></h2>
+                    </header>
+                    <section>
+                        <p>因为涉及CSDN，所以用中文</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/nodejs/2015/07/09/how-to-migrate-blogs-from-csdn.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

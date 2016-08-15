@@ -1,0 +1,126 @@
+<h2 id="iscroll">为什么要读iscroll</h2>
+
+<p>这是我见过参数最多的一款插件，但更重要的是，它的效果非常好！</p>
+
+<h2 id="section">使用注意</h2>
+
+<p>iscroll依赖组件的宽高，这也是为什么要等onload之后才能初始化它。
+推广思考，iscroll的部件不能hide起来，要自己想办法绕。</p>
+
+<h2 id="eventtype">eventType</h2>
+
+<p>IScroll类_init()时进行了事件监听，这是自然而然的，但它的eventType方法比较奇怪，来看下：</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">_initEvents</span><span class="err">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">remove</span><span class="p">)</span> <span class="p">{</span>
+   <span class="kd">var</span> <span class="nx">eventType</span> <span class="o">=</span> <span class="nx">remove</span> <span class="p">?</span> <span class="nx">utils</span><span class="p">.</span><span class="nx">removeEvent</span> <span class="p">:</span> <span class="nx">utils</span><span class="p">.</span><span class="nx">addEvent</span><span class="p">,</span>
+   <span class="nx">target</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bindToWrapper</span> <span class="p">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">wrapper</span> <span class="p">:</span> <span class="nb">window</span><span class="p">;</span>
+
+   <span class="nx">eventType</span><span class="p">(</span><span class="nb">window</span><span class="p">,</span> <span class="s1">'orientationchange'</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+   <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="nx">me</span><span class="p">.</span><span class="nx">addEvent</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">el</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">fn</span><span class="p">,</span> <span class="nx">capture</span><span class="p">)</span> <span class="p">{</span>
+   <span class="nx">el</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">fn</span><span class="p">,</span> <span class="o">!!</span><span class="nx">capture</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>看到了吗，<code class="highlighter-rouge">addEventListener(type, fn)</code>实际得到的fn是一个ISroll类对象，而不是一个function!
+这是怎么回事呢？</p>
+
+<p>通过下断点我们发现，<code class="highlighter-rouge">IScroll.prototype._move()</code>实际通过<code class="highlighter-rouge">IScroll.prototype._handleEvent()</code>调用。
+去看w3c，这样是标准！：</p>
+
+<blockquote>
+  <p>listener: The object that receives a notification (an object that implements the Event interface) when an event of the specified type occurs. This must be an object implementing the EventListener interface, or simply a JavaScript function</p>
+</blockquote>
+
+<p>而EventListener Interface就是一个带handleEvent对象的方法！
+嗯，确实比绑定纯函数方便那么一点。</p>
+
+<h2 id="bounce">bounce</h2>
+
+<p>iscroll非常棒的一个特性就是滑动超出边界后的回弹效果。这是怎么实现的呢？</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">newX</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">deltaX</span><span class="p">;</span>
+<span class="nx">newY</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">+</span> <span class="nx">deltaY</span><span class="p">;</span>
+
+<span class="c1">// Slow down if outside of the boundaries</span>
+<span class="k">if</span> <span class="p">(</span> <span class="nx">newX</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">newX</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollX</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nx">newX</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounce</span> <span class="p">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">deltaX</span> <span class="o">/</span> <span class="mi">3</span> <span class="p">:</span> <span class="nx">newX</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">?</span> <span class="mi">0</span> <span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollX</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span> <span class="nx">newY</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">newY</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollY</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nx">newY</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounce</span> <span class="p">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">+</span> <span class="nx">deltaY</span> <span class="o">/</span> <span class="mi">3</span> <span class="p">:</span> <span class="nx">newY</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">?</span> <span class="mi">0</span> <span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollY</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">_translate</span><span class="p">(</span><span class="nx">newX</span><span class="p">,</span> <span class="nx">newY</span><span class="p">);</span>
+
+<span class="nl">_translate</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">useTransform</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">scrollerStyle</span><span class="p">[</span><span class="nx">utils</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">transform</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'translate('</span> <span class="o">+</span> <span class="nx">x</span> <span class="o">+</span> <span class="s1">'px,'</span> <span class="o">+</span> <span class="nx">y</span> <span class="o">+</span> <span class="s1">'px)'</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">translateZ</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">x</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+        <span class="nx">y</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">y</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">scrollerStyle</span><span class="p">.</span><span class="nx">left</span> <span class="o">=</span> <span class="nx">x</span> <span class="o">+</span> <span class="s1">'px'</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">scrollerStyle</span><span class="p">.</span><span class="nx">top</span> <span class="o">=</span> <span class="nx">y</span> <span class="o">+</span> <span class="s1">'px'</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="nx">x</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nx">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">this</span><span class="p">.</span><span class="nx">maxScrollX</span>	<span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">wrapperWidth</span> <span class="o">-</span> <span class="k">this</span><span class="p">.</span><span class="nx">scrollerWidth</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<p>注意 <code class="highlighter-rouge">newX = this.x + deltaX/3</code>。这只保证了超出边界时，拖动速度小于手的速度，即slow down效果。
+放手后的回弹是怎么实现的呢？</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// reset if we are outside of the boundaries</span>
+<span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">resetPosition</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounceTime</span><span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nl">resetPosition</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">time</span><span class="p">)</span> <span class="p">{</span>
+   <span class="p">...</span>
+   <span class="k">this</span><span class="p">.</span><span class="nx">scrollTo</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounceEasing</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nl">scrollTo</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="nx">easing</span><span class="p">)</span> <span class="p">{</span>
+   <span class="p">...</span>
+   <span class="k">this</span><span class="p">.</span><span class="nx">_animate</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="nx">easing</span><span class="p">.</span><span class="nx">fn</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nl">_animate</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">destX</span><span class="p">,</span> <span class="nx">destY</span><span class="p">,</span> <span class="nx">duration</span><span class="p">,</span> <span class="nx">easingFn</span><span class="p">)</span> <span class="p">{</span>
+   <span class="kd">function</span> <span class="nx">step</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="nx">that</span><span class="p">.</span><span class="nx">_translate</span><span class="p">(</span><span class="nx">newX</span><span class="p">,</span> <span class="nx">newY</span><span class="p">);</span>
+      <span class="nx">rAF</span><span class="p">(</span><span class="nx">step</span><span class="p">);</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>回弹用的是requestAnimationFrame实现的！</p>
+
+<h2 id="snap">snap</h2>
+
+<p>snap是在touchend, touchcancel, mousecancel等事件时，运行_end()方法。</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">snap</span> <span class="p">)</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">snap</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">_nearestSnap</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">x</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">y</span><span class="p">);</span>
+
+	<span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">snapSpeed</span> <span class="o">||</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span>
+		<span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span>
+			<span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">x</span> <span class="o">-</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">x</span><span class="p">),</span> <span class="mi">1000</span><span class="p">),</span>
+			<span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">y</span> <span class="o">-</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">y</span><span class="p">),</span> <span class="mi">1000</span><span class="p">)</span>
+		<span class="p">),</span> <span class="mi">300</span><span class="p">);</span>
+
+	<span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">x</span> <span class="o">!=</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">x</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">y</span> <span class="o">!=</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">y</span> <span class="p">)</span> <span class="p">{</span>
+		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">directionX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">directionY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">currentPage</span> <span class="o">=</span> <span class="nx">snap</span><span class="p">;</span>
+		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">scrollTo</span><span class="p">(</span><span class="nx">snap</span><span class="p">.</span><span class="nx">x</span><span class="p">,</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounceEasing</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>so，关键在于这个<code class="highlighter-rouge">_nearestSnap()</code>方法，它决定了要不要做snap动作，以及动作做多少快。</p>
+
+<p>求<code class="highlighter-rouge">_nearestSnap()</code>前，首先运行<code class="highlighter-rouge">_initSnap()</code>方法，它帮忙算了所有snap元素的坐标。</p>
+

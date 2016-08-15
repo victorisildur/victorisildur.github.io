@@ -3,6 +3,7 @@ layout: post
 title: "tomato项目: get started"
 date: 2016-01-04 08:51:00
 categories: programming
+excerpt: tomato项目产品定义
 ---
 
 ## 什么是tomato项目
@@ -103,3 +104,5 @@ categories: programming
 * url redirection: 返回http 301
 
 好了，现在[isildur.me](http://isildur.me)可以访问了。
+
+艾玛，好久没搞这个了，烂尾工程啊。

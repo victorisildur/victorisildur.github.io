@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">网页设计模式: mvc与flux</h2>
+                <p class="post-meta">Feb 27, 2016</p>
+        </header>
+
+        <section>
+            <h1 id="mvc">MVC有什么不好？</h1>
+
+<p>MVC的核心问题是数据流向太乱，举个例子，邮箱页面左边ui显示多少封未读邮件；右边ui展示邮件列表，其中未读邮件高亮。
+现在我们点开一封未读邮件，在MVC中，邮件列表Model改变，并通知邮件列表ui自己状态已变。
+然后，要继续通知未读邮件Model自己变了，未读邮件Model再去通知view自己状态变了。</p>
+
+<p><img src="http://victorisildur.github.io/assets/images/mvc.jpg" alt="mvc diagram" /></p>
+
+<p>这个流程本身是不繁琐的，但注意，在代码中邮件列表Model变了，不但通知注册在自己身上的所有View(观察者)，还要瀑布式的更新相关Model。
+相关Model又去通知自己身上的所有观察者。
+<em>我们没法知道观察者有几个，是否互相依赖</em>！
+就像邮箱例子中，我们不知道点开一封邮件之后，哪里会被调用，因为Model的观察者可能在任何一处view代码中。
+瀑布式的Model更新让这个问题加倍严重！</p>
+
+<p>这就是所谓的<em>代码行为”不可预测”</em>，其根源在于MVC中Model不关心谁在观察自己，怎么观察自己。
+<em>从Model代码中看不出Model改变会产生什么后果</em>！</p>
+
+<h1 id="mvc-1">MVC</h1>
+
+<p>MVC中，Model与View,Controller是完全解耦的。
+这是因为采用了观察者模式，Model只知道自己的状态改变时，要去notify注册过自己的观察者。
+至于观察者（View）是谁，完全不关心！</p>
+
+<p>View-Controller是策略模式，只要View会呱呱叫，就认为是个鸭子，实际上呱呱叫这个策略（行为）是代理给控制器的。
+不用鸭子的例子，用音乐播放器的例子：音乐播放器View会放音乐，就认为是播放器，实际上放音乐这个行为是代理给Controller的。</p>
+
+<p>音乐播放其代码如下，可以看到Model是不知道谁在观察自己的，想知道<code class="highlighter-rouge">Model.startPlay()</code>会影响到哪些地方？
+一行行去看所有View的代码吧！</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nf">Model</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Observer</span><span class="o">&gt;</span> <span class="n">observers</span><span class="o">;</span>
+    <span class="kt">boolean</span> <span class="n">isPlaying</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">startPlay</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">isPlaying</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="n">notifyObservers</span><span class="o">();</span>  <span class="c1">//不好意思，从这里完全看不出isPlaying属性改变会影响哪些View!</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">registerObserver</span><span class="o">(</span><span class="n">observer</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">observers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">observer</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">notifyObservers</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nl">observer:</span> <span class="n">observers</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">observer</span><span class="o">.</span><span class="na">update</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nf">MusicPlayerController</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">MusicPlayerView</span> <span class="n">view</span><span class="o">;</span>
+    <span class="n">Model</span> <span class="n">model</span><span class="o">;</span>
+    <span class="n">MusicPlayerController</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">view</span> <span class="o">=</span> <span class="k">new</span> <span class="n">View</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">model</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">play</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">//play</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">startPlay</span><span class="o">();</span> <span class="c1">// Model完全被Controller控制</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nf">MusicPlayerView</span><span class="o">()</span> <span class="kd">implements</span> <span class="n">Observer</span> <span class="o">{</span>
+    <span class="n">Controller</span> <span class="n">controller</span><span class="o">;</span>
+    <span class="n">Model</span> <span class="n">model</span><span class="o">;</span>
+    <span class="n">MusicPlayerView</span><span class="o">(</span><span class="n">controller</span><span class="o">,</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">controller</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">registerObserver</span><span class="o">(</span><span class="k">this</span><span class="o">);</span> <span class="c1">//注册为model的观察者</span>
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">play</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">controller</span><span class="o">.</span><span class="na">play</span><span class="o">();</span> <span class="c1">//策略模式！策略代理给策略执行者执行！</span>
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">//观察者模式！这个View观察的是model的isPlaying属性 </span>
+        <span class="k">if</span><span class="o">(</span><span class="n">model</span><span class="o">.</span><span class="na">isPlaying</span><span class="o">)</span>
+            <span class="n">showPlayUI</span><span class="o">();</span> <span class="c1">//看到这里才会知道model.startPlay()的后果！</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p>MVC模式的依赖是这样的：</p>
+
+<ul>
+  <li>view: 依赖controller处理业务逻辑, 依赖model获取数据</li>
+  <li>controller: 依赖view处理ui逻辑, 依赖model读写数据</li>
+  <li>model: 什么都不依赖，只在自身被改变时notify观察者</li>
+</ul>
+
+<p>可以看到，model是完全独立的，可以很好的复用。
+view监听model的某些属性，作相应变化就好。
+但是，view, controller是互相依赖的，紧耦合！
+比如view监听到model.loaded变化，依赖controller.showToast，
+controller.showToast又反过来依赖view.alert。</p>
+
+<p>这样做的好处是model复用性强，坏处是view controller每次都要完全重写。
+<em>适用于Model较多重写，view较少重写的情况</em>。</p>
+
+<h1 id="flux">Flux</h1>
+
+<p>Flux是跟着React一起提出来的，其设计目标是确保数据的单向流动，同时翻转了MVC中Model的控制：
+MVC中Controller可以直接写Model，而Flux中Store只接受Action事件，数据对外不可见。</p>
+
+<p>Flux相比MVC有两处改变：
+一、store改变后，直接修改相关view，不再依靠观察者模式解耦。
+二、谢绝瀑布式的Model变动，邮件列表Model变了想影响未读邮件Model? 发Action，等下一周期处理吧！</p>
+
+<p><img src="http://victorisildur.github.io/assets/images/flux.jpg" alt="flux diagram" /></p>
+
+<p>我自己实现的flux代码，还是音乐播放器的例子：</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Actions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">START_PLAY</span><span class="p">:</span> <span class="s1">'start_play'</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/* View */</span>
+<span class="kd">var</span> <span class="nx">View</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">component</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">component</span> <span class="o">=</span> <span class="nx">component</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'click'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="nx">Actions</span><span class="p">.</span><span class="nx">START_PLAY</span><span class="p">);</span> <span class="c1">//点击view，发Action，表明用户想开始播放！</span>
+    <span class="p">}.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="nx">View</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">showPlayUI</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ui 变化代码</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="nx">Actions</span><span class="p">.</span><span class="nx">PLAYING</span><span class="p">);</span> <span class="c1">//发Action，表明已经播放了！</span>
+    <span class="c1">// 发Action可能有后续影响，但View并不关心。只有Dispatcher关心</span>
+<span class="p">}</span>
+
+<span class="cm">/* Store */</span>
+<span class="kd">var</span> <span class="nx">Store</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">view</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">isPlaying</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">view</span> <span class="o">=</span> <span class="nx">view</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">Store</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">startPlay</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">isPlaying</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="c1">// play逻辑代码</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">view</span><span class="p">.</span><span class="nx">showPlayUI</span><span class="p">();</span> <span class="c1">//直接影响UI，不再困惑！</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">view</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">View</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">'#play_button'</span><span class="p">));</span> <span class="c1">//view被实例化为一个id=play_button的ui dom节点</span>
+<span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Store</span><span class="p">(</span><span class="nx">view</span><span class="p">);</span>
+
+<span class="cm">/* Dispather */</span>
+<span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="nx">Action</span><span class="p">.</span><span class="nx">START_PLAY</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">store</span><span class="p">.</span><span class="nx">startPlay</span><span class="p">();</span> <span class="c1">//只依赖store</span>
+<span class="p">})</span>
+<span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="nx">Action</span><span class="p">.</span><span class="nx">PLAYING</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">some_else_store</span><span class="p">.</span><span class="nx">playing</span><span class="p">();</span> <span class="c1">//第二个周期啦！避免了瀑布式的store更新！</span>
+<span class="p">})</span>
+</code></pre>
+</div>
+
+<p>从代码可以看出，store状态改变后，我们明确知道哪些view会变。
+同时，级联反应被一个周期接一个周期的处理，处理过程只要看dispatcher代码就能轻松理清楚。</p>
+
+<p>看一下Flux的依赖：</p>
+
+<ul>
+  <li>dispatcher: 依赖store处理业务逻辑</li>
+  <li>store: 依赖view处理ui逻辑</li>
+  <li>ui: 什么都不依赖，产生Action就好！至于Action被如何处理，有没有被处理，都是不管的。</li>
+</ul>
+
+<p>总结下，Flux的好处就是view职责简单，啥都不依赖，容易重写。
+整个业务逻辑是由一串Action序列完成的。
+<em>适用于view经常重写，业务逻辑较少重写的情况</em>。</p>
+
+<h1 id="section">结束语</h1>
+<p>移动前端现在的普遍情况是ui经常变，ui组件多，交互动画多。
+数据更新频繁，但数据本身逻辑不重。</p>
+
+<p>如果用MVC，级联式的交互逻辑很快就让人迷失了。如先加载数据，再渲染列表，再去掉加载提示、显示列表相关ui。
+这一连串用MVC表示，就是：</p>
+
+<ol>
+  <li>Model加载数据，Model.dataList变化，通知观察者</li>
+  <li>列表View观察到了，渲染了自己</li>
+  <li>加载提示View观察到了，隐藏了自己</li>
+  <li>相关View（如添加按钮）观察到了，显示了自己</li>
+</ol>
+
+<p>然而，去看Model代码，不知道会有这么多影响！！</p>
+
+<p>现状是Model又没有移植需求，Model独立了，View逻辑乱了，得不偿失。
+还是用Flux吧。</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/programming/2016/01/31/work-getstarted.html">work: get started</a></h2>
+                    </header>
+                    <section>
+                        工作笔记，工作细节与经验辑录
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/programming/2016/01/31/work-getstarted.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/programming/2016/03/02/flux.html">flux源码阅读</a></h2>
+                    </header>
+                    <section>
+                        <p>flux的实现细节</p>
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/programming/2016/03/02/flux.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

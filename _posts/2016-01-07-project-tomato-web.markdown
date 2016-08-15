@@ -3,6 +3,7 @@ layout: post
 title: "tomato项目: web部分"
 date: 2016-01-07 19:51:00
 categories: programming
+excerpt: 页面部分，应该用react重写一发
 ---
 
 ## 静态页面

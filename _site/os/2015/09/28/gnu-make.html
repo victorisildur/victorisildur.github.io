@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">GNU Make项目管理</h2>
+                <p class="post-meta">Sep 28, 2015</p>
+        </header>
+
+        <section>
+            <h2 id="section">初衷</h2>
+
+<p>graphite 整个c++项目的编译连接都是make搞的，例程的启动也是一条make命令<code class="highlighter-rouge">make ping_pong_app_test</code></p>
+
+<p>要理解项目，改造模块，成功跑起来，必须理解make</p>
+
+<h2 id="section-1">基础</h2>
+
+<h1 id="section-2">规则</h1>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="nl">target</span><span class="o">:</span> <span class="nf">prereq1 prereq2</span>
+    <span class="err">commands</span>
+</code></pre>
+</div>
+
+<p>make看到的第一个规则，是默认规则</p>
+
+<h1 id="make">make也能执行可执行文件？</h1>
+
+<p>追到tests/Makefile.tests，这里会执行可执行文件！</p>
+
+<p>接着看！</p>
+
+<h1 id="phony-target">假想工作目标（phony target)</h1>
+
+<p>任何不是文件的target都是phony target</p>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="nl">clean</span><span class="o">:</span>
+    <span class="err">rm</span> <span class="err">-f</span> <span class="err">*.o</span> <span class="err">lexer.c</span>
+</code></pre>
+</div>
+
+<p>make是无法分辨phony target和target的，所以要是有一个文件目标也叫clean，或者当前目录里有个文件叫clean，因为phony clean没有必要条件，所以clean目标总是会被认为已经更新，所以相应地命令永远不会被执行。</p>
+
+<p>假想工作目标总是尚未更新，所以他们总是会被执行，而且总是会让他们的依存对象被重建。</p>
+
+<h1 id="section-3">变量</h1>
+
+<p>自动变量：</p>
+
+<ol>
+  <li>$@ 工作目标的文件名</li>
+  <li>$&lt; 第一个必要条件的文件名</li>
+  <li>$? 时间戳在工作目标之后的所有必要条件，空格分隔</li>
+  <li>$^ 所有必要条件的文件名，空格分隔</li>
+</ol>
+
+<h1 id="vpathvpath">VPATH和vpath</h1>
+
+<p>VPATH指定寻找文件的路径，比如源码放src文件夹下，头文件放include文件夹下，Makefile放根目录下，就必须指定VPATH，否则会提示no such file or directory:</p>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="nv">VPATH</span> <span class="o">=</span> src include
+<span class="nv">CPPFLAGS</span> <span class="o">=</span> -I include
+
+<span class="nl">count_words</span><span class="o">:</span> <span class="nf">count_word.o counter.o lexer.o -lfl</span>
+    <span class="err">gcc</span> <span class="err">$^</span> <span class="err">-o</span> <span class="err">$@</span>
+
+<span class="nl">count_words.o</span><span class="o">:</span> <span class="nf">count_words.c counter.h</span>
+    <span class="err">gcc</span> <span class="err">$(CPPFLAGS)</span> <span class="err">-c</span> <span class="err">$&lt;</span> <span class="err">-o</span> <span class="err">$@</span>
+
+<span class="c"># lexer.o 类似
+</span></code></pre>
+</div>
+
+<p>vpath是带模式匹配版本的VPATH，例：</p>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="err">vpath</span> <span class="err">%.l</span> <span class="err">%.c</span> <span class="err">src</span>
+<span class="err">vpath</span> <span class="err">%.h</span> <span class="err">include</span>
+</code></pre>
+</div>
+
+<h1 id="section-4">模式规则</h1>
+
+<p>由.c生成.o的cmd都非常类似，都是<code class="highlighter-rouge">gcc -c $&lt; -o $@</code>，能不能不要写重复代码呢？这就要用到模式规则：</p>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="nl">count_words.o</span><span class="o">:</span> <span class="nf">counter.h</span>
+
+<span class="nl">%.o</span><span class="o">:</span> <span class="nf">%.c</span>
+    <span class="err">$(COMPILE.c)</span> <span class="err">$(OUTPUT_OPTION)</span> <span class="err">$&lt;</span>
+</code></pre>
+</div>
+
+<p>这叫做规则链接</p>
+
+<h1 id="section-5">自动产生依存关系</h1>
+
+<p>手动去搞依存关系很可能是灾难，尤其是当嵌套include头文件的时候，怎么办呢?</p>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="nl">depend</span><span class="o">:</span> <span class="nf">count_word.c lexer.c counter.c</span>
+    <span class="err">$(CC)</span> <span class="err">-M</span> <span class="err">$(CPPFLAGS)</span> <span class="err">$^</span> <span class="err">&gt;</span> <span class="err">$@</span>
+<span class="err">include</span> <span class="err">depend</span>
+</code></pre>
+</div>
+
+<h1 id="section-6">变量</h1>
+
+<ol>
+  <li>简单扩展的变量</li>
+</ol>
+
+<p><code class="highlighter-rouge">MAKE_DEPEND := $(CC) -M</code></p>
+
+<ol>
+  <li>递归扩展的变量(延后拓展的变量)</li>
+</ol>
+
+<p><code class="highlighter-rouge">MAKE_DEPEND = $(CC) -M</code></p>
+
+<ol>
+  <li>附带条件的赋值</li>
+</ol>
+
+<p>只会在变量的值不存在时，进行赋值操作</p>
+
+<p><code class="highlighter-rouge">OUTPUT_DIR ?= $(PROJECT_DIR)/out</code></p>
+
+<h1 id="section-7">宏</h1>
+
+<div class="language-makefile highlighter-rouge"><pre class="highlight"><code><span class="err">define</span> <span class="err">create-jar</span>
+       <span class="err">$(RM)</span> <span class="err">$(TEMP_JAR_DIR)</span>
+       <span class="err">$(MKDIR)</span> <span class="err">$(TEMP_JAR_DIR)</span>
+<span class="err">endef</span>
+</code></pre>
+</div>
+
+<h1 id="makecmdgoals">MAKECMDGOALS</h1>
+
+<p>make命令运行时命令行上指定了哪些工作目标</p>
+
+<h2 id="section-8">不懂的地方</h2>
+
+<h1 id="make--c-dirxxx"><code class="highlighter-rouge">$(MAKE) -C dir_xxx</code></h1>
+
+<p>进入dir_xxx目录，执行它下面的Makefile</p>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/methology/2015/09/27/ooad2-architect.html">面向对象分析与设计2：面对大型问题</a></h2>
+                    </header>
+                    <section>
+                        <p>上一次看ooad还是9月底，10月被小论文占了，10月底11月初被unix源码阅读占了。
+不过这本书可读性非常高，用非常鲜明的例子讲述了软件工程里的惯例和原则，读之令人喜悦。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/methology/2015/09/27/ooad2-architect.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/os/2015/09/29/graphite.html">Graphite架构</a></h2>
+                    </header>
+                    <section>
+                        <h2 id="section">初衷</h2>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/09/29/graphite.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>

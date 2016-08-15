@@ -3,6 +3,7 @@ layout: post
 title: "touch-dnd源码阅读"
 date: 2016-03-05 08:27:00
 categories: programming
+excerpt: touch-dnd实现的真好，sortable, draggable, droppable实现细节
 ---
 
 # touch-dnd是什么

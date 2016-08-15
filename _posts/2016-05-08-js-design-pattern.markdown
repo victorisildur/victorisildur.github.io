@@ -3,6 +3,7 @@ layout: post
 title: "js设计模式"
 date: 2016-05-08 17:27:00
 categories: programming
+excerpt: javascript设计模式，通向完美代码之路
 ---
 
 # singleton

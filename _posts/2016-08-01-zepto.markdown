@@ -3,9 +3,8 @@ layout: post
 title: "zepto源码阅读"
 date: 2016-08-01 08:27:00
 categories: programming
+excerpt: zepto源码的笔记统一挪到这里啦
 ---
-
-zepto源码的笔记统一挪到这里啦。
 
 ## $.on $.one
 

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>VictorIsildur's Blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <a href="#" class="image avatar"><img src="/images/aragon.jpg" alt="" /></a>
+          <h1><strong>I am <a href="https://github.com/victorisildur">VictorIsildur</a></strong>. First a programmer<br />
+          Then a web coder<br />
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+            <h2 class="post-title">2015-05-14-【实习】马克</h2>
+                <p class="post-meta">May 14, 2015</p>
+        </header>
+
+        <section>
+            <h1 id="mysql">mysql</h1>
+<ol>
+  <li>编码格式
+    <ol>
+      <li>ALTER TABLE mytable CONVERT TO CHARACTER SET utf8</li>
+      <li>DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
+ 4.</li>
+    </ol>
+  </li>
+</ol>
+
+<h1 id="emacs">emacs</h1>
+<ol>
+  <li>禁用tab
+force Emacs to indent with spaces, never with TABs:
+M-x set-variable<RET> indent-tabs-mode<RET> nil
+Permanently force Emacs to indent with spaces, never with TABs:
+(setq-default indent-tabs-mode nil);  # put this in your .emacs file</RET></RET></li>
+</ol>
+
+<h1 id="angularjs">angularjs</h1>
+<ol>
+  <li>不要在child scope里对 $parent.property赋值，可读不可写（原理不明）</li>
+</ol>
+
+<h1 id="linux">linux</h1>
+<ol>
+  <li>PORT=8092 node server.js (为什么shell中能直接设置环境变量而且不用分隔符？)</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>是管道， &gt;是重定向</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>find libs/ -name “*.so”</td>
+          <td>xargs rm -f</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>vim里 :%s#^#pangu://localcluster/#        正则表达式替换</li>
+</ol>
+
+        </section>
+        
+        <footer>
+            <div class="row">
+            
+            
+                <article class="6u 12u(small) excerpt">
+                    <header>
+                        <h2><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html">2015-05-09-javascript原型链与原型继承</a></h2>
+                    </header>
+                    <section>
+                        <p>#引子</p>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
+		<span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
+	<span class="p">},</span>
+	<span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+		<span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">object</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<h1 id="section">原型链</h1>
+<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述" /></p>
+<ol>
+  <li>Func.prototype = object : {constructor, [[Prototype]]}</li>
+  <li>object.[[constructor]] = Func</li>
+  <li>new Func().[[Prototype]] = Func.prototype</li>
+  <li>var a = new Func()执行三步：</li>
+</ol>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            
+            
+            
+                <article class="6u$ 12u(small) excerpt f-right">
+                    <header>
+                        <h2><a href="/2015/05/23/javascript-scope-chain.html">2015-05-23-javascript scope chain</a></h2>
+                    </header>
+                    <section>
+                        <h1 id="scope-chain">scope chain</h1>
+<p>一个函数有一个scope chain
+函数每调用一次，该函数的scope上创建一个对象，函数的局部变量被当做属性赋值给这个新对象。
+所以对嵌套函数</p>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">A</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="s1">'A'</span><span class="p">;</span>
+	<span class="kd">function</span> <span class="nx">B</span><span class="p">()</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="s1">'B'</span>
+	<span class="p">}</span>
+	<span class="kd">function</span> <span class="nx">C</span><span class="p">()</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="s1">'C'</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>scope A   &lt;—  scope B
+       ^
+       |
+       |___ scope C
+当A()被调用。 scope A上有新对象，新对象有a属性。
+                           scope B上有新对象， 新对象有b属性。
+                           scope C上有新对象， 新对象有c属性。
+                           B函数内能通过scope chain找到a 属性
+                           C函数也能通过scope chain找到a 属性，两者是同一对象。因为都是在A()的这次调用里新建的对象的a属性。</p>
+
+
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/2015/05/23/javascript-scope-chain.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+            
+            </div>
+        </footer>
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/victorisildur" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:isi_liuxu@yeah.net" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
+            </ul>
+        </footer>
+
+	</body>
+</html>
