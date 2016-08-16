@@ -72,4 +72,4 @@ function setData(node, name, value) {
 
 这是个XMLHttpRequest对象抛出的异常，如果`xhr.open`前调用了xhr.withCredentials就会出问题。
 
-详见这个issue: [issue 921](https://github.com/madrobby/zepto/issues/921)
+详见这个issue: [zepto issue 921](https://github.com/madrobby/zepto/issues/921)
