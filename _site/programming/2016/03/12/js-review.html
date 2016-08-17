@@ -166,6 +166,14 @@ js期望使用布尔，会自动转bool，如 if () 的情况。</p>
 
 <p>在script标签里直接return, 不使用function包裹，是非法的，会报Illegal return statement.</p>
 
+<h2 id="input">如何让光标移到input</h2>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">$</span><span class="p">(</span><span class="s1">'input'</span><span class="p">).</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'focus'</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>但是<code class="highlighter-rouge">trigger('click')</code>为什么不行呢？</p>
+
         </section>
         
         <footer>

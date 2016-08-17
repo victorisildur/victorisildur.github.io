@@ -1,0 +1,41 @@
+---
+layout: post
+title: "react技术毡"
+date: 2016-08-17 08:27:00
+categories: programming
+excerpt: "react redux react-reduxx"
+---
+
+## connect
+
+connect是Component的子类，其主要功能是state到react component强映射。
+看下源码，其实也是靠脏值检测：
+
+```javascript
+componentDidMount() {
+    this.trySubscribe()
+}
+trySubscribe() {
+    if (shouldSubscribe && !this.unsubscribe) {
+	this.unsubscribe = this.store.subscribe(this.handleChange.bind(this))
+	this.handleChange()
+    }
+}
+handleChange() {
+    //...
+    const storeState = this.store.getState()
+    const prevStoreState = this.state.storeState
+    if (pure && prevStoreState === storeState) {
+	return
+    }
+    //...
+    this.hasStoreStateChanged = true
+    this.setState({ storeState })
+}
+shouldComponentUpdate() {
+    return !pure || this.haveOwnPropsChanged || this.hasStoreStateChanged
+}
+```
+
+so, 其实也是subscribe，检测到state脏了，就把`this.hasStoreStateChanged`置位，然后`shouldComputeUpdate()`就会返回true，react component就会更新一波。
+至于shouldComputeUpdate何时调用，就要去看react源码了。
