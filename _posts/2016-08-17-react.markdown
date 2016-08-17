@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "react技术毡"
+title: "react技术栈"
 date: 2016-08-17 08:27:00
 categories: programming
 excerpt: "react redux react-reduxx"
 ---
 
-## connect
+## connect()
 
 connect是Component的子类，其主要功能是state到react component强映射。
 看下源码，其实也是靠脏值检测：

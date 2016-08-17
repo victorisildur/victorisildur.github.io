@@ -6,13 +6,13 @@
 </description>
     <link>http://victorisildur.github.io/</link>
     <atom:link href="http://victorisildur.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 17 Aug 2016 23:26:17 +0800</pubDate>
-    <lastBuildDate>Wed, 17 Aug 2016 23:26:17 +0800</lastBuildDate>
+    <pubDate>Wed, 17 Aug 2016 23:28:06 +0800</pubDate>
+    <lastBuildDate>Wed, 17 Aug 2016 23:28:06 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
-        <title>react技术毡</title>
-        <description>&lt;h2 id=&quot;connect&quot;&gt;connect&lt;/h2&gt;
+        <title>react技术栈</title>
+        <description>&lt;h2 id=&quot;connect&quot;&gt;connect()&lt;/h2&gt;
 
 &lt;p&gt;connect是Component的子类，其主要功能是state到react component强映射。
 看下源码，其实也是靠脏值检测：&lt;/p&gt;
