@@ -226,3 +226,4 @@ function * makeIterator(array) {
 }
 ```
 
+是不是简单清晰很多！
