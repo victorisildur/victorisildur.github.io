@@ -32,60 +32,16 @@
     <section>
         
             <header class="major">
-                <h2></h2>
-                <p class="post-meta">Aug 17, 2016</p>
+                <h2>linux命令细节汇总</h2>
+                <p class="post-meta">Aug 8, 2016</p>
             </header>
 
             <section>
-                <h2 id="section">进程间通信</h2>
+                <h2 id="find--xargs">find | xargs</h2>
 
-<ol>
-  <li>两个管道。管道是单向的，打开两个管道，能确保coroutine（协同进程）工作。</li>
-  <li>popen。popen运行了一个进程，返回指向该程序标准输入或输出的连接。
-这有什么卵用呢？我们来看个例子：</li>
-</ol>
+<p>找目录下所有文件总行数</p>
 
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;stdlib.h&gt;
-</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
-    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
-    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    
-    <span class="n">fp</span> <span class="o">=</span> <span class="n">popen</span><span class="p">(</span><span class="s">"who|sort"</span><span class="p">,</span><span class="s">"r"</span><span class="p">);</span>
-    <span class="k">while</span> <span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
-        <span class="n">printf</span><span class="p">(</span><span class="s">"%3d %s"</span><span class="p">,</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
-    <span class="n">pclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre>
-</div>
-
-<p>这个popen是怎么实现的？有什么卵用呢？</p>
-
-<p>其实现其实就是搞一个子进程去<code class="highlighter-rouge">exec("/bin/sh","-c",cmd,NULL)</code>，这样就执行了任意shell命令如例子中的<code class="highlighter-rouge">who|sort</code>.
-返回的文件描述符是父进程与子进程之间的管道。
-具体是父到子的管道，还是子到父的管道，那就要看popen的第二个参数是r还是w了。
-父进程把这个文件返回给main函数，然后就完成任务。</p>
-
-<p>so…popen就是一种从进程获得数据的方法。
-与之对应的是fopen，从文件获取数据；以及从函数获取数据。</p>
-
-<h2 id="socket-">socket: 连接远端进程</h2>
-
-<p>管道是的进程间通信就像在读写文件，但他有两个缺陷。一，管道通过fork贡献，所以只能连接相关的进程。二，同样因为上面的理由，它只能连接同一台机器的进程。</p>
-
-<h1 id="section-1">服务器端</h1>
-
-<p>socket服务器的步骤我们比较熟悉，就是bind-&gt;listen-&gt;accept-&gt;rw-&gt;close。</p>
-
-<p>写个时间服务器的例子 <a href="https://github.com/victorisildur/UNIX/blob/master/APUE/socket/timeserver1.c">time server</a></p>
-
-<h1 id="section-2">客户端</h1>
-
-<p>流程建立socket-&gt;connet-&gt;read-&gt;打印-&gt;close. 例子：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/socket/timeclient1.c">time client</a></p>
-
+<p><code class="highlighter-rouge">find . -type f | xargs wc -l</code></p>
 
             </section>
         
@@ -95,22 +51,6 @@
             
 
                 <article class="6u 12u(small)">
-                    <header>
-                        <h2><a href="/programming/2016/08/08/linux-cmd.html">linux命令细节汇总</a></h2>
-                    </header>
-                    <section>
-                        linux cmd的零碎积累
-                    </section>
-                    <footer>
-                        <ul class="actions">
-                            <li><a href="/programming/2016/08/08/linux-cmd.html" class="button">Read More</a></li>
-                        </ul>
-                    </footer>
-                </article>
-
-            
-
-                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/08/01/zepto.html">zepto源码阅读</a></h2>
                     </header>
@@ -126,7 +66,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/07/25/iscroll.html">iscroll源码阅读</a></h2>
                     </header>
@@ -142,7 +82,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/07/01/es2015.html">全面拥抱es2015: 从页面，后台到测试</a></h2>
                     </header>
@@ -158,7 +98,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/07/01/protobuf.html">用js解析protobuf</a></h2>
                     </header>
@@ -174,7 +114,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/05/28/zepto-timepicker.html">zepto timepicker插件</a></h2>
                     </header>
@@ -190,7 +130,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/05/09/js-design-pattern.html">js设计模式</a></h2>
                     </header>
@@ -206,7 +146,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/04/12/html-review.html">html细节汇总</a></h2>
                     </header>
@@ -222,7 +162,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/24/sicp.html">计算机程序的构造和解释</a></h2>
                     </header>
@@ -238,7 +178,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/24/elements-of-programming.html">编程的本质</a></h2>
                     </header>
@@ -254,7 +194,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/12/js-review.html">js细节汇总</a></h2>
                     </header>
@@ -270,7 +210,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/10/css-review.html">css细节汇总</a></h2>
                     </header>
@@ -286,7 +226,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/05/work-drag-and-drop.html">touch-dnd源码阅读</a></h2>
                     </header>
@@ -302,7 +242,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/02/flux.html">flux源码阅读</a></h2>
                     </header>
@@ -318,7 +258,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/02/27/web-mvc.html">网页设计模式: mvc与flux</a></h2>
                     </header>
@@ -334,7 +274,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/31/work-getstarted.html">work: get started</a></h2>
                     </header>
@@ -350,7 +290,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/31/project-tomato-webview.html">tomato项目: webview部分</a></h2>
                     </header>
@@ -366,7 +306,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/08/project-tomato-android.html">tomato项目: native部分</a></h2>
                     </header>
@@ -382,7 +322,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/08/project-tomato-web.html">tomato项目: web部分</a></h2>
                     </header>
@@ -398,7 +338,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/04/project-tomato.html">tomato项目: get started</a></h2>
                     </header>
@@ -414,7 +354,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/network/2015/12/07/network-programming.html">unix网络编程3: 网络编程学习目标</a></h2>
                     </header>
@@ -434,7 +374,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/network/2015/12/01/network-tcp-01.html">unix网络编程2: TCP详解</a></h2>
                     </header>
@@ -452,7 +392,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/network/2015/11/30/network-getstarted.html">unix网络编程1: 基本框架</a></h2>
                     </header>
@@ -468,7 +408,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/28/apue-ipc.html">unix环境高级编程9: 进程间通信</a></h2>
                     </header>
@@ -487,7 +427,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/27/apue-thread.html">unix环境高级编程8: 多线程</a></h2>
                     </header>
@@ -499,6 +439,22 @@
                     <footer>
                         <ul class="actions">
                             <li><a href="/os/2015/11/27/apue-thread.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+
+            
+
+                <article class="6u 12u(small)">
+                    <header>
+                        <h2><a href="/os/2015/11/26/apue-socket.html">unix环境高级编程7: server、socket</a></h2>
+                    </header>
+                    <section>
+                        进程间通信: 本机用管道、两台机用socket
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/os/2015/11/26/apue-socket.html" class="button">Read More</a></li>
                         </ul>
                     </footer>
                 </article>
