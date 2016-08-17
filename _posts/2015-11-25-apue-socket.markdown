@@ -3,6 +3,7 @@ layout: post
 title: "unix环境高级编程7: server、socket"
 date: 2015-11-25 21:22:00
 categories: os
+excerpt: 进程间通信: 本机用管道、两台机用socket
 ---
 
 ## 进程间通信

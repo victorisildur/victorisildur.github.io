@@ -3,6 +3,7 @@ layout: post
 title: "unix环境高级编程5: 进程"
 date: 2015-11-15 23:32:00
 categories: os
+excerpt: exec, fork, ctrl+c
 ---
 
 ## shell是如何实现的？

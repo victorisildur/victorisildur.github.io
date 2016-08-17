@@ -6,4 +6,8 @@ Aware, Aquire, Achieve
 
 Based on jekyll, special thanks to [CloudCannon](https://github.com/CloudCannon/Strata-Jekyll-Theme)'s wonderful design
 
+## Plan
 
+Add statistic, no comment intended :)
+
+[victorisildur.github.io](http://victorisildur.github.io)

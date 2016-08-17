@@ -33,135 +33,58 @@
         
             <header class="major">
                 <h2></h2>
-                <p class="post-meta">Aug 15, 2016</p>
+                <p class="post-meta">Aug 17, 2016</p>
             </header>
 
             <section>
-                <h2 id="iscroll">为什么要读iscroll</h2>
+                <h2 id="section">进程间通信</h2>
 
-<p>这是我见过参数最多的一款插件，但更重要的是，它的效果非常好！</p>
+<ol>
+  <li>两个管道。管道是单向的，打开两个管道，能确保coroutine（协同进程）工作。</li>
+  <li>popen。popen运行了一个进程，返回指向该程序标准输入或输出的连接。
+这有什么卵用呢？我们来看个例子：</li>
+</ol>
 
-<h2 id="section">使用注意</h2>
-
-<p>iscroll依赖组件的宽高，这也是为什么要等onload之后才能初始化它。
-推广思考，iscroll的部件不能hide起来，要自己想办法绕。</p>
-
-<h2 id="eventtype">eventType</h2>
-
-<p>IScroll类_init()时进行了事件监听，这是自然而然的，但它的eventType方法比较奇怪，来看下：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">_initEvents</span><span class="err">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">remove</span><span class="p">)</span> <span class="p">{</span>
-   <span class="kd">var</span> <span class="nx">eventType</span> <span class="o">=</span> <span class="nx">remove</span> <span class="p">?</span> <span class="nx">utils</span><span class="p">.</span><span class="nx">removeEvent</span> <span class="p">:</span> <span class="nx">utils</span><span class="p">.</span><span class="nx">addEvent</span><span class="p">,</span>
-   <span class="nx">target</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bindToWrapper</span> <span class="p">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">wrapper</span> <span class="p">:</span> <span class="nb">window</span><span class="p">;</span>
-
-   <span class="nx">eventType</span><span class="p">(</span><span class="nb">window</span><span class="p">,</span> <span class="s1">'orientationchange'</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
-   <span class="p">...</span>
-<span class="p">}</span>
-
-<span class="nx">me</span><span class="p">.</span><span class="nx">addEvent</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">el</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">fn</span><span class="p">,</span> <span class="nx">capture</span><span class="p">)</span> <span class="p">{</span>
-   <span class="nx">el</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">fn</span><span class="p">,</span> <span class="o">!!</span><span class="nx">capture</span><span class="p">);</span>
-<span class="p">};</span>
-</code></pre>
-</div>
-
-<p>看到了吗，<code class="highlighter-rouge">addEventListener(type, fn)</code>实际得到的fn是一个ISroll类对象，而不是一个function!
-这是怎么回事呢？</p>
-
-<p>通过下断点我们发现，<code class="highlighter-rouge">IScroll.prototype._move()</code>实际通过<code class="highlighter-rouge">IScroll.prototype._handleEvent()</code>调用。
-去看w3c，这样是标准！：</p>
-
-<blockquote>
-  <p>listener: The object that receives a notification (an object that implements the Event interface) when an event of the specified type occurs. This must be an object implementing the EventListener interface, or simply a JavaScript function</p>
-</blockquote>
-
-<p>而EventListener Interface就是一个带handleEvent对象的方法！
-嗯，确实比绑定纯函数方便那么一点。</p>
-
-<h2 id="bounce">bounce</h2>
-
-<p>iscroll非常棒的一个特性就是滑动超出边界后的回弹效果。这是怎么实现的呢？</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">newX</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">deltaX</span><span class="p">;</span>
-<span class="nx">newY</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">+</span> <span class="nx">deltaY</span><span class="p">;</span>
-
-<span class="c1">// Slow down if outside of the boundaries</span>
-<span class="k">if</span> <span class="p">(</span> <span class="nx">newX</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">newX</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollX</span> <span class="p">)</span> <span class="p">{</span>
-    <span class="nx">newX</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounce</span> <span class="p">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">deltaX</span> <span class="o">/</span> <span class="mi">3</span> <span class="p">:</span> <span class="nx">newX</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">?</span> <span class="mi">0</span> <span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollX</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="k">if</span> <span class="p">(</span> <span class="nx">newY</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">newY</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollY</span> <span class="p">)</span> <span class="p">{</span>
-    <span class="nx">newY</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounce</span> <span class="p">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">+</span> <span class="nx">deltaY</span> <span class="o">/</span> <span class="mi">3</span> <span class="p">:</span> <span class="nx">newY</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">?</span> <span class="mi">0</span> <span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">maxScrollY</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="k">this</span><span class="p">.</span><span class="nx">_translate</span><span class="p">(</span><span class="nx">newX</span><span class="p">,</span> <span class="nx">newY</span><span class="p">);</span>
-
-<span class="nl">_translate</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">useTransform</span> <span class="p">)</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">scrollerStyle</span><span class="p">[</span><span class="nx">utils</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">transform</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'translate('</span> <span class="o">+</span> <span class="nx">x</span> <span class="o">+</span> <span class="s1">'px,'</span> <span class="o">+</span> <span class="nx">y</span> <span class="o">+</span> <span class="s1">'px)'</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">translateZ</span><span class="p">;</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="nx">x</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
-        <span class="nx">y</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">y</span><span class="p">);</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">scrollerStyle</span><span class="p">.</span><span class="nx">left</span> <span class="o">=</span> <span class="nx">x</span> <span class="o">+</span> <span class="s1">'px'</span><span class="p">;</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">scrollerStyle</span><span class="p">.</span><span class="nx">top</span> <span class="o">=</span> <span class="nx">y</span> <span class="o">+</span> <span class="s1">'px'</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="nx">x</span><span class="p">;</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nx">y</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">this</span><span class="p">.</span><span class="nx">maxScrollX</span>	<span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">wrapperWidth</span> <span class="o">-</span> <span class="k">this</span><span class="p">.</span><span class="nx">scrollerWidth</span><span class="p">;</span>
-</code></pre>
-</div>
-
-<p>注意 <code class="highlighter-rouge">newX = this.x + deltaX/3</code>。这只保证了超出边界时，拖动速度小于手的速度，即slow down效果。
-放手后的回弹是怎么实现的呢？</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// reset if we are outside of the boundaries</span>
-<span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">resetPosition</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounceTime</span><span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nl">resetPosition</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">time</span><span class="p">)</span> <span class="p">{</span>
-   <span class="p">...</span>
-   <span class="k">this</span><span class="p">.</span><span class="nx">scrollTo</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounceEasing</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="nl">scrollTo</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="nx">easing</span><span class="p">)</span> <span class="p">{</span>
-   <span class="p">...</span>
-   <span class="k">this</span><span class="p">.</span><span class="nx">_animate</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="nx">easing</span><span class="p">.</span><span class="nx">fn</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="nl">_animate</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">destX</span><span class="p">,</span> <span class="nx">destY</span><span class="p">,</span> <span class="nx">duration</span><span class="p">,</span> <span class="nx">easingFn</span><span class="p">)</span> <span class="p">{</span>
-   <span class="kd">function</span> <span class="nx">step</span> <span class="p">()</span> <span class="p">{</span>
-      <span class="nx">that</span><span class="p">.</span><span class="nx">_translate</span><span class="p">(</span><span class="nx">newX</span><span class="p">,</span> <span class="nx">newY</span><span class="p">);</span>
-      <span class="nx">rAF</span><span class="p">(</span><span class="nx">step</span><span class="p">);</span>
-   <span class="p">}</span>
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">popen</span><span class="p">(</span><span class="s">"who|sort"</span><span class="p">,</span><span class="s">"r"</span><span class="p">);</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%3d %s"</span><span class="p">,</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+    <span class="n">pclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre>
 </div>
 
-<p>回弹用的是requestAnimationFrame实现的！</p>
+<p>这个popen是怎么实现的？有什么卵用呢？</p>
 
-<h2 id="snap">snap</h2>
+<p>其实现其实就是搞一个子进程去<code class="highlighter-rouge">exec("/bin/sh","-c",cmd,NULL)</code>，这样就执行了任意shell命令如例子中的<code class="highlighter-rouge">who|sort</code>.
+返回的文件描述符是父进程与子进程之间的管道。
+具体是父到子的管道，还是子到父的管道，那就要看popen的第二个参数是r还是w了。
+父进程把这个文件返回给main函数，然后就完成任务。</p>
 
-<p>snap是在touchend, touchcancel, mousecancel等事件时，运行_end()方法。</p>
+<p>so…popen就是一种从进程获得数据的方法。
+与之对应的是fopen，从文件获取数据；以及从函数获取数据。</p>
 
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">snap</span> <span class="p">)</span> <span class="p">{</span>
-	<span class="kd">var</span> <span class="nx">snap</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">_nearestSnap</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">x</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">y</span><span class="p">);</span>
+<h2 id="socket-">socket: 连接远端进程</h2>
 
-	<span class="kd">var</span> <span class="nx">time</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">snapSpeed</span> <span class="o">||</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span>
-		<span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span>
-			<span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">x</span> <span class="o">-</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">x</span><span class="p">),</span> <span class="mi">1000</span><span class="p">),</span>
-			<span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">y</span> <span class="o">-</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">y</span><span class="p">),</span> <span class="mi">1000</span><span class="p">)</span>
-		<span class="p">),</span> <span class="mi">300</span><span class="p">);</span>
+<p>管道是的进程间通信就像在读写文件，但他有两个缺陷。一，管道通过fork贡献，所以只能连接相关的进程。二，同样因为上面的理由，它只能连接同一台机器的进程。</p>
 
-	<span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">x</span> <span class="o">!=</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">x</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">y</span> <span class="o">!=</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">y</span> <span class="p">)</span> <span class="p">{</span>
-		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">directionX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">directionY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">currentPage</span> <span class="o">=</span> <span class="nx">snap</span><span class="p">;</span>
-		<span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">scrollTo</span><span class="p">(</span><span class="nx">snap</span><span class="p">.</span><span class="nx">x</span><span class="p">,</span> <span class="nx">snap</span><span class="p">.</span><span class="nx">y</span><span class="p">,</span> <span class="nx">time</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">scroller</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">bounceEasing</span><span class="p">);</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre>
-</div>
+<h1 id="section-1">服务器端</h1>
 
-<p>so，关键在于这个<code class="highlighter-rouge">_nearestSnap()</code>方法，它决定了要不要做snap动作，以及动作做多少快。</p>
+<p>socket服务器的步骤我们比较熟悉，就是bind-&gt;listen-&gt;accept-&gt;rw-&gt;close。</p>
 
-<p>求<code class="highlighter-rouge">_nearestSnap()</code>前，首先运行<code class="highlighter-rouge">_initSnap()</code>方法，它帮忙算了所有snap元素的坐标。</p>
+<p>写个时间服务器的例子 <a href="https://github.com/victorisildur/UNIX/blob/master/APUE/socket/timeserver1.c">time server</a></p>
+
+<h1 id="section-2">客户端</h1>
+
+<p>流程建立socket-&gt;connet-&gt;read-&gt;打印-&gt;close. 例子：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/socket/timeclient1.c">time client</a></p>
 
 
             </section>
@@ -205,6 +128,22 @@
 
                 <article class="6u 12u(small)">
                     <header>
+                        <h2><a href="/programming/2016/07/25/iscroll.html">iscroll源码阅读</a></h2>
+                    </header>
+                    <section>
+                        iscroll实现细节: 细腻的回弹、惯性效果
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/programming/2016/07/25/iscroll.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+
+            
+
+                <article class="6u$ 12u(small)">
+                    <header>
                         <h2><a href="/programming/2016/07/01/es2015.html">全面拥抱es2015: 从页面，后台到测试</a></h2>
                     </header>
                     <section>
@@ -219,7 +158,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/07/01/protobuf.html">用js解析protobuf</a></h2>
                     </header>
@@ -235,7 +174,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/05/28/zepto-timepicker.html">zepto timepicker插件</a></h2>
                     </header>
@@ -251,7 +190,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/05/09/js-design-pattern.html">js设计模式</a></h2>
                     </header>
@@ -267,7 +206,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/04/12/html-review.html">html细节汇总</a></h2>
                     </header>
@@ -283,7 +222,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/24/sicp.html">计算机程序的构造和解释</a></h2>
                     </header>
@@ -299,7 +238,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/24/elements-of-programming.html">编程的本质</a></h2>
                     </header>
@@ -315,7 +254,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/12/js-review.html">js细节汇总</a></h2>
                     </header>
@@ -331,7 +270,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/10/css-review.html">css细节汇总</a></h2>
                     </header>
@@ -347,7 +286,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/05/work-drag-and-drop.html">touch-dnd源码阅读</a></h2>
                     </header>
@@ -363,7 +302,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/02/flux.html">flux源码阅读</a></h2>
                     </header>
@@ -379,7 +318,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/02/27/web-mvc.html">网页设计模式: mvc与flux</a></h2>
                     </header>
@@ -395,7 +334,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/31/work-getstarted.html">work: get started</a></h2>
                     </header>
@@ -411,7 +350,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/31/project-tomato-webview.html">tomato项目: webview部分</a></h2>
                     </header>
@@ -427,7 +366,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/08/project-tomato-android.html">tomato项目: native部分</a></h2>
                     </header>
@@ -443,7 +382,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/08/project-tomato-web.html">tomato项目: web部分</a></h2>
                     </header>
@@ -459,7 +398,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/04/project-tomato.html">tomato项目: get started</a></h2>
                     </header>
@@ -475,7 +414,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/network/2015/12/07/network-programming.html">unix网络编程3: 网络编程学习目标</a></h2>
                     </header>
@@ -495,7 +434,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/network/2015/12/01/network-tcp-01.html">unix网络编程2: TCP详解</a></h2>
                     </header>
@@ -513,14 +452,12 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/network/2015/11/30/network-getstarted.html">unix网络编程1: 基本框架</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-
-
+                        unix下写个tcp程序
                     </section>
                     <footer>
                         <ul class="actions">
@@ -531,7 +468,7 @@
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/28/apue-ipc.html">unix环境高级编程9: 进程间通信</a></h2>
                     </header>
@@ -550,7 +487,7 @@
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/27/apue-thread.html">unix环境高级编程8: 多线程</a></h2>
                     </header>
@@ -562,24 +499,6 @@
                     <footer>
                         <ul class="actions">
                             <li><a href="/os/2015/11/27/apue-thread.html" class="button">Read More</a></li>
-                        </ul>
-                    </footer>
-                </article>
-
-            
-
-                <article class="6u 12u(small)">
-                    <header>
-                        <h2><a href="/os/2015/11/26/apue-socket.html">unix环境高级编程7: server、socket</a></h2>
-                    </header>
-                    <section>
-                        <h2 id="section">进程间通信</h2>
-
-
-                    </section>
-                    <footer>
-                        <ul class="actions">
-                            <li><a href="/os/2015/11/26/apue-socket.html" class="button">Read More</a></li>
                         </ul>
                     </footer>
                 </article>
@@ -609,9 +528,7 @@
                         <h2><a href="/os/2015/11/16/apue-process.html">unix环境高级编程5: 进程</a></h2>
                     </header>
                     <section>
-                        <h2 id="shell">shell是如何实现的？</h2>
-
-
+                        exec, fork, ctrl+c
                     </section>
                     <footer>
                         <ul class="actions">
@@ -1568,7 +1485,7 @@ jquery自带的</p>
             </ul>
             <ul class="copyright">
                 <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-                <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li>
+                <li>Images: <a href="https://unsplash.com/">Unsplash</a></li>
                 <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li>
             </ul>
         </footer>

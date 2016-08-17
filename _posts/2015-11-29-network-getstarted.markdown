@@ -3,6 +3,7 @@ layout: post
 title: "unix网络编程1: 基本框架"
 date: 2015-11-29 21:47:00
 categories: network
+excerpt: unix下写个tcp程序
 ---
 
 ## 初衷
