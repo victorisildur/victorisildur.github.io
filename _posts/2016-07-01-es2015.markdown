@@ -227,3 +227,13 @@ function * makeIterator(array) {
 ```
 
 是不是简单清晰很多！
+
+## import
+
+`export default` 和 `export`同时存在时，会怎样？
+都能用！
+
+没有export default，想全部导出该怎么办？
+`import * as A from 'xxx'`就行啦！
+
+更鬼一点：`import {a as aaa} from 'xxx'`
