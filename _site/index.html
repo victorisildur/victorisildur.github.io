@@ -71,6 +71,30 @@
 <p>so, 其实也是subscribe，检测到state脏了，就把<code class="highlighter-rouge">this.hasStoreStateChanged</code>置位，然后<code class="highlighter-rouge">shouldComputeUpdate()</code>就会返回true，react component就会更新一波。
 至于shouldComputeUpdate何时调用，就要去看react源码了。</p>
 
+<h2 id="jsx">JSX</h2>
+
+<p>为什么要用jsx来写组件呢？
+首先要明白原来我们怎么写组件：display logic + template。
+我们自己的代码中，经常发现一个view的display logic非常长，想想网关的ToolbarView，疯狂的多的点击事件、渲染位置、回调然后渲染位置。
+写出来的代码很难直接和”view”联系到一起。</p>
+
+<p>我们来看一个component的例子：</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// Input (JSX):</span>
+<span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">Person</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="nb">window</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="p">?</span> <span class="nb">window</span><span class="p">.</span><span class="nx">name</span> <span class="p">:</span> <span class="s1">''</span><span class="p">}</span> <span class="sr">/&gt;</span><span class="err">;
+</span><span class="c1">// Output (JS):</span>
+<span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span>
+    <span class="nx">Person</span><span class="p">,</span>
+    <span class="p">{</span><span class="na">name</span><span class="p">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="p">?</span> <span class="nb">window</span><span class="p">.</span><span class="nx">name</span> <span class="p">:</span> <span class="s1">''</span><span class="p">}</span>
+<span class="p">);</span>
+</code></pre>
+</div>
+
+<p>一般的，我们用<code class="highlighter-rouge">React.createClass()</code>或<code class="highlighter-rouge">class MyCompnent extends React.Component</code>来创建组件。
+组件可以看做一个状态机。
+组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
+facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name/event-delegate">David Walsh's excellent blog post</a>。</p>
+
             </section>
         
     </section>

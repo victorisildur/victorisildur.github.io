@@ -54,6 +54,7 @@ MVVM.scanTag();
 想要改变model数据，直接vm.property = xxx就好，不用去model.set('property',xxx)了！
 
 # 实现
+
 今次主要借鉴avalon“劫持”setter,getter的方法，链接：[avalon简化版解读](http://www.cnblogs.com/aaronjs/p/3614049.html)
 
 虽说是简化过的avalon，还是挺难读的。
@@ -100,7 +101,7 @@ MVVM.scanTag();
         vModel.$originalModel = originalModel;
         vModel[SUB_NAME] = [];
         return vModel;
-	}
+    }
 ```
 
 ```javascript

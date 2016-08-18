@@ -87,6 +87,7 @@ js我们希望长这样：</p>
 <p>想要改变model数据，直接vm.property = xxx就好，不用去model.set(‘property’,xxx)了！</p>
 
 <h1 id="section-2">实现</h1>
+
 <p>今次主要借鉴avalon“劫持”setter,getter的方法，链接：<a href="http://www.cnblogs.com/aaronjs/p/3614049.html">avalon简化版解读</a></p>
 
 <p>虽说是简化过的avalon，还是挺难读的。
@@ -136,7 +137,7 @@ js我们希望长这样：</p>
         <span class="nx">vModel</span><span class="p">.</span><span class="nx">$originalModel</span> <span class="o">=</span> <span class="nx">originalModel</span><span class="p">;</span>
         <span class="nx">vModel</span><span class="p">[</span><span class="nx">SUB_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">[];</span>
         <span class="k">return</span> <span class="nx">vModel</span><span class="p">;</span>
-	<span class="p">}</span>
+    <span class="p">}</span>
 </code></pre>
 </div>
 

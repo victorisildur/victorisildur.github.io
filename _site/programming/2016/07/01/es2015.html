@@ -261,6 +261,16 @@ generator的暂停态直到下一次调用<code class="highlighter-rouge">caller
 
 <p>是不是简单清晰很多！</p>
 
+<h2 id="import">import</h2>
+
+<p><code class="highlighter-rouge">export default</code> 和 <code class="highlighter-rouge">export</code>同时存在时，会怎样？
+都能用！</p>
+
+<p>没有export default，想全部导出该怎么办？
+<code class="highlighter-rouge">import * as A from 'xxx'</code>就行啦！</p>
+
+<p>更鬼一点：<code class="highlighter-rouge">import {a as aaa} from 'xxx'</code></p>
+
         </section>
         
         <footer>

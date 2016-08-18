@@ -39,3 +39,28 @@ shouldComponentUpdate() {
 
 so, 其实也是subscribe，检测到state脏了，就把`this.hasStoreStateChanged`置位，然后`shouldComputeUpdate()`就会返回true，react component就会更新一波。
 至于shouldComputeUpdate何时调用，就要去看react源码了。
+
+## JSX
+
+为什么要用jsx来写组件呢？
+首先要明白原来我们怎么写组件：display logic + template。
+我们自己的代码中，经常发现一个view的display logic非常长，想想网关的ToolbarView，疯狂的多的点击事件、渲染位置、回调然后渲染位置。
+写出来的代码很难直接和"view"联系到一起。
+
+
+我们来看一个component的例子：
+
+```javascript
+// Input (JSX):
+var person = <Person name={window.isLoggedIn ? window.name : ''} />;
+// Output (JS):
+var person = React.createElement(
+    Person,
+    {name: window.isLoggedIn ? window.name : ''}
+);
+```
+
+一般的，我们用`React.createClass()`或`class MyCompnent extends React.Component`来创建组件。
+组件可以看做一个状态机。
+组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
+facebook宣称这样更高效，参加这个blog[David Walsh\'s excellent blog post](https://davidwalsh.name/event-delegate)。

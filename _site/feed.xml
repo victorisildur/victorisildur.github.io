@@ -6,8 +6,8 @@
 </description>
     <link>http://victorisildur.github.io/</link>
     <atom:link href="http://victorisildur.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 17 Aug 2016 23:28:06 +0800</pubDate>
-    <lastBuildDate>Wed, 17 Aug 2016 23:28:06 +0800</lastBuildDate>
+    <pubDate>Thu, 18 Aug 2016 23:14:35 +0800</pubDate>
+    <lastBuildDate>Thu, 18 Aug 2016 23:14:35 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -45,6 +45,30 @@
 
 &lt;p&gt;so, 其实也是subscribe，检测到state脏了，就把&lt;code class=&quot;highlighter-rouge&quot;&gt;this.hasStoreStateChanged&lt;/code&gt;置位，然后&lt;code class=&quot;highlighter-rouge&quot;&gt;shouldComputeUpdate()&lt;/code&gt;就会返回true，react component就会更新一波。
 至于shouldComputeUpdate何时调用，就要去看react源码了。&lt;/p&gt;
+
+&lt;h2 id=&quot;jsx&quot;&gt;JSX&lt;/h2&gt;
+
+&lt;p&gt;为什么要用jsx来写组件呢？
+首先要明白原来我们怎么写组件：display logic + template。
+我们自己的代码中，经常发现一个view的display logic非常长，想想网关的ToolbarView，疯狂的多的点击事件、渲染位置、回调然后渲染位置。
+写出来的代码很难直接和”view”联系到一起。&lt;/p&gt;
+
+&lt;p&gt;我们来看一个component的例子：&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Input (JSX):&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Person&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;isLoggedIn&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;;
+&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;// Output (JS):&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createElement&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;Person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;isLoggedIn&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;一般的，我们用&lt;code class=&quot;highlighter-rouge&quot;&gt;React.createClass()&lt;/code&gt;或&lt;code class=&quot;highlighter-rouge&quot;&gt;class MyCompnent extends React.Component&lt;/code&gt;来创建组件。
+组件可以看做一个状态机。
+组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
+facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwalsh.name/event-delegate&quot;&gt;David Walsh's excellent blog post&lt;/a&gt;。&lt;/p&gt;
 </description>
         <pubDate>Wed, 17 Aug 2016 16:27:00 +0800</pubDate>
         <link>http://victorisildur.github.io/programming/2016/08/17/react.html</link>
@@ -514,6 +538,16 @@ generator的暂停态直到下一次调用&lt;code class=&quot;highlighter-rouge
 &lt;/div&gt;
 
 &lt;p&gt;是不是简单清晰很多！&lt;/p&gt;
+
+&lt;h2 id=&quot;import&quot;&gt;import&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;export default&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt;同时存在时，会怎样？
+都能用！&lt;/p&gt;
+
+&lt;p&gt;没有export default，想全部导出该怎么办？
+&lt;code class=&quot;highlighter-rouge&quot;&gt;import * as A from 'xxx'&lt;/code&gt;就行啦！&lt;/p&gt;
+
+&lt;p&gt;更鬼一点：&lt;code class=&quot;highlighter-rouge&quot;&gt;import {a as aaa} from 'xxx'&lt;/code&gt;&lt;/p&gt;
 </description>
         <pubDate>Fri, 01 Jul 2016 16:27:00 +0800</pubDate>
         <link>http://victorisildur.github.io/programming/2016/07/01/es2015.html</link>

@@ -81,7 +81,7 @@ requirejs.config({
 - requirejs之外的静态文件要更新该怎么办？tornado提供了static_url()方法：
 
 ```html
-<img src="{{ static_url('resources/images/logo.png') }} />"
+<img src="{{ static_url('resources/images/logo.png') }}" />
 ```
 
 干，不能用，貌似settings问题
