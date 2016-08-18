@@ -142,3 +142,17 @@ $('input').trigger('focus');
 ```
 
 但是`trigger('click')`为什么不行呢？
+
+## 变量hoist
+
+如果函数内部重复定义var，如下面例子：
+
+```javascript
+function (a) {
+   if (a) {
+   }
+   var a;
+}
+```
+
+虽然a是形参，但由于`var a`的存在，这个context下首先访问到的值是undefined。
