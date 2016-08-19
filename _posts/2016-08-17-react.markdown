@@ -64,3 +64,22 @@ var person = React.createElement(
 组件可以看做一个状态机。
 组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
 facebook宣称这样更高效，参加这个blog[David Walsh\'s excellent blog post](https://davidwalsh.name/event-delegate)。
+
+## 组件的组合
+
+```javascript
+var Avatar = React.createClass({
+    render: function() {
+       return (
+          <div>
+	     <PagePic name={this.props.name} />
+     	     <PageLink name={this.props.name} />
+	  </div>
+       );
+    }
+});
+```
+
+这里有Owner的概念，组件Avatar是组件PagePic和PageLink的Owner，因为后两者的props是Avatar来置的。
+
+## Children Reconciliation
