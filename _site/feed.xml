@@ -6,8 +6,8 @@
 </description>
     <link>http://victorisildur.github.io/</link>
     <atom:link href="http://victorisildur.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 18 Aug 2016 23:14:35 +0800</pubDate>
-    <lastBuildDate>Thu, 18 Aug 2016 23:14:35 +0800</lastBuildDate>
+    <pubDate>Mon, 22 Aug 2016 23:10:54 +0800</pubDate>
+    <lastBuildDate>Mon, 22 Aug 2016 23:10:54 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -44,7 +44,8 @@
 &lt;/div&gt;
 
 &lt;p&gt;so, 其实也是subscribe，检测到state脏了，就把&lt;code class=&quot;highlighter-rouge&quot;&gt;this.hasStoreStateChanged&lt;/code&gt;置位，然后&lt;code class=&quot;highlighter-rouge&quot;&gt;shouldComputeUpdate()&lt;/code&gt;就会返回true，react component就会更新一波。
-至于shouldComputeUpdate何时调用，就要去看react源码了。&lt;/p&gt;
+至于shouldComputeUpdate何时调用，就要去看react源码了。
+文档里写的是new props/states被接收到的时候，会调用&lt;code class=&quot;highlighter-rouge&quot;&gt;shouldComponentUpdate()&lt;/code&gt;。&lt;/p&gt;
 
 &lt;h2 id=&quot;jsx&quot;&gt;JSX&lt;/h2&gt;
 
@@ -69,6 +70,38 @@
 组件可以看做一个状态机。
 组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
 facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwalsh.name/event-delegate&quot;&gt;David Walsh's excellent blog post&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;组件的组合&lt;/h2&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Avatar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createClass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+       &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+	     &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;PagePic&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;
+&lt;/span&gt;     	     &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;PageLink&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;
+&lt;/span&gt;	  &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/div&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;gt;
+&lt;/span&gt;       &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这里有Owner的概念，组件Avatar是组件PagePic和PageLink的Owner，因为后两者的props是Avatar来置的。&lt;/p&gt;
+
+&lt;h2 id=&quot;children-reconciliation&quot;&gt;Children Reconciliation&lt;/h2&gt;
+
+&lt;p&gt;这里没看懂什么意思，为什么要key?
+有key时reconcile行为和没key时有何不同？没写明白。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;组件生命周期&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Mounting&lt;/li&gt;
+  &lt;li&gt;Updating&lt;/li&gt;
+  &lt;li&gt;Unmounting&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;具体怎么调用，还要看源码，暂且不管。&lt;/p&gt;
 </description>
         <pubDate>Wed, 17 Aug 2016 16:27:00 +0800</pubDate>
         <link>http://victorisildur.github.io/programming/2016/08/17/react.html</link>

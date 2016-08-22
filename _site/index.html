@@ -15,6 +15,15 @@
   			<link rel="stylesheet" href="/css/style.css" />
   			<link rel="stylesheet" href="/css/style-xlarge.css" />
   		</noscript>
+        <script>
+         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                                  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+         ga('create', 'UA-82933111-1', 'auto');
+         ga('send', 'pageview');
+        </script>
   		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
   	</head>
 
@@ -69,7 +78,8 @@
 </div>
 
 <p>so, 其实也是subscribe，检测到state脏了，就把<code class="highlighter-rouge">this.hasStoreStateChanged</code>置位，然后<code class="highlighter-rouge">shouldComputeUpdate()</code>就会返回true，react component就会更新一波。
-至于shouldComputeUpdate何时调用，就要去看react源码了。</p>
+至于shouldComputeUpdate何时调用，就要去看react源码了。
+文档里写的是new props/states被接收到的时候，会调用<code class="highlighter-rouge">shouldComponentUpdate()</code>。</p>
 
 <h2 id="jsx">JSX</h2>
 
@@ -94,6 +104,38 @@
 组件可以看做一个状态机。
 组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
 facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name/event-delegate">David Walsh's excellent blog post</a>。</p>
+
+<h2 id="section">组件的组合</h2>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Avatar</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+    <span class="na">render</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+       <span class="k">return</span> <span class="p">(</span>
+          <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+	     <span class="o">&lt;</span><span class="nx">PagePic</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>     	     <span class="o">&lt;</span><span class="nx">PageLink</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>	  <span class="o">&lt;</span><span class="sr">/div</span><span class="err">&gt;
+</span>       <span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<p>这里有Owner的概念，组件Avatar是组件PagePic和PageLink的Owner，因为后两者的props是Avatar来置的。</p>
+
+<h2 id="children-reconciliation">Children Reconciliation</h2>
+
+<p>这里没看懂什么意思，为什么要key?
+有key时reconcile行为和没key时有何不同？没写明白。</p>
+
+<h2 id="section-1">组件生命周期</h2>
+
+<ul>
+  <li>Mounting</li>
+  <li>Updating</li>
+  <li>Unmounting</li>
+</ul>
+
+<p>具体怎么调用，还要看源码，暂且不管。</p>
 
             </section>
         

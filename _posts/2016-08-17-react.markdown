@@ -39,6 +39,8 @@ shouldComponentUpdate() {
 
 so, 其实也是subscribe，检测到state脏了，就把`this.hasStoreStateChanged`置位，然后`shouldComputeUpdate()`就会返回true，react component就会更新一波。
 至于shouldComputeUpdate何时调用，就要去看react源码了。
+文档里写的是new props/states被接收到的时候，会调用`shouldComponentUpdate()`。
+
 
 ## JSX
 
@@ -83,3 +85,14 @@ var Avatar = React.createClass({
 这里有Owner的概念，组件Avatar是组件PagePic和PageLink的Owner，因为后两者的props是Avatar来置的。
 
 ## Children Reconciliation
+
+这里没看懂什么意思，为什么要key?
+有key时reconcile行为和没key时有何不同？没写明白。
+
+## 组件生命周期
+
+* Mounting
+* Updating
+* Unmounting
+
+具体怎么调用，还要看源码，暂且不管。
