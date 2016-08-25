@@ -44,12 +44,11 @@
         </header>
 
         <section>
-            <h2 id="shell">shell是如何实现的？</h2>
+            <h2>shell是如何实现的？</h2>
 
 <p>才想起来，用的就是exec系统调用咯。
-其高层有多种实现，我们来写一个<code class="highlighter-rouge">execvp()</code>的实现：</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+其高层有多种实现，我们来写一个<code>execvp()</code>的实现：</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
     <span class="kt">char</span> <span class="o">*</span> <span class="n">arglist</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
     <span class="n">arglist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">"ls"</span><span class="p">;</span>
@@ -59,13 +58,12 @@
     <span class="n">execvp</span><span class="p">(</span><span class="s">"ls"</span><span class="p">,</span> <span class="n">arglist</span><span class="p">);</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">"*** ls is done.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
-<p><code class="highlighter-rouge">execvp(const char * file, const char * argv[])</code>第一个参数是要执行的文件名。
+</code></pre></div>
+<p><code>execvp(const char * file, const char * argv[])</code>第一个参数是要执行的文件名。
 文件在PATH环境变量所指定的目录中查找file。</p>
 
-<h1 id="fork">fork版本</h1>
+<h1>fork版本</h1>
+
 <p>上一个版本的问题在于程序只执行一次。
 想要shell长存，就要采用fork方案。
 fork本身比较简单，值得注意的点是主线程要等子线程结束。
@@ -76,13 +74,12 @@ wait的例子如下：<a href="https://github.com/victorisildur/UNIX/blob/master
 
 <p>程序如下：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/process/psh02.c">prompting shell 02</a></p>
 
-<h1 id="sigint">SIGINT信号？</h1>
+<h1>SIGINT信号？</h1>
 
 <p>没问题？那是你use case不够！如果在子进程执行的时候按下ctrl+c会怎样？
 你会发现父进程被一起杀掉了！</p>
 
 <p>思路是给父进程设置sigmask。子进程则不设。这个留作练习。</p>
-
 
         </section>
         
@@ -96,7 +93,6 @@ wait的例子如下：<a href="https://github.com/victorisildur/UNIX/blob/master
                     </header>
                     <section>
                         <p>看完了普通文件系统，接下来看设备。</p>
-
 
                     </section>
                     <footer>
@@ -114,8 +110,7 @@ wait的例子如下：<a href="https://github.com/victorisildur/UNIX/blob/master
                         <h2><a href="/os/2015/11/25/apue-io.html">unix环境高级编程6: io、重定向、管道</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">一些概念</h2>
-
+                        <h2>一些概念</h2>
 
                     </section>
                     <footer>
@@ -147,7 +142,7 @@ wait的例子如下：<a href="https://github.com/victorisildur/UNIX/blob/master
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -155,7 +150,7 @@ wait的例子如下：<a href="https://github.com/victorisildur/UNIX/blob/master
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

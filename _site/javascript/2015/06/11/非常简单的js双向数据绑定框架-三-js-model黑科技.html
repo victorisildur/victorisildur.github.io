@@ -44,29 +44,25 @@
         </header>
 
         <section>
-            <h1 id="section">初衷</h1>
+            <h1>初衷</h1>
+
 <p>之前我们要在js域更新model，需要这样：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">model</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'sub'</span><span class="p">);</span>
-</code></pre>
-</div>
-
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">model</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'sub'</span><span class="p">);</span>
+</code></pre></div>
 <p>这实在太土了。。。
 我们希望像angularjs一样，直接：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">$scope</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s1">'sub'</span><span class="p">;</span>
-</code></pre>
-</div>
-
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">$scope</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s1">'sub'</span><span class="p">;</span>
+</code></pre></div>
 <p>然后bong, 视图就会更新！这样的黑科技必定是极好的。</p>
-<h1 id="section-1">目标</h1>
+
+<h1>目标</h1>
+
 <ol>
-  <li>完成model更新黑科技</li>
-  <li>200行以内完成
+<li>完成model更新黑科技</li>
+<li>200行以内完成
 我们希望html长成这样：</li>
 </ol>
-
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;head&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;head&gt;</span>
     <span class="nt">&lt;title&gt;</span>avalon like mvvm framework<span class="nt">&lt;/title&gt;</span>
     <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"frame.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
     <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"app.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
@@ -75,14 +71,11 @@
     <span class="nt">&lt;h1&gt;</span> avalon lik mvvm framework <span class="nt">&lt;/h1&gt;</span>
     <span class="nt">&lt;p</span> <span class="na">id=</span><span class="s">"my-p"</span><span class="nt">&gt;&lt;/p&gt;</span>
   <span class="nt">&lt;/body&gt;</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>即绑到p里面，又绑到isi-css-width里面，又绑了个isi-click
 不用写data-bind=xxx属性了，很像angularjs有没有！
 js我们希望长这样：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="nx">MVVM</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s2">"MainController"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">vm</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="nx">MVVM</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s2">"MainController"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">vm</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">vm</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="mi">150</span><span class="p">;</span>
     <span class="nx">vm</span><span class="p">.</span><span class="nx">click</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">vm</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nb">parseFloat</span><span class="p">(</span><span class="nx">vm</span><span class="p">.</span><span class="nx">w</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">;</span>
@@ -90,34 +83,28 @@ js我们希望长这样：</p>
 <span class="p">});</span>
 
 <span class="nx">MVVM</span><span class="p">.</span><span class="nx">scanTag</span><span class="p">();</span>
-</code></pre>
-</div>
+</code></pre></div>
+<p>想要改变model数据，直接vm.property = xxx就好，不用去model.set(&#39;property&#39;,xxx)了！</p>
 
-<p>想要改变model数据，直接vm.property = xxx就好，不用去model.set(‘property’,xxx)了！</p>
-
-<h1 id="section-2">实现</h1>
+<h1>实现</h1>
 
 <p>今次主要借鉴avalon“劫持”setter,getter的方法，链接：<a href="http://www.cnblogs.com/aaronjs/p/3614049.html">avalon简化版解读</a></p>
 
 <p>虽说是简化过的avalon，还是挺难读的。
-整理下思路，主要两大点：</p>
-<ol>
-  <li>vm对象 –&gt; vModel对象，劫持vm各个属性的set,get方法</li>
-  <li>scanTag() –&gt; 遍历dom树找关键字，去vModel找求值函数，注册到订阅者列表</li>
-</ol>
+整理下思路，主要两大点：
+1. vm对象 --&gt; vModel对象，劫持vm各个属性的set,get方法
+2. scanTag() --&gt; 遍历dom树找关键字，去vModel找求值函数，注册到订阅者列表</p>
 
 <p>其中去vModel这一点不是很清楚，这几天一定要搞清，自己mock一个出来</p>
 
-<h2 id="getter-setter">第一版，劫持getter, setter</h2>
-<p>之前提到，关键步骤有两个，</p>
-<ol>
-  <li>劫持vm中各个属性的getter, setter</li>
-  <li>scanTag，在这个过程中对vm对象求值，对vm对象handler(一般是去改视图)</li>
-</ol>
+<h2>第一版，劫持getter, setter</h2>
+
+<p>之前提到，关键步骤有两个，
+1. 劫持vm中各个属性的getter, setter
+2. scanTag，在这个过程中对vm对象求值，对vm对象handler(一般是去改视图)</p>
 
 <p>贴一下关键代码和注释：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>    <span class="cm">/*----------- define ------------------*/</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">    <span class="cm">/*----------- define ------------------*/</span>
     <span class="kd">var</span> <span class="nx">MVVM</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{};</span>
     <span class="nx">MVVM</span><span class="p">.</span><span class="nx">define</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">factory</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">scope</span> <span class="o">=</span> <span class="p">{};</span>
@@ -147,10 +134,7 @@ js我们希望长这样：</p>
         <span class="nx">vModel</span><span class="p">[</span><span class="nx">SUB_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">[];</span>
         <span class="k">return</span> <span class="nx">vModel</span><span class="p">;</span>
     <span class="p">}</span>
-</code></pre>
-</div>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>    <span class="nx">MVVM</span><span class="p">.</span><span class="nx">scanTag</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">vModel</span><span class="p">)</span> <span class="p">{</span>
+</code></pre></div><div class="highlight"><pre><code class="language-javascript" data-lang="javascript">    <span class="nx">MVVM</span><span class="p">.</span><span class="nx">scanTag</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">vModel</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// 假使通过parse, 取到了包含的元素&lt;p&gt;</span>
         <span class="kd">var</span> <span class="nx">myP</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">'my-p'</span><span class="p">);</span>
         <span class="nx">executeBindings</span><span class="p">([{</span>
@@ -172,20 +156,17 @@ js我们希望长这样：</p>
             <span class="c1">//主要功能是生成binding object的求值函数，handler函数，注册事件</span>
         <span class="p">});</span>
     <span class="p">}</span>    
-</code></pre>
-</div>
+</code></pre></div>
+<h1>第二版</h1>
 
-<h1 id="section-3">第二版</h1>
 <p>第一版有问题，没有事件啊，click不支持的话就太土了。
 所以第二版引入事件注册。
 简单的说，给每个vm的属性的setter,getter里，都搞一个subscriber数组，记录set这个属性时得通知哪些人，同时，在get这个属性时，收集订阅者。
 这个过程有点绕，我也是一步步设断点才知道怎么运行的：
 scanTag的时候，要生成每个属性的求值函数和handler函数，生成完之后，做注册。
-注册的时候，是对整个binding object操作，首先去调用求值函数，这样有两个作用：</p>
-<ol>
-  <li>调用了get方法，从而把这个binding object加到这个属性的subscribers数组里了</li>
-  <li>get到值之后去set, 从而在scanTag的过程中把vm里的property搞到各个html里去</li>
-</ol>
+注册的时候，是对整个binding object操作，首先去调用求值函数，这样有两个作用：
+1. 调用了get方法，从而把这个binding object加到这个属性的subscribers数组里了 
+2. get到值之后去set, 从而在scanTag的过程中把vm里的property搞到各个html里去</p>
 
 <p>理清这些思路后，我们来重构avalon的代码，因为原码命名实在太乱了，词不达意，导致读码的时候思路也很乱。 代码写完我会上传到github</p>
 
@@ -204,16 +185,14 @@ scanTag的时候，要生成每个属性的求值函数和handler函数，生成
                         <h2><a href="/javascript/2015/06/09/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%B8%80.html">2015-06-09-非常简单的js双向绑定框架（一）</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">初衷</h1>
-<p>搞了近5个月的angularjs项目，用起来非常顺手。最爽的是两个功能：</p>
-<ol>
-  <li>控制器的继承特性</li>
-  <li>数据的双向绑定</li>
-  <li>表达式控制显示与否
-前者减少了很多model的重复声明，赋值。后者大大简化了动态编辑，动态显示。比如我的表格需要根据某一列排序，我只用改动数据模型的顺序，视图会自动更新。
-但是，作为“Get your hands dirty”的小项目，用脏值检测和dom树编译太难了，目标1周的话搞不掂。所以借鉴knockoutjs的方法：</li>
-</ol>
+                        <h1>初衷</h1>
 
+<p>搞了近5个月的angularjs项目，用起来非常顺手。最爽的是两个功能：
+1. 控制器的继承特性
+2. 数据的双向绑定
+3. 表达式控制显示与否
+前者减少了很多model的重复声明，赋值。后者大大简化了动态编辑，动态显示。比如我的表格需要根据某一列排序，我只用改动数据模型的顺序，视图会自动更新。
+但是，作为“Get your hands dirty”的小项目，用脏值检测和dom树编译太难了，目标1周的话搞不掂。所以借鉴knockoutjs的方法：</p>
 
                     </section>
                     <footer>
@@ -231,13 +210,14 @@ scanTag的时候，要生成每个属性的求值函数和handler函数，生成
                         <h2><a href="/job-related/2015/06/19/%E5%AE%9E%E4%B9%A0-%E6%96%B0%E9%A1%B9%E7%9B%AE%E4%B9%8B%E5%89%8D%E7%9A%84%E6%80%9D%E8%80%83.html">2015-06-19-【实习】新项目之前的思考</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">问题</h1>
-<h2 id="section-1">速度问题</h2>
+                        <h1>问题</h1>
+
+<h2>速度问题</h2>
+
 <p>smstream web速度遇到问题，原因总结下：
 一是没有充分利用后端模板，全靠angularjs做渲染，这样文件大小倒没有变化很大，但依赖restful接口传数据，且数据需要各种拼接，耗时3秒
 二是页面spa化严重，导致页面���胀，很多简单视图不得不去加载不需要的库和js
 三是数据库结构有问题，params, calls什么的是把json字符串化之后存到一个字段里去的。这样导致每次取数据库的时候都要json load一次，非常耗时</p>
-
 
                     </section>
                     <footer>
@@ -269,7 +249,7 @@ scanTag的时候，要生成每个属性的求值函数和handler函数，生成
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -277,7 +257,7 @@ scanTag的时候，要生成每个属性的求值函数和handler函数，生成
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

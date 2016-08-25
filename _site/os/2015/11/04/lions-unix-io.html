@@ -44,7 +44,7 @@
         </header>
 
         <section>
-            <p>#buffer</p>
+            <h1>buffer</h1>
 
 <p>buffer是用来降低磁盘操作开销的。</p>
 
@@ -54,8 +54,8 @@ unix在内核中维护了NBUF个514B的buffer。</p>
 <p>为了管理buffer，unix使用两种双向循环链表来管理：</p>
 
 <ol>
-  <li>av list: available队列。队首是buf bfreelist。</li>
-  <li>b list: device队列。队首是某设备（devtab类型），其他成员都是buf类型。buf是缓存头。</li>
+<li>av list: available队列。队首是buf bfreelist。</li>
+<li>b list: device队列。队首是某设备（devtab类型），其他成员都是buf类型。buf是缓存头。</li>
 </ol>
 
 <p>总的原则使，空闲的缓存将挂在av队列中，当需要操作某设备时就从av队列中取下，挂到该设备的b队列中。
@@ -64,46 +64,38 @@ unix在内核中维护了NBUF个514B的buffer。</p>
 <p>当然，实现上有一些不同，比如：</p>
 
 <ol>
-  <li>
-    <p>设备操作完成后，不是直接去把缓存中b队列取下来。而是留待下一次缓存分配的时候。
-先从原有b队列取下来，再挂到新的b队列。这样的好处大概是重复配给一个设备时，可以省掉取下挂上的操作。</p>
-  </li>
-  <li>
-    <p>延迟写。
-一旦对缓存的写入结束，该缓存就会释放av队列，但其flag设置了B_DELWRI。
-如果该缓存被再次分配，会检查其B_DELWRI标志，如果置位，则首先执行写入，再分配缓存给新设备。</p>
-  </li>
+<li><p>设备操作完成后，不是直接去把缓存中b队列取下来。而是留待下一次缓存分配的时候。
+先从原有b队列取下来，再挂到新的b队列。这样的好处大概是重复配给一个设备时，可以省掉取下挂上的操作。</p></li>
+<li><p>延迟写。
+一旦对缓存的写入结束，该缓存就会释放av队列，但其flag设置了B<em>DELWRI。
+如果该缓存被再次分配，会检查其B</em>DELWRI标志，如果置位，则首先执行写入，再分配缓存给新设备。</p></li>
 </ol>
 
-<h1 id="swap">swap</h1>
+<h1>swap</h1>
 
 <p>swap确实涉及到了磁盘！ 就是我们说的内存不够用，换出到磁盘上。</p>
 
 <ul>
-  <li>高层模型：swapmap（和coremap很像）
-    <ul>
-      <li>m_size的单位是”磁盘块”，即512B。</li>
-      <li>m_addr为”磁盘块号”，而不是内存block号。</li>
-      <li>int swplo = 4000;  swap区域从磁盘第4000块开始。</li>
-      <li>in nswap = 872;  swap区域大小为连续872个磁盘块。</li>
-    </ul>
-  </li>
+<li>高层模型：swapmap（和coremap很像）
+
+<ul>
+<li>m_size的单位是&quot;磁盘块&quot;，即512B。</li>
+<li>m_addr为&quot;磁盘块号&quot;，而不是内存block号。</li>
+<li>int swplo = 4000;  swap区域从磁盘第4000块开始。</li>
+<li>in nswap = 872;  swap区域大小为连续872个磁盘块。</li>
+</ul></li>
 </ul>
 
-<h1 id="section">磁盘</h1>
+<h1>磁盘</h1>
 
 <p>RK磁盘由一个控制器+1~8个device组成。</p>
 
 <p>RK驱动器在核心空间上有6个控制寄存器，起始地址为RKADDR</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">5363</span>  <span class="n">RKADDR</span> <span class="mo">0177400</span>
-</code></pre>
-</div>
-
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="mi">5363</span>  <span class="n">RKADDR</span> <span class="mo">0177400</span>
+</code></pre></div>
 <p>要启动磁盘驱动，需要首先设置rkda，rkba，rkwc三个寄存器。
 然后，设置rkwc，这样就直接启动了磁盘设备。
-磁盘操作结束后，会通过矢量地址220产生中断，处理函数是”rkintr”。</p>
-
+磁盘操作结束后，会通过矢量地址220产生中断，处理函数是&quot;rkintr&quot;。</p>
 
         </section>
         
@@ -116,8 +108,7 @@ unix在内核中维护了NBUF个514B的buffer。</p>
                         <h2><a href="/os/2015/11/02/lions-unix-trap.html">莱昂式unix源码阅读2: 硬中断与trap</a></h2>
                     </header>
                     <section>
-                        <p>#clock中断</p>
-
+                        <h1>clock中断</h1>
 
                     </section>
                     <footer>
@@ -135,8 +126,7 @@ unix在内核中维护了NBUF个514B的buffer。</p>
                         <h2><a href="/os/2015/11/06/lions-unix-filesystem.html">莱昂式unix源码阅读4: file system</a></h2>
                     </header>
                     <section>
-                        <p>#构成</p>
-
+                        <h1>构成</h1>
 
                     </section>
                     <footer>
@@ -168,7 +158,7 @@ unix在内核中维护了NBUF个514B的buffer。</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -176,7 +166,7 @@ unix在内核中维护了NBUF个514B的buffer。</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

@@ -46,23 +46,23 @@
         <section>
             <p>今天review了x易的课，发现csdn博客实在是。。。没有关注度
 今天开始转github.io，用jekyllrb写博客，目标找工作前拿到人生第一个star!
-步骤：</p>
-<ol>
-  <li>github.io配套设施搞好</li>
-  <li>nodejs写一个转换脚本</li>
-  <li>迁移！</li>
-</ol>
+步骤：
+1. github.io配套设施搞好
+2. nodejs写一个转换脚本
+3. 迁移！</p>
 
-<h1 id="section">目标：</h1>
+<h1>目标：</h1>
+
 <ol>
-  <li>拿到一个star</li>
-  <li>每天contibute</li>
-  <li>有这种效果就挺好：</li>
+<li>拿到一个star</li>
+<li>每天contibute</li>
+<li>有这种效果就挺好：</li>
 </ol>
 
 <p><a href="http://curtistimson.co.uk/front-end-dev/what-is-cache-busting/">somebodysblog</a></p>
 
-<h1 id="section-1">问题：</h1>
+<h1>问题：</h1>
+
 <p>Errno::ECONNRESET: Connection reset by peer - SSL_connect (https://api.rubygems.org
 解决方法：</p>
 
@@ -70,25 +70,27 @@
 
 <p>gem sources -l</p>
 
-<p>gem sources –remove https://rubygems.org</p>
+<p>gem sources --remove https://rubygems.org</p>
 
 <p>干，git不能用， ssl error</p>
 
 <p>sudo git config http.sslVerify false</p>
 
-<p>sudo git config –global http.sslverify false</p>
+<p>sudo git config --global http.sslverify false</p>
 
-<h1 id="section-2">步骤</h1>
+<h1>步骤</h1>
+
 <p>去github.io根目录</p>
 
 <p>jekyll new .</p>
 
 <p>修改_config.yml</p>
 
-<h1 id="build">加一行，否则build报错</h1>
+<h1>加一行，否则build报错</h1>
+
 <p>highlighter : null</p>
 
-<p>build</p>
+<p>build </p>
 
 <p>jekyll build</p>
 
@@ -105,10 +107,11 @@
                         <h2><a href="/os/2015/06/24/epoll%E7%9A%84io%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B%E4%B8%8Etornado%E7%9A%84%E5%85%B3%E7%B3%BB.html">2015-06-24-epoll的io异步模型与tornado的关系</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">初衷</h1>
+                        <h1>初衷</h1>
+
 <p>TORNADO IOLOOP: A level-triggered I/O loop.
 ```python
-def connection_ready(sock, fd, events):
+def connection<em>ready(sock, fd, events):
     while True:
         try:
             connection, address = sock.accept()
@@ -117,8 +120,7 @@ def connection_ready(sock, fd, events):
                 raise
             return
         connection.setblocking(0)
-        handle_connection(connection, address)</p>
-
+        handle</em>connection(connection, address)</p>
 
                     </section>
                     <footer>
@@ -136,12 +138,12 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/javascript/2015/07/06/nodejs%E4%BD%BF%E7%94%A8%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98.html">2015-07-06-nodejs使用中遇到的问题</a></h2>
                     </header>
                     <section>
-                        <h1 id="json">json</h1>
-<ul>
-  <li>XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空</li>
-  <li>XMLHttpRequest.setRequestHeader必须在request open后再设置</li>
-</ul>
+                        <h1>json</h1>
 
+<ul>
+<li>XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空</li>
+<li>XMLHttpRequest.setRequestHeader必须在request open后再设置</li>
+</ul>
 
                     </section>
                     <footer>
@@ -173,7 +175,7 @@ def connection_ready(sock, fd, events):
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -181,7 +183,7 @@ def connection_ready(sock, fd, events):
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

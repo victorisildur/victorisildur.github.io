@@ -44,49 +44,50 @@
         </header>
 
         <section>
-            <h1 id="json">json</h1>
+            <h1>json</h1>
+
 <ul>
-  <li>XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空</li>
-  <li>XMLHttpRequest.setRequestHeader必须在request open后再设置</li>
+<li>XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空</li>
+<li>XMLHttpRequest.setRequestHeader必须在request open后再设置</li>
 </ul>
 
-<h1 id="rest">REST</h1>
+<h1>REST</h1>
+
 <ul>
-  <li>Express()生成的app, 可以用use(router)，也可以直接app.post, app.delete</li>
-  <li>重定向：
-    <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">//express router中：</span>
-<span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">'http://aaa.com'</span><span class="p">);</span>
-<span class="c1">//nodejs</span>
-<span class="nx">res</span><span class="p">.</span><span class="nx">writeHeader</span><span class="p">(</span><span class="mi">301</span><span class="p">,</span> <span class="p">{</span><span class="na">Location</span><span class="p">:</span> <span class="s1">'http://aaa.com'</span><span class="p">});</span>
-<span class="c1">// syntax: response.writeHead(statusCode[, statusMessage][, headers])</span>
-<span class="c1">// 301之后浏览器会重新请求</span>
-<span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
-</code></pre>
-    </div>
-  </li>
+<li>Express()生成的app, 可以用use(router)，也可以直接app.post, app.delete</li>
+<li>重定向：
+<code>javascript
+//express router中：
+res.redirect(&#39;http://aaa.com&#39;);
+//nodejs
+res.writeHeader(301, {Location: &#39;http://aaa.com&#39;});
+// syntax: response.writeHead(statusCode[, statusMessage][, headers])
+// 301之后浏览器会重新请求
+res.end()
+</code></li>
 </ul>
 
-<h1 id="api">api</h1>
+<h1>api</h1>
+
 <ul>
-  <li>中间件之间共享数据aaa，免得老是res.render({aaa:aaa}):
-    <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">res</span><span class="p">.</span><span class="nx">locals</span> <span class="o">=</span> <span class="p">{</span><span class="na">aaa</span><span class="p">:</span> <span class="nx">aaa</span><span class="p">}</span>
-<span class="c1">// 然后就可以在所有模板里  &lt;%= aaa %&gt;了</span>
-</code></pre>
-    </div>
-  </li>
+<li>中间件之间共享数据aaa，免得老是res.render({aaa:aaa}):
+<code>javascript
+res.locals = {aaa: aaa}
+// 然后就可以在所有模板里  &lt;%= aaa %&gt;了
+</code></li>
 </ul>
 
-<h1 id="linux">linux</h1>
+<h1>linux</h1>
+
 <ul>
-  <li>统计文件行数：
-    <div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="c"># 简单</span>
-wc -l filename <span class="o">[</span>filename <span class="o">[</span>filename <span class="o">[</span>..]]]
-<span class="c"># 文件 --&gt; cat --&gt; wc -l</span>
-find scripts/ -name <span class="s1">'*.js'</span>  ! -path <span class="s1">'scripts/lib/*'</span> | xargs cat | wc -l
-<span class="c"># 这里用到了expr1 ! expr2 (== expr1 &amp;&amp; !expr2)</span>
-</code></pre>
-    </div>
-  </li>
+<li>统计文件行数：
+<code>shell
+# 简单
+wc -l filename [filename [filename [..]]]
+# 文件 --&gt; cat --&gt; wc -l
+find scripts/ -name &#39;*.js&#39;  ! -path &#39;scripts/lib/*&#39; | xargs cat | wc -l
+# 这里用到了expr1 ! expr2 (== expr1 &amp;&amp; !expr2)
+</code></li>
 </ul>
 
         </section>
@@ -102,13 +103,10 @@ find scripts/ -name <span class="s1">'*.js'</span>  ! -path <span class="s1">'sc
                     <section>
                         <p>今天review了x易的课，发现csdn博客实在是。。。没有关注度
 今天开始转github.io，用jekyllrb写博客，目标找工作前拿到人生第一个star!
-步骤：</p>
-<ol>
-  <li>github.io配套设施搞好</li>
-  <li>nodejs写一个转换脚本</li>
-  <li>迁移！</li>
-</ol>
-
+步骤：
+1. github.io配套设施搞好
+2. nodejs写一个转换脚本
+3. 迁移！</p>
 
                     </section>
                     <footer>
@@ -127,7 +125,6 @@ find scripts/ -name <span class="s1">'*.js'</span>  ! -path <span class="s1">'sc
                     </header>
                     <section>
                         <p>因为涉及CSDN，所以用中文</p>
-
 
                     </section>
                     <footer>
@@ -159,7 +156,7 @@ find scripts/ -name <span class="s1">'*.js'</span>  ! -path <span class="s1">'sc
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -167,7 +164,7 @@ find scripts/ -name <span class="s1">'*.js'</span>  ! -path <span class="s1">'sc
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

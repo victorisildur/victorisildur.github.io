@@ -44,32 +44,31 @@
         </header>
 
         <section>
-            <p>#构成</p>
+            <h1>构成</h1>
 
-<p>*目录：一坨文件，维护着文件的逻辑名称。通过<code class="highlighter-rouge">namei()</code>我们可以获得文件名-&gt;inode
+<p>*目录：一坨文件，维护着文件的逻辑名称。通过<code>namei()</code>我们可以获得文件名-&gt;inode
 *文件：进程拥有的东西。
 *inode：硬盘几个块的抽象。可以多个文件link到一个inode。
 inode由(devno, ino)唯一标示。</p>
 
-<p>#文件的物理位置</p>
+<h1>文件的物理位置</h1>
 
 <p>这块书上写的不是很清楚，是bmap的内容，这里详细讲一下。
 inode使用i_addr[8]数组来记录文件的物理块号。</p>
 
 <ol>
-  <li>对小文件（块数&lt;=8块），i_addr数组直接存放文件占用的物理块号。</li>
-  <li>对大文件。
+<li>对小文件（块数&lt;=8块），i_addr数组直接存放文件占用的物理块号。</li>
+<li>对大文件。
 前七个块是间接块。每个块里存了256个真实块地址。所以最大256<em>7=1792块。
 i_addr[7]是双层间接块。又多了256</em>256块。</li>
 </ol>
 
-<p><code class="highlighter-rouge">bmap(ip, bn)</code>将逻辑块号转化为物理块号。
+<p><code>bmap(ip, bn)</code>将逻辑块号转化为物理块号。
 什么是逻辑块呢？
 其实就是文件长度按512字节分成逻辑上的连续块号。</p>
 
-<p>所以<code class="highlighter-rouge">bmap()</code>的核心语句就是：</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="mi">6447</span>  <span class="n">nb</span> <span class="o">=</span> <span class="n">ip</span><span class="o">-&gt;</span><span class="n">i_addr</span><span class="p">[</span><span class="n">bn</span><span class="p">];</span>
+<p>所以<code>bmap()</code>的核心语句就是：</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="mi">6447</span>  <span class="n">nb</span> <span class="o">=</span> <span class="n">ip</span><span class="o">-&gt;</span><span class="n">i_addr</span><span class="p">[</span><span class="n">bn</span><span class="p">];</span>
 
 <span class="mi">6472</span>  <span class="n">bp</span> <span class="o">=</span> <span class="n">bread</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">nb</span><span class="p">);</span>  <span class="c1">//拿到的是一个buffer指针，读到内存啦
 </span><span class="mi">6473</span>  <span class="n">bap</span> <span class="o">=</span> <span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_addr</span><span class="p">;</span>   <span class="c1">//内核态地址
@@ -77,14 +76,12 @@ i_addr[7]是双层间接块。又多了256</em>256块。</li>
 <span class="mi">6496</span>  <span class="n">i</span> <span class="o">=</span> <span class="n">bn</span> <span class="o">&amp;</span> <span class="mo">0377</span><span class="p">;</span>      <span class="c1">//bn在节间block中的偏移量
 </span><span class="mi">6497</span>  <span class="k">if</span><span class="p">((</span><span class="n">nb</span><span class="o">=</span><span class="n">bap</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">...)</span>  <span class="c1">//bap[bn]，即 (*ip-&gt;i_addr[bn])[i]
 </span>                                <span class="c1">//nb最终是间接block中存储的一个physic block地址
-</span></code></pre>
-</div>
+</span></code></pre></div>
+<p><code>bmap()</code>其他代码是用来处理双层间接和物理地址不存在，要“写”的情况。</p>
 
-<p><code class="highlighter-rouge">bmap()</code>其他代码是用来处理双层间接和物理地址不存在，要“写”的情况。</p>
+<h1>pathname到inode的转换</h1>
 
-<p>#pathname到inode的转换</p>
-
-<p><code class="highlighter-rouge">namei()</code>函数，
+<p><code>namei()</code>函数，
 主要难点在于如何递归地取目录文件，读目录文件的一个entry。
 再由这个entry找下一个目录文件。
 还有，entry存的是什么？inode编号？</p>
@@ -102,8 +99,7 @@ i_addr[7]是双层间接块。又多了256</em>256块。</li>
                         <h2><a href="/os/2015/11/04/lions-unix-io.html">莱昂式unix源码阅读3: buffer、磁盘、io</a></h2>
                     </header>
                     <section>
-                        <p>#buffer</p>
-
+                        <h1>buffer</h1>
 
                     </section>
                     <footer>
@@ -123,7 +119,6 @@ i_addr[7]是双层间接块。又多了256</em>256块。</li>
                     <section>
                         <p>低速io设备是指速度小于1000字符/s。
 这一块莱昂式直接陷入细节去讲了，导致完全没看懂。</p>
-
 
                     </section>
                     <footer>
@@ -155,7 +150,7 @@ i_addr[7]是双层间接块。又多了256</em>256块。</li>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -163,7 +158,7 @@ i_addr[7]是双层间接块。又多了256</em>256块。</li>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

@@ -44,11 +44,10 @@
         </header>
 
         <section>
-            <h2 id="es6-">es6 测试</h2>
+            <h2>es6 测试</h2>
 
 <p>expect库是一个有力的测试工具，我们期望如下代码能够node test.js以下就能跑起来：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="nx">expect</span> <span class="nx">from</span> <span class="s1">'expect'</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kr">import</span> <span class="nx">expect</span> <span class="nx">from</span> <span class="s1">'expect'</span><span class="p">;</span>
 <span class="kr">import</span> <span class="p">{</span><span class="nx">byteToIntArr</span><span class="p">}</span> <span class="nx">from</span> <span class="s1">'./protobuf'</span><span class="p">;</span>
 
 <span class="kr">const</span> <span class="nx">byteArr</span> <span class="o">=</span> <span class="p">{</span>
@@ -60,18 +59,16 @@
     <span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="mi">48</span><span class="p">);</span>
 
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Tests passed!'</span><span class="p">);</span>
-</code></pre>
-</div>
-
-<p>然而，直接node运行es6代码会报报错’unexpected reseed word import’, 该如何让这段测试用例跑起来呢？
+</code></pre></div>
+<p>然而，直接node运行es6代码会报报错&#39;unexpected reseed word import&#39;, 该如何让这段测试用例跑起来呢？
 答案是babel-cli。</p>
 
-<p>安装之后，运行<code class="highlighter-rouge">babel-node --presets es2015 test.js</code>.
-至于为什么一定要–presets，有空再说，先上车！</p>
+<p>安装之后，运行<code>babel-node --presets es2015 test.js</code>.
+至于为什么一定要--presets，有空再说，先上车！</p>
 
-<h2 id="objectassign">Object.assign</h2>
+<h2>Object.assign</h2>
 
-<p>Object.assign(target, …sources)</p>
+<p>Object.assign(target, ...sources)</p>
 
 <p>把多个源的可枚举属性copy到目标对象上去。
 redux里用于在不改变原state的情况下，在reducer里返回新的state。</p>
@@ -79,7 +76,7 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
 <p>但为什么要这么做？</p>
 
 <blockquote>
-  <p>Because reducers are just functions, you can control the order in which they are called, pass additional data, or even make reusable reducers for common tasks such as pagination.</p>
+<p>Because reducers are just functions, you can control the order in which they are called, pass additional data, or even make reusable reducers for common tasks such as pagination.</p>
 </blockquote>
 
 <p>简单的说，纯函数可以毫无顾忌的去组合，而不用担心副作用。
@@ -89,16 +86,15 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
 这是因为babel-loader只转es6语法，不转es6标准库。</p>
 
 <p>解决方法有两种，
-一是<code class="highlighter-rouge">import babel-polyfill</code>，但这个很大，不压缩有200k。
+一是<code>import babel-polyfill</code>，但这个很大，不压缩有200k。
 二是$.extend，功能是一样的，推荐。</p>
 
-<h2 id="extend">$.extend的实现</h2>
+<h2>$.extend的实现</h2>
 
 <p>先到这里顺便写下$.extend的实现，基本思想就是递归向下，直到遇到基础类型。</p>
 
 <p>代码如下：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>  <span class="kd">function</span> <span class="nx">extend</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">source</span><span class="p">,</span> <span class="nx">deep</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">  <span class="kd">function</span> <span class="nx">extend</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">source</span><span class="p">,</span> <span class="nx">deep</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">source</span><span class="p">)</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">deep</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">isPlainObject</span><span class="p">(</span><span class="nx">source</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span> <span class="o">||</span> <span class="nx">isArray</span><span class="p">(</span><span class="nx">source</span><span class="p">[</span><span class="nx">key</span><span class="p">])))</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="nx">isPlainObject</span><span class="p">(</span><span class="nx">source</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">isPlainObject</span><span class="p">(</span><span class="nx">target</span><span class="p">[</span><span class="nx">key</span><span class="p">]))</span>
@@ -109,30 +105,24 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
       <span class="p">}</span>
       <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">source</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="nx">target</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">source</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
   <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>非深拷贝没什么好讲的，直接key覆盖。
 深拷贝需要递归到底，因为基础类型不是引用的，所以=就是深拷贝。</p>
 
 <p>这里另一个要注意的地方是，isPlainObj(obj)，则obj的复制是引用复制。
 具体来讲：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>  function isObject(obj)     { return type(obj) == "object" }
+<div class="highlight"><pre><code class="language-" data-lang="">  function isObject(obj)     { return type(obj) == "object" }
   function isPlainObject(obj) {
     return isObject(obj) &amp;&amp; !isWindow(obj) &amp;&amp; Object.getPrototypeOf(obj) == Object.prototype
   }
-</code></pre>
-</div>
-
-<h2 id="async-action">Async Action</h2>
+</code></pre></div>
+<h2>Async Action</h2>
 
 <p>什么是异步动作？简单的说，我希望在这个瞬间dispatch(actionA), 然而actionA实际要经历网络请求，
 真正的action对象要在未来某个时间点才会抛出来。</p>
 
 <p>要实现这个功能，不用middleWare的话，应该这样写：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s1">'aa.com/post/a'</span><span class="p">,</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s1">'aa.com/post/a'</span><span class="p">,</span> <span class="p">{</span>
     <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">store</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">({</span>
             <span class="na">type</span><span class="p">:</span> <span class="s1">'actionA'</span><span class="p">,</span>
@@ -140,34 +130,25 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
         <span class="p">})</span>
     <span class="p">}</span>
 <span class="p">});</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>这样显然是冗余代码，可以这样thunk一下：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">asyncActionA</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">asyncActionA</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">dispatch</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">dispatch</span><span class="p">({</span><span class="na">action</span><span class="p">:</span> <span class="s1">'BEGIN_REQUEST'</span><span class="p">});</span>
         <span class="k">return</span> <span class="nx">fetch</span><span class="p">(</span><span class="s1">'aa.com/post/a'</span><span class="p">)</span>
                <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
                <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">json</span> <span class="o">=&gt;</span> <span class="nx">dispatch</span><span class="p">({</span><span class="na">type</span><span class="p">:</span> <span class="s1">'END_REQUEST'</span><span class="p">,</span> <span class="na">data</span><span class="p">:</span> <span class="nx">json</span><span class="p">)</span>
     <span class="p">}</span>
-    
+
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>thunk的意思就是把执行推后，这样就可以在瞬时这样调用了：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">store</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">(</span><span class="nx">asyncActionA</span><span class="p">());</span>
-</code></pre>
-</div>
-
-<h2 id="section">箭头函数</h2>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">store</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">(</span><span class="nx">asyncActionA</span><span class="p">());</span>
+</code></pre></div>
+<h2>箭头函数</h2>
 
 <p>在看redux-thunk时遇到这样的级联箭头：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">createThunkMiddleware</span><span class="p">(</span><span class="nx">extraArgument</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">createThunkMiddleware</span><span class="p">(</span><span class="nx">extraArgument</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">({</span> <span class="nx">dispatch</span><span class="p">,</span> <span class="nx">getState</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="nx">next</span> <span class="o">=&gt;</span> <span class="nx">action</span> <span class="o">=&gt;</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">action</span> <span class="o">===</span> <span class="s1">'function'</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">return</span> <span class="nx">action</span><span class="p">(</span><span class="nx">dispatch</span><span class="p">,</span> <span class="nx">getState</span><span class="p">,</span> <span class="nx">extraArgument</span><span class="p">);</span>
@@ -175,19 +156,16 @@ redux里用于在不改变原state的情况下，在reducer里返回新的state�
         <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">action</span><span class="p">);</span>
     <span class="p">};</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>搜了下没搜到，不知道什么意思</p>
 
-<h2 id="on">$.on</h2>
+<h2>$.on</h2>
 
-<p><code class="highlighter-rouge">$.fn.on(event, selector, callback)</code> 最终调用的时候，
+<p><code>$.fn.on(event, selector, callback)</code> 最终调用的时候，
 callback.apply(element)，所以this是element</p>
 
 <p>然后，$.fn.attr之类的函数，this是如何的？</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">$</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">selector</span><span class="p">,</span> <span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">$</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">selector</span><span class="p">,</span> <span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">zepto</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">selector</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
 <span class="p">}</span>
 
@@ -206,79 +184,68 @@ callback.apply(element)，所以this是element</p>
     <span class="k">this</span><span class="p">.</span><span class="nx">length</span> <span class="o">=</span> <span class="nx">len</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">selector</span> <span class="o">=</span> <span class="nx">selector</span> <span class="o">||</span> <span class="s1">''</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>所以你看，$.fn被调用时，this也并不是dom，而是一个Z的实例。
-<code class="highlighter-rouge">Z[0] = dom[0], Z[1] = dom[1]</code>。
+<code>Z[0] = dom[0], Z[1] = dom[1]</code>。
 好吧，这不能解释plugin里面this就是dom?? 少年你还有路要走。</p>
 
-<h2 id="generator">generator</h2>
+<h2>generator</h2>
 
 <p>要理解generator，首先要理解Iterator.
-在js里，Iterator对象必须有一个next方法，它返回一个<code class="highlighter-rouge"><span class="p">{</span><span class="err">value,</span><span class="w"> </span><span class="err">done</span><span class="p">}</span></code>对象。</p>
+在js里，Iterator对象必须有一个next方法，它返回一个<code>{value, done}</code>对象。</p>
 
 <p>我们来看一个Iterator生成器：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">makeIterator</span><span class="p">(</span><span class="nx">array</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">makeIterator</span><span class="p">(</span><span class="nx">array</span><span class="p">)</span> <span class="p">{</span>
    <span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
    <span class="k">return</span> <span class="p">{</span>
        <span class="na">next</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
            <span class="k">return</span> <span class="nx">index</span> <span class="o">&lt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span> <span class="p">?</span>
-	       <span class="p">{</span><span class="na">value</span><span class="p">:</span> <span class="nx">array</span><span class="p">[</span><span class="nx">index</span><span class="o">++</span><span class="p">],</span> <span class="na">done</span><span class="p">:</span> <span class="kc">false</span><span class="p">}</span> <span class="p">:</span>
-	       <span class="p">{</span><span class="na">done</span><span class="p">:</span> <span class="kc">true</span><span class="p">};</span>
+           <span class="p">{</span><span class="na">value</span><span class="p">:</span> <span class="nx">array</span><span class="p">[</span><span class="nx">index</span><span class="o">++</span><span class="p">],</span> <span class="na">done</span><span class="p">:</span> <span class="kc">false</span><span class="p">}</span> <span class="p">:</span>
+           <span class="p">{</span><span class="na">done</span><span class="p">:</span> <span class="kc">true</span><span class="p">};</span>
        <span class="p">}</span>
    <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>然而，这样要仔细的去维护iterator的内部状态（这都懒得做了吗。。。现在的高级语言都怎么了。。。）。
 于是诞生了generator，它满足两个条件：</p>
 
 <ul>
-  <li>含yield表达式</li>
-  <li>用 function * 声明</li>
+<li>含yield表达式</li>
+<li>用 function * 声明</li>
 </ul>
 
 <p>看个例子：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="o">*</span> <span class="nx">idMake</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="o">*</span> <span class="nx">idMake</span><span class="p">()</span> <span class="p">{</span>
    <span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
    <span class="k">while</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
        <span class="k">yield</span> <span class="nx">index</span> <span class="o">++</span><span class="p">;</span>
    <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
-<p>yield的作用是暂停这个generator的状态，yield后面的表达式值会被塞入<code class="highlighter-rouge">next()</code>方法返回值的<code class="highlighter-rouge">value</code>字段。
-generator的暂停态直到下一次调用<code class="highlighter-rouge">caller.next()</code>结束。
+</code></pre></div>
+<p>yield的作用是暂停这个generator的状态，yield后面的表达式值会被塞入<code>next()</code>方法返回值的<code>value</code>字段。
+generator的暂停态直到下一次调用<code>caller.next()</code>结束。
 实际上，当执行yield语句时，也返回了{done: false}字段。
 要想返回{done: true}，让generator resume后执行到底，不再yield就行。</p>
 
 <p>我们可以用generator重构之前的array iterator:</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="o">*</span> <span class="nx">makeIterator</span><span class="p">(</span><span class="nx">array</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="o">*</span> <span class="nx">makeIterator</span><span class="p">(</span><span class="nx">array</span><span class="p">)</span> <span class="p">{</span>
    <span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
    <span class="k">while</span> <span class="p">(</span><span class="nx">index</span> <span class="o">&lt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">yield</span> <span class="nx">array</span><span class="p">[</span><span class="nx">index</span><span class="o">++</span><span class="p">];</span>
    <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>是不是简单清晰很多！</p>
 
-<h2 id="import">import</h2>
+<h2>import</h2>
 
-<p><code class="highlighter-rouge">export default</code> 和 <code class="highlighter-rouge">export</code>同时存在时，会怎样？
+<p><code>export default</code> 和 <code>export</code>同时存在时，会怎样？
 都能用！</p>
 
 <p>没有export default，想全部导出该怎么办？
-<code class="highlighter-rouge">import * as A from 'xxx'</code>就行啦！</p>
+<code>import * as A from &#39;xxx&#39;</code>就行啦！</p>
 
-<p>更鬼一点：<code class="highlighter-rouge">import {a as aaa} from 'xxx'</code></p>
+<p>更鬼一点：<code>import {a as aaa} from &#39;xxx&#39;</code></p>
 
         </section>
         
@@ -340,7 +307,7 @@ generator的暂停态直到下一次调用<code class="highlighter-rouge">caller
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -348,7 +315,7 @@ generator的暂停态直到下一次调用<code class="highlighter-rouge">caller
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

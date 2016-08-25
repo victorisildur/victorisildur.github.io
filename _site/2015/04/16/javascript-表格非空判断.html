@@ -44,27 +44,29 @@
         </header>
 
         <section>
-            <p>#引子
-jquery自带的</p>
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;input</span> <span class="na">required</span><span class="nt">&gt;</span>
-</code></pre>
-</div>
-<p>非常好用，但是只能在一个form里做非空校验</p>
+            <h1>引子</h1>
+
+<p>jquery自带的
+<code>html
+&lt;input required&gt;
+</code>
+非常好用，但是只能在一个form里做非空校验</p>
 
 <p>如果我们想用js对任何元素及其子元素做非空校验，该怎么办呢？</p>
 
-<p>#attr
-我们借鉴required方式，给我们想要非空的元素加</p>
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;element</span> <span class="na">i-require</span><span class="nt">&gt;</span>
-</code></pre>
-</div>
-<p>然后用jquery的attr方法判断即可！</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'i-require'</span><span class="p">)</span> <span class="o">!==</span> <span class="kc">undefined</span>
-</code></pre>
-</div>
+<h1>attr</h1>
 
-<p>#深度优先遍历算法</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">checkNoneEmpty</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">element</span> <span class="p">)</span> <span class="p">{</span>
+<p>我们借鉴required方式，给我们想要非空的元素加
+<code>html
+&lt;element i-require&gt;
+</code>
+然后用jquery的attr方法判断即可！
+<code>javascript
+$(element).attr(&#39;i-require&#39;) !== undefined
+</code></p>
+
+<h1>深度优先遍历算法</h1>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">checkNoneEmpty</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">element</span> <span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span><span class="p">(</span> <span class="o">!</span> <span class="p">(</span><span class="nx">element</span> <span class="k">instanceof</span> <span class="nx">jQuery</span><span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
             <span class="nx">element</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span>
         <span class="p">}</span>
@@ -88,9 +90,7 @@ jquery自带的</p>
         <span class="p">}</span>
         <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
     <span class="p">};</span>
-</code></pre>
-</div>
-
+</code></pre></div>
         </section>
         
         <footer>
@@ -102,9 +102,9 @@ jquery自带的</p>
                         <h2><a href="/2015/04/09/javascript%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F.html">2015-04-09-javascript正则表达式</a></h2>
                     </header>
                     <section>
-                        <p>#引子
-遇到的问题：</p>
+                        <h1>引子</h1>
 
+<p>遇到的问题：</p>
 
                     </section>
                     <footer>
@@ -122,28 +122,27 @@ jquery自带的</p>
                         <h2><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html">2015-05-09-javascript原型链与原型继承</a></h2>
                     </header>
                     <section>
-                        <p>#引子</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
-		<span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
-	<span class="p">},</span>
-	<span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
-		<span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
-		<span class="k">return</span> <span class="nx">object</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre>
-</div>
-<h1 id="section">原型链</h1>
-<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述" /></p>
-<ol>
-  <li>Func.prototype = object : {constructor, [[Prototype]]}</li>
-  <li>object.[[constructor]] = Func</li>
-  <li>new Func().[[Prototype]] = Func.prototype</li>
-  <li>var a = new Func()执行三步：</li>
-</ol>
+                        <h1>引子</h1>
 
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="p">},</span>
+    <span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nx">object</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h1>原型链</h1>
+
+<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述">
+1. Func.prototype = object : {constructor, [[Prototype]]}
+2. object.[[constructor]] = Func
+3. new Func().[[Prototype]] = Func.prototype
+4. var a = new Func()执行三步：</p>
 
                     </section>
                     <footer>
@@ -175,7 +174,7 @@ jquery自带的</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -183,7 +182,7 @@ jquery自带的</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

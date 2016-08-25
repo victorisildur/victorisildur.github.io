@@ -47,8 +47,7 @@
             <p>d3.js在stream和scheduler上都有用，它结合svg之后，可以做出很漂亮的可视化数据，而且编程风格非常优雅</p>
 
 <p>先上个绘制svg rect，展示柱状图的例子：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">width</span> <span class="o">=</span> <span class="mi">900</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">width</span> <span class="o">=</span> <span class="mi">900</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">43</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">32</span><span class="p">];</span>
 <span class="kd">var</span> <span class="nx">scale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">()</span>
     <span class="p">.</span><span class="nx">domain</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">data</span><span class="p">)])</span>
@@ -77,10 +76,8 @@
     <span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'y'</span><span class="p">,</span> <span class="nx">barHeight</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'dy'</span><span class="p">,</span> <span class="s1">'.35em'</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">text</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="nx">d</span><span class="p">;});</span>
-</code></pre>
-</div>
-
-<p>可以看到，一行data()之后，就把data数组转换成了d3对象bar，这个bar既包含了数据data，可供后续所有东西（rect,text)调用，由代表了<g>元素。 这种以数据为中心的d3元素，表达力很强。</g></p>
+</code></pre></div>
+<p>可以看到，一行data()之后，就把data数组转换成了d3对象bar，这个bar既包含了数据data，可供后续所有东西（rect,text)调用，由代表了<g>元素。 这种以数据为中心的d3元素，表达力很强。</p>
 
         </section>
         
@@ -94,7 +91,6 @@
                     </header>
                     <section>
                         <p>title问题？</p>
-
 
                     </section>
                     <footer>
@@ -112,11 +108,11 @@
                         <h2><a href="/javascript/2015/08/14/ng-directive.html">angular js自定义directive与集成jquery插件</a></h2>
                     </header>
                     <section>
-                        <p>##需求</p>
-<ol>
-  <li>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</li>
-</ol>
+                        <h2>需求</h2>
 
+<ol>
+<li>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</li>
+</ol>
 
                     </section>
                     <footer>
@@ -148,7 +144,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -156,7 +152,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

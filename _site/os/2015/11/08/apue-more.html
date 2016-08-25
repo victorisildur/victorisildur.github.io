@@ -48,9 +48,8 @@
 代码都来源于APUE的配套实践教程。
 第一回，先搞个more的实现。</p>
 
-<h1 id="section">版本一：只能看文件</h1>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">ac</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">av</span><span class="p">[])</span>
+<h1>版本一：只能看文件</h1>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">ac</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">av</span><span class="p">[])</span>
 <span class="p">{</span>
   <span class="kt">FILE</span> <span class="o">*</span> <span class="n">fp</span><span class="p">;</span>
   <span class="k">if</span><span class="p">(</span><span class="n">ac</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
@@ -103,9 +102,7 @@
     <span class="p">}</span>
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>可以看到，do_more里面一个大循环，不断从fp里gets再puts出来，直到打印满24行（一页）。</p>
 
 <p>一旦满页，就打印提示信息，请求用户输入还要再打印一页or一行or结束。</p>
@@ -114,31 +111,25 @@
 这貌似是我们分析unix代码时输入唤醒机制的问题。
 如果我们的程序不指明对raw input感兴趣，那么就只会在输入回车之后被唤醒。</p>
 
-<p>另外一个问题是重定向的情况，比如我们想对ls分页，那么命令显然是<code class="highlighter-rouge">ls | more</code>。
+<p>另外一个问题是重定向的情况，比如我们想对ls分页，那么命令显然是<code>ls | more</code>。
 这是对more进城来说，stdio被重定向为ls的输出了，那我们如何接受键盘字符呢？？</p>
 
-<p>#第二版 支持管道，更棒的输入</p>
+<h1>第二版 支持管道，更棒的输入</h1>
 
-<p>对管道的支持靠的是<code class="highlighter-rouge">/dev/tty</code>这个文件，这个文件是对输入设备的文件抽象。
+<p>对管道的支持靠的是<code>/dev/tty</code>这个文件，这个文件是对输入设备的文件抽象。
 读这个文件就相当于读键盘。调用方法是：</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">FILE</span> <span class="o">*</span><span class="n">fp_tty</span><span class="p">;</span>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">FILE</span> <span class="o">*</span><span class="n">fp_tty</span><span class="p">;</span>
 <span class="n">fp_tty</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"/dev/tty"</span><span class="p">,</span><span class="s">"r"</span><span class="p">);</span>
 <span class="n">getc</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>不想空格之后按回车该怎么解决呢？和我们的猜想一致，我们要设置terminal，使得它只要有raw input就唤醒我们的more程序：</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#include &lt;termios.h&gt;
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#include &lt;termios.h&gt;
 </span><span class="k">struct</span> <span class="n">termios</span> <span class="n">org_opts</span><span class="p">,</span> <span class="n">new_opts</span><span class="p">;</span>
 <span class="n">tcgetattr</span><span class="p">(</span><span class="n">STDIN_FILENO</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">org_opts</span><span class="p">);</span>
 <span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">new_opts</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">org_opts</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">new_opts</span><span class="p">));</span>
 <span class="n">new_opts</span><span class="p">.</span><span class="n">c_lflag</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="n">ICANON</span> <span class="o">|</span> <span class="n">ECHO</span><span class="p">);</span>
 <span class="n">tcsetattr</span><span class="p">(</span><span class="n">STDIN_FILENO</span><span class="p">,</span> <span class="n">TCSANOW</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">new_opts</span><span class="p">);</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>这里有点疑问，STDIN_FILENO是个file descriptor，这个FILE指针有什么区别？？
 什么是fd??</p>
 
@@ -155,7 +146,6 @@
                     <section>
                         <p>低速io设备是指速度小于1000字符/s。
 这一块莱昂式直接陷入细节去讲了，导致完全没看懂。</p>
-
 
                     </section>
                     <footer>
@@ -174,7 +164,6 @@
                     </header>
                     <section>
                         <p>郁闷，github contributions老是没有，原来是没config email的原因</p>
-
 
                     </section>
                     <footer>
@@ -206,7 +195,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -214,7 +203,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

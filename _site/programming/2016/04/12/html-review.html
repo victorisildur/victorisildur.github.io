@@ -44,14 +44,85 @@
         </header>
 
         <section>
-            <h1 id="base">base标签</h1>
+            <h2>base标签</h2>
 
 <p>一般地，a标签里的href是相对于当前文档的，用了base标签后就对此修正了。
 语法如下：</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;base</span> <span class="na">href=</span><span class="s">"xx.com/xxx"</span><span class="nt">/&gt;</span>
+</code></pre></div>
+<h2>application cache</h2>
 
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;base</span> <span class="na">href=</span><span class="s">"xx.com/xxx"</span><span class="nt">/&gt;</span>
-</code></pre>
-</div>
+<p>网关里url参数经常变动，导致html被多份缓存。
+想知道有没有办法html强制不要去缓存，在这个回答里发现不可以，一定会被缓存：<a href="http://stackoverflow.com/questions/5045782/html5-cache-manifest-no-cache-for-html-file-itself">html5-cache-manifest-no-cache-for-html-file-itself</a>。</p>
+
+<h2>svg path</h2>
+
+<p>path 的d属性是一长串命令的组合，Move To, Line To, Arc To。
+由此可以方便的声明任意形状。
+Path也是SVG中最强大的元素。</p>
+
+<p>我们来看下命令怎么用，命令首先分大小写。
+大写命令后跟绝对坐标、小写命令后跟相对坐标。
+主要几种命令：</p>
+
+<table><thead>
+<tr>
+<th>Command</th>
+<th>Code</th>
+<th>Comment</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Move to</td>
+<td><code>M x y</code>, <code>m dx dy</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Line to</td>
+<td><code>L x y</code>, <code>l dx dy</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Horizontal Line</td>
+<td><code>H x</code>, <code>h dx</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Vertical Line</td>
+<td><code>V y</code>, <code>v dy</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Close Path</td>
+<td><code>Z</code>, <code>z</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Cubic Bezier Curve</td>
+<td><code>C x1 y1, x2 y2, x y</code>, <code>c dx1 dy1, dx2 dy2, dx dy</code></td>
+<td>三次贝塞尔曲线。这里起始点是不需要说明的，起始点就是path现在到达的坐标。(x,y)是终止点，(x1,y1)(x2,y2)是中间两个control point。</td>
+</tr>
+<tr>
+<td>Extend Cubic Bezier Curve</td>
+<td><code>S x2 y2, x y</code>, <code>s dx2 dy2, dx dy</code></td>
+<td>这里第一个control point也不用声明了，默认为上一个C或S的control point的倒影。</td>
+</tr>
+<tr>
+<td>Quadratic Bezier Curve</td>
+<td><code>Q x1 y1, x y</code>, <code>q dx1 dy1, dx dy</code></td>
+<td>二次贝塞尔曲线。(x1, y1)是control point, (x,y)是终止点。</td>
+</tr>
+<tr>
+<td>Extend Quadratic Bezier Curve</td>
+<td><code>T x y</code>, <code>t dx dy</code></td>
+<td>这里control point也不用声明了，默认为上一个Q或T的control point的倒影。</td>
+</tr>
+<tr>
+<td>Arc</td>
+<td><code>A rx ry x-axis-rotation large-arc-flag sweep-flag x y</code></td>
+<td>给定两点，连接两点椭圆的rx ry，有2个椭圆可以连接这两点。每个椭圆上又有两条路可走。因此，large-arc-flag: arc走过的角度是否大于180度。sweep-flag: arc是角度正方向移动or负方向移动。这里角度正方向有点坑的，是顺时针，和平时坐标系里的正角度不同。</td>
+</tr>
+</tbody></table>
 
         </section>
         
@@ -113,7 +184,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -121,7 +192,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

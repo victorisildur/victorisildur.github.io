@@ -44,15 +44,14 @@
         </header>
 
         <section>
-            <h2 id="section">初衷</h2>
+            <h2>初衷</h2>
 
 <p>面试网易，发现在事件处理上，对原生javascript掌握不够</p>
 
-<h2 id="section-1">事件</h2>
+<h2>事件</h2>
 
 <p>触发自定义事件:</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">event</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Event</span><span class="p">(</span><span class="s1">'build'</span><span class="p">);</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">event</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Event</span><span class="p">(</span><span class="s1">'build'</span><span class="p">);</span>
 <span class="nx">elem</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">//todo</span>
 <span class="p">});</span>
@@ -63,31 +62,22 @@
     <span class="cm">/* 其实就是给event对象上多绑了点属性  */</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>触发原生事件:</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">event</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MouseEvent</span><span class="p">(</span><span class="s1">'click'</span><span class="p">,</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">event</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MouseEvent</span><span class="p">(</span><span class="s1">'click'</span><span class="p">,</span> <span class="p">{</span>
     <span class="s1">'view'</span><span class="p">:</span> <span class="nb">window</span><span class="p">,</span>
     <span class="s1">'bubbles'</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
     <span class="s1">'cancelable'</span><span class="p">:</span> <span class="kc">true</span>
   <span class="p">});</span>
 <span class="nx">elem</span><span class="p">.</span><span class="nx">dispatchEvent</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span>
-</code></pre>
-</div>
+</code></pre></div>
+<h2>Element类</h2>
 
-<h2 id="element">Element类</h2>
-
-<h1 id="tag">判断节点tag</h1>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>    <span class="nx">elem</span><span class="p">.</span><span class="nx">tagName</span><span class="p">;</span> <span class="c1">// 'A', 'P', 'BUTTON'</span>
+<h1>判断节点tag</h1>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">    <span class="nx">elem</span><span class="p">.</span><span class="nx">tagName</span><span class="p">;</span> <span class="c1">// 'A', 'P', 'BUTTON'</span>
     <span class="nx">elem</span><span class="p">.</span><span class="nx">nodeName</span><span class="p">;</span> <span class="c1">// 'A', 'P', 'BUTTON'</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>Element类的实例是有tagName属性的，Node是Element的父类，所以nodeName适用性更广。</p>
-
 
         </section>
         
@@ -100,9 +90,9 @@
                         <h2><a href="/javascript/2015/08/25/javascript-oop.html">javascript模拟类，完整版！</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-<p>面试网易，被一道prototype模拟类的问题问住了，问题是这样的：</p>
+                        <h2>初衷</h2>
 
+<p>面试网易，被一道prototype模拟类的问题问住了，问题是这样的：</p>
 
                     </section>
                     <footer>
@@ -120,8 +110,7 @@
                         <h2><a href="/javascript/2015/08/28/reactjs-2.html">Reactjs继续深入</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">提纲</h2>
-
+                        <h2>提纲</h2>
 
                     </section>
                     <footer>
@@ -153,7 +142,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -161,7 +150,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

@@ -44,33 +44,28 @@
         </header>
 
         <section>
-            <p>##一些语法</p>
+            <h2>一些语法</h2>
 
-<p>#声明指针，是否分配空间？</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="k">struct</span> <span class="n">arg_set</span> <span class="o">*</span> <span class="n">mailbox</span><span class="p">;</span>
-</code></pre>
-</div>
-
+<h1>声明指针，是否分配空间？</h1>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">arg_set</span> <span class="o">*</span> <span class="n">mailbox</span><span class="p">;</span>
+</code></pre></div>
 <p>不分配！</p>
 
-<p>#pthread_cond_wait()为什么要有lock参数？
-我们先看看函数原型：</p>
+<h1>pthread<em>cond</em>wait()为什么要有lock参数？</h1>
 
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="n">pthread_cond_wait</span><span class="p">(</span><span class="n">pthread_cond_t</span> <span class="o">*</span> <span class="n">cond</span><span class="p">,</span> <span class="n">pthread_mutex_t</span> <span class="o">*</span> <span class="n">mutex</span><span class="p">);</span>
+<p>我们先看看函数原型：</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">pthread_cond_wait</span><span class="p">(</span><span class="n">pthread_cond_t</span> <span class="o">*</span> <span class="n">cond</span><span class="p">,</span> <span class="n">pthread_mutex_t</span> <span class="o">*</span> <span class="n">mutex</span><span class="p">);</span>
 <span class="kt">int</span> <span class="n">pthread_cond_signal</span><span class="p">(</span><span class="n">pthread_cond_t</span> <span class="o">*</span> <span class="n">cond</span><span class="p">);</span>
-</code></pre>
-</div>
-
-<p>pthread_cond_wait使线程挂起，知道另一个线程通过条件变量发出消息。
+</code></pre></div>
+<p>pthread<em>cond</em>wait使线程挂起，知道另一个线程通过条件变量发出消息。
 它先自动释放锁，然后等待条件变量的变化。
-如果调用pthread_cond_wait前锁没有锁住，执行结果不确定。
+如果调用pthread<em>cond</em>wait前锁没有锁住，执行结果不确定。
 wait返回后，锁被重新锁上。</p>
 
-<p>pthread_cond_signal通过条件变量cond发消息。若没有线程等待消息，什么都不会发生。
+<p>pthread<em>cond</em>signal通过条件变量cond发消息。若没有线程等待消息，什么都不会发生。
 若有多个线程等待，只唤醒他们中的一个。</p>
 
-<h2 id="section">多线程统计文件字数</h2>
+<h2>多线程统计文件字数</h2>
 
 <p>关键在于一个锁和一个条件变量。
 锁用来保证只有一个counter能通知计数中心自己数好了。
@@ -78,7 +73,7 @@ wait返回后，锁被重新锁上。</p>
 
 <p>看代码吧：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/thread/vote1.c">words counter</a></p>
 
-<h2 id="web-server">多线程web server</h2>
+<h2>多线程web server</h2>
 
 <p>先要了解独立进程（detached threads）。
 迄今为止，我们所有的线程在create之后，都要在main里面join它。
@@ -86,20 +81,17 @@ wait返回后，锁被重新锁上。</p>
 
 <p>然而，web server不需要线程返回，因为原线程不需要从子线程得到任何数据。
 独立线程就很好，他会在自己执行结束后自动释放资源。
-配置方法就靠<code class="highlighter-rouge">pthread_create()</code>的第二个参数：</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="n">pthread_t</span> <span class="n">t</span><span class="p">;</span>
+配置方法就靠<code>pthread_create()</code>的第二个参数：</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">pthread_t</span> <span class="n">t</span><span class="p">;</span>
 <span class="n">pthread_attr_t</span>     <span class="n">attr_detached</span><span class="p">;</span>
 <span class="n">pthread_attr_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr_detached</span><span class="p">)</span>
 <span class="n">pthread_attr_setdetached</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr_detached</span><span class="p">,</span> <span class="n">PTHREAD_CREATE_DETACHED</span><span class="p">);</span>
 
 <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">attr_detached</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>代码太长，就不写了，简单概括就是每次accept之后，创建一个独立线程去处理它。</p>
 
-<h2 id="section-1">多线程动画</h2>
+<h2>多线程动画</h2>
 
 <p>我们考虑这样一个动画，用户输入n个单词，我们把它们画在n行上，单词在自己的一行上不断bounce。
 按照事件编程一章的思路，使用定时器引发handler，handler负责绘图。
@@ -111,7 +103,6 @@ wait返回后，锁被重新锁上。</p>
 <p>代码如下：<a href="https://github.com/victorisildur/UNIX/blob/master/APUE/thread/tanimate1.c">animation</a></p>
 
 <p>注意，这个版本的代码是有问题的，因为主线程和子线程都有可能修改变量dir，最好给dir也上锁。</p>
-
 
         </section>
         
@@ -144,7 +135,6 @@ wait返回后，锁被重新锁上。</p>
                         <p>select与poll! 这个我在tornado的时候研究过！
 大体印象就是异步io的东西，今天有机会具体看一下拉</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -175,7 +165,7 @@ wait返回后，锁被重新锁上。</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -183,7 +173,7 @@ wait返回后，锁被重新锁上。</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

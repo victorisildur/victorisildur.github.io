@@ -44,73 +44,73 @@
         </header>
 
         <section>
-            <h1 id="touch-dnd">touch-dnd是什么</h1>
+            <h1>touch-dnd是什么</h1>
+
 <p>是一个绕开html 5 draggable api，自己实现drag-and-drop, sortable的zepto插件。
 用了下发现非常好用，但用在自己项目里存在z-index问题。
 所以一定要好好看看源码。</p>
 
-<h1 id="section">实现思路</h1>
-<p>首先是jquery plugin的标准做法，如default settings, 事件转化，<code class="highlighter-rouge">$.proxy</code>这些。
+<h1>实现思路</h1>
+
+<p>首先是jquery plugin的标准做法，如default settings, 事件转化，<code>$.proxy</code>这些。
 然后看到调用sortable时，发生了如下几件事：</p>
 
 <ol>
-  <li><code class="highlighter-rouge">this</code>的<code class="highlighter-rouge">touchstart</code>事件被代理到<code class="highlighter-rouge">Sortable.prototype.start</code>上。</li>
-  <li><code class="highlighter-rouge">dragging.start(this, e.currentTarget, e)</code>，交给Dragging类处理。
-Dragging类首先由事件e计算<code class="highlighter-rouge">origin.x, origin.y, offset.x, offset.y, origin.scrollX, origin.scrollY</code>。
-然后把<code class="highlighter-rouge">mousemove touchmove</code>代理给<code class="highlighter-rouge">Dragging.prototype.move</code></li>
-  <li><code class="highlighter-rouge">Dragging.prototype.move</code>经过复杂的计算，算出了offsetX, offsetY，然后<code class="highlighter-rouge">transform: translate(offsetX, offsetY)</code></li>
+<li><code>this</code>的<code>touchstart</code>事件被代理到<code>Sortable.prototype.start</code>上。</li>
+<li><code>dragging.start(this, e.currentTarget, e)</code>，交给Dragging类处理。
+Dragging类首先由事件e计算<code>origin.x, origin.y, offset.x, offset.y, origin.scrollX, origin.scrollY</code>。
+然后把<code>mousemove touchmove</code>代理给<code>Dragging.prototype.move</code></li>
+<li><code>Dragging.prototype.move</code>经过复杂的计算，算出了offsetX, offsetY，然后<code>transform: translate(offsetX, offsetY)</code></li>
 </ol>
 
 <p>想要实现swap时的trasition，该如何做？
 源码中可以知道：</p>
 
 <ol>
-  <li><code class="highlighter-rouge">Dragging.prototype.move()</code>计算出offsetX, offsetY后，用<code class="highlighter-rouge">document.elementFromPoint()</code>获取拖曳目标位置的原有节点over。
-当<code class="highlighter-rouge">over!=last &amp;&amp; currentTarget!=lastEntered</code>，就认为是enter一个原有节点啦！
-随后发<code class="highlighter-rouge">dragging:enter</code>事件。</li>
-  <li>发生<code class="highlighter-rouge">dragging:enter</code>事件，<code class="highlighter-rouge">Sortable.prototype.enter()</code>判断<code class="highlighter-rouge">isContainer</code>，然后掉<code class="highlighter-rouge">Sortable.prototype.diverted()</code></li>
-  <li><code class="highlighter-rouge">Dragging.adjustPlacement()</code>中，this.handle是clone的draggble节点，把this.handle平移过去（去哪儿？）。
+<li><code>Dragging.prototype.move()</code>计算出offsetX, offsetY后，用<code>document.elementFromPoint()</code>获取拖曳目标位置的原有节点over。
+当<code>over!=last &amp;&amp; currentTarget!=lastEntered</code>，就认为是enter一个原有节点啦！
+随后发<code>dragging:enter</code>事件。</li>
+<li>发生<code>dragging:enter</code>事件，<code>Sortable.prototype.enter()</code>判断<code>isContainer</code>，然后掉<code>Sortable.prototype.diverted()</code></li>
+<li><code>Dragging.adjustPlacement()</code>中，this.handle是clone的draggble节点，把this.handle平移过去（去哪儿？）。
 这个应该是去直接平移到目标位置用的。</li>
-  <li>好像完全没有swap的动画啊，dragging element被删除掉之后，其后的元素会自然而然的补上空，因为它们都是float:left的。</li>
+<li>好像完全没有swap的动画啊，dragging element被删除掉之后，其后的元素会自然而然的补上空，因为它们都是float:left的。</li>
 </ol>
 
-<h1 id="section-1">一些细节</h1>
+<h1>一些细节</h1>
+
 <ol>
-  <li>translate, translateZ与translate3d: translateZ(tz) === translate3d(0,0,tz)</li>
-  <li>drag态返回normal态，要destroy掉sortable，否则再次进入drag态会报重复绑定错误</li>
-  <li>不能重复destroy sortable，这个靠<code class="highlighter-rouge">prevState !== newState</code>实现</li>
+<li>translate, translateZ与translate3d: translateZ(tz) === translate3d(0,0,tz)</li>
+<li>drag态返回normal态，要destroy掉sortable，否则再次进入drag态会报重复绑定错误</li>
+<li>不能重复destroy sortable，这个靠<code>prevState !== newState</code>实现</li>
 </ol>
 
-<h1 id="section-2">不明白的地方</h1>
+<h1>不明白的地方</h1>
+
 <ol>
-  <li>.card position:relative之后z-index才生效。
-    <blockquote>
-      <p>mdn: z-index only has an effect if an element is positioned
+<li>.card position:relative之后z-index才生效。
+&gt; mdn: z-index only has an effect if an element is positioned
 注意，position+z-index会建立新的stacking context哦。
-在全部不声明z-index的情况下，stack顺序如下：</p>
-    </blockquote>
-    <ol>
-      <li>root元素的background, border</li>
-      <li>normal flow的元素</li>
-      <li>positioned元素</li>
-    </ol>
-  </li>
-  <li>background复合写法UC不支持。</li>
-  <li>overflow:hidden的元素必须有position。
-    <blockquote>
-      <p>mdn: container must either have a bounding height or white-space: nowrap
+在全部不声明z-index的情况下，stack顺序如下：
+
+<ol>
+<li>root元素的background, border</li>
+<li>normal flow的元素</li>
+<li>positioned元素</li>
+</ol></li>
+<li>background复合写法UC不支持。</li>
+<li>overflow:hidden的元素必须有position。
+&gt; mdn: container must either have a bounding height or white-space: nowrap
 之所以产生这个感觉是误解，因为父元素不给position，svg会absolute到下面去，那overflow就失效了。
-父元素给position, svg部分在父元素内。</p>
-    </blockquote>
-  </li>
-  <li>svg的viewbox和width,height的关系. width,height是”物理面积”，viewBox是”逻辑面积”。
+父元素给position, svg部分在父元素内。</li>
+<li>svg的viewbox和width,height的关系. width,height是&quot;物理面积&quot;，viewBox是&quot;逻辑面积&quot;。
 问题在于1600:100的逻辑面积，物理面积200%: 30%按说没有问题，但实际出来被压缩了。</li>
-  <li>enter, leave, divert, drop的职责还是没有分清。马蛋还要再看！</li>
+<li>enter, leave, divert, drop的职责还是没有分清。马蛋还要再看！</li>
 </ol>
 
-<h1 id="css">css操蛋细节</h1>
+<h1>css操蛋细节</h1>
+
 <ol>
-  <li>background-size在qq浏览器上失效：不知道什么鬼，暂时解不了</li>
+<li>background-size在qq浏览器上失效：不知道什么鬼，暂时解不了</li>
 </ol>
 
         </section>
@@ -173,7 +173,7 @@ Dragging类首先由事件e计算<code class="highlighter-rouge">origin.x, origi
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -181,7 +181,7 @@ Dragging类首先由事件e计算<code class="highlighter-rouge">origin.x, origi
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

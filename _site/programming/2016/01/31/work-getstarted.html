@@ -44,15 +44,15 @@
         </header>
 
         <section>
-            <h1 id="section">工具链</h1>
+            <h1>工具链</h1>
 
 <p>grunt进行自动化工作，包括：</p>
 
 <ul>
-  <li>include replace</li>
-  <li>less</li>
-  <li>auto prefixer</li>
-  <li>transport seajs（提取模块中的依赖，并为每个模块设置模块id）</li>
+<li>include replace</li>
+<li>less</li>
+<li>auto prefixer</li>
+<li>transport seajs（提取模块中的依赖，并为每个模块设置模块id）</li>
 </ul>
 
 <p>好吧，智能网关项目工具链变了，靠的是open-builder + less，open-builder是自己写的jar，用来@insert和PreTmpl，less用来生成css。
@@ -65,39 +65,35 @@ insert的良好替代是grunt-include-replace，tmpl的良好替代是angular/re
 <p>现在，openbuilder基本确定是可以被替换掉的：</p>
 
 <ul>
-  <li>tmpl =&gt; mustache</li>
-  <li>less =&gt; less-loader</li>
-  <li>compress =&gt; webpack.optimize.JsUglify</li>
-  <li>insert =&gt; gulp-file-include <code class="highlighter-rouge">@@include语法很好用！</code></li>
+<li>tmpl =&gt; mustache</li>
+<li>less =&gt; less-loader</li>
+<li>compress =&gt; webpack.optimize.JsUglify</li>
+<li>insert =&gt; gulp-file-include <code>@@include语法很好用！</code></li>
 </ul>
 
 <p>由于压缩了Zeptojs，文件大小从129KB减小到了64KB。</p>
 
-<h1 id="section-1">调试</h1>
+<h1>调试</h1>
 
 <p>fiddler做proxy，手机设置proxy为本机，端口为fiddler端口，然后fiddler rule加一条</p>
-
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="o">(</span> <span class="n">oSession</span><span class="o">.</span><span class="na">url</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"qzs.qq.com/open/mobile/iot_nas"</span><span class="o">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="o">)</span> <span class="o">{</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="k">if</span> <span class="o">(</span> <span class="n">oSession</span><span class="o">.</span><span class="na">url</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"qzs.qq.com/open/mobile/iot_nas"</span><span class="o">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="o">)</span> <span class="o">{</span>
    <span class="n">oSession</span><span class="o">.</span><span class="na">url</span><span class="o">.</span><span class="na">Replace</span><span class="o">(</span><span class="s">"qzs.qq.com/open/mobile/iot_nas"</span><span class="o">,</span> <span class="s">"lx.qq.com/build/iot_nas"</span><span class="o">);</span>
    <span class="c1">// 这里lx.qq.com要在Host Remapping里定义，定义为本机ip</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div>
+<p>emacs reactangle string: <code>C-x r t</code></p>
 
-<p>emacs reactangle string: <code class="highlighter-rouge">C-x r t</code></p>
-
-<p>emacs load path默认是<code class="highlighter-rouge">emacs_install_path/VERSION/site-lisp</code>和<code class="highlighter-rouge">emacs_install_path/site-lisp</code>。
+<p>emacs load path默认是<code>emacs_install_path/VERSION/site-lisp</code>和<code>emacs_install_path/site-lisp</code>。
 想要加的话就：</p>
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp">(add-to-list 'load-path "your package storage path")
+</code></pre></div>
+<p>web-mode非常吊，<code>C-c C-n</code>可以切换opening/closing tags.</p>
 
-<pre><code class="language-lisp">(add-to-list 'load-path "your package storage path")
-</code></pre>
+<h1>js问题</h1>
 
-<p>web-mode非常吊，<code class="highlighter-rouge">C-c C-n</code>可以切换opening/closing tags.</p>
+<p><code>document.write()</code>如果是在embedded script里写，则不会调用<code>document.open()</code>，这个open是会清空文档的。</p>
 
-<h1 id="js">js问题</h1>
-<p><code class="highlighter-rouge">document.write()</code>如果是在embedded script里写，则不会调用<code class="highlighter-rouge">document.open()</code>，这个open是会清空文档的。</p>
-
-<h1 id="css">css问题</h1>
+<h1>css问题</h1>
 
 <p>rem在padding中计算不准，要绕一下. 
 字会比理想的小，不要用padding算，以ceiling过的rem为准，用line-height确保总大小无偏差。
@@ -116,25 +112,27 @@ insert的良好替代是grunt-include-replace，tmpl的良好替代是angular/re
 <p>display: list-item; 
 box-sizing: border-box; 用border计算宽高，与content-box相对。</p>
 
-<h1 id="ps">ps技巧</h1>
+<h1>ps技巧</h1>
 
 <p>仅当前可见：alt点击眼睛
 复制选框内所有图层：ctrl + shift + c， 然后ctrl+n就是可见区域大小拉！
 组移到最上面： ctrl + shift + ]</p>
 
-<h1 id="section-2">性能问题</h1>
+<h1>性能问题</h1>
 
 <ol>
-  <li>进入子设备页，loading很久</li>
-  <li>操作子设备，中间态很久</li>
-  <li>灯挂掉</li>
+<li>进入子设备页，loading很久</li>
+<li>操作子设备，中间态很久</li>
+<li>灯挂掉</li>
 </ol>
 
-<h1 id="uin">uin</h1>
+<h1>uin</h1>
+
 <p>cookie里有时候是没有的，这个不可依赖！</p>
 
-<h1 id="devicejs">device.js</h1>
-<p>里面有个验证，device的exports有个<code class="highlighter-rouge">/(qq\.com)/.test(location.hostname)</code>的逻辑，所以发到测试环境所有device接口都不能用。</p>
+<h1>device.js</h1>
+
+<p>里面有个验证，device的exports有个<code>/(qq\.com)/.test(location.hostname)</code>的逻辑，所以发到测试环境所有device接口都不能用。</p>
 
         </section>
         
@@ -196,7 +194,7 @@ box-sizing: border-box; 用border计算宽高，与content-box相对。</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -204,7 +202,7 @@ box-sizing: border-box; 用border计算宽高，与content-box相对。</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

@@ -44,52 +44,35 @@
         </header>
 
         <section>
-            <h2 id="section">目标</h2>
-<ol>
-  <li>搞清楚$digest循环时调用的$$watchers是哪里来的</li>
-</ol>
-
-<h2 id="section-1">简单结论</h2>
-
-<h1 id="dom-ready">当dom ready后发生了这么几件事：</h1>
+            <h2>目标</h2>
 
 <ol>
-  <li>
-    <p>AngularInit() 拿到ng-app名</p>
-  </li>
-  <li>
-    <p>bootstrap() 生成 injector</p>
-  </li>
-  <li>
-    <p>injector实例化$rootScope, $rootElement, $compile, $injector.</p>
-  </li>
-  <li>
-    <p>$compile(element)</p>
-  </li>
+<li>搞清楚$digest循环时调用的$$watchers是哪里来的</li>
 </ol>
 
-<h1 id="compile">最后一步$compile中，又分如下几步：</h1>
+<h2>简单结论</h2>
+
+<h1>当dom ready后发生了这么几件事：</h1>
 
 <ol>
-  <li>
-    <p>遍历dom树</p>
-  </li>
-  <li>
-    <p>找ng-开头的directive的节点</p>
-  </li>
-  <li>
-    <p>执行directive的compile, pre link, post link函数</p>
-  </li>
-  <li>
-    <p>组合prelink postlink函数，如果post link中有 $scope.watch(expr, listener)的话，就把listener加到$scope[expr].$$watchers中去</p>
-  </li>
-  <li>
-    <p>因为angular对input元素内置的post link函数是会在listener中改dom，也会监听dom的值改scope, 所以:</p>
-  </li>
+<li><p>AngularInit() 拿到ng-app名</p></li>
+<li><p>bootstrap() 生成 injector</p></li>
+<li><p>injector实例化$rootScope, $rootElement, $compile, $injector.</p></li>
+<li><p>$compile(element)</p></li>
 </ol>
 
-<p>scope值变化 –&gt; $$watcher中的listener改dom; 
-dom值变化   –&gt; $scope变化</p>
+<h1>最后一步$compile中，又分如下几步：</h1>
+
+<ol>
+<li><p>遍历dom树</p></li>
+<li><p>找ng-开头的directive的节点</p></li>
+<li><p>执行directive的compile, pre link, post link函数</p></li>
+<li><p>组合prelink postlink函数，如果post link中有 $scope.watch(expr, listener)的话，就把listener加到$scope[expr].$$watchers中去</p></li>
+<li><p>因为angular对input元素内置的post link函数是会在listener中改dom，也会监听dom的值改scope, 所以:</p></li>
+</ol>
+
+<p>scope值变化 --&gt; $$watcher中的listener改dom; 
+dom值变化   --&gt; $scope变化</p>
 
 <p>至此，双向绑定完成！</p>
 
@@ -104,11 +87,11 @@ dom值变化   –&gt; $scope变化</p>
                         <h2><a href="/javascript/2015/08/14/ng-directive.html">angular js自定义directive与集成jquery插件</a></h2>
                     </header>
                     <section>
-                        <p>##需求</p>
-<ol>
-  <li>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</li>
-</ol>
+                        <h2>需求</h2>
 
+<ol>
+<li>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</li>
+</ol>
 
                     </section>
                     <footer>
@@ -126,9 +109,9 @@ dom值变化   –&gt; $scope变化</p>
                         <h2><a href="/javascript/2015/08/24/reactjs-getstarted.html">Reactjs的一些理解</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">宗旨</h2>
-<p>我认为React的component是关键，它是抽象过的节点，对此官网是这样说的：</p>
+                        <h2>宗旨</h2>
 
+<p>我认为React的component是关键，它是抽象过的节点，对此官网是这样说的：</p>
 
                     </section>
                     <footer>
@@ -160,7 +143,7 @@ dom值变化   –&gt; $scope变化</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -168,7 +151,7 @@ dom值变化   –&gt; $scope变化</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

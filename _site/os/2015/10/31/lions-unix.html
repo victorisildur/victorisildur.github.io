@@ -44,19 +44,19 @@
         </header>
 
         <section>
-            <h2 id="section">预备知识</h2>
+            <h2>预备知识</h2>
 
-<p>#PDP11硬件</p>
+<h1>PDP11硬件</h1>
 
 <p>16位，寻址能力2^16B= 64KB。程序虚地址空间被分为8页，每页8KB，一页又被分为128块。
-而其支持的最大物理内存有256KB，所以要进行虚拟页地址–&gt;实际物理地址的映射。</p>
+而其支持的最大物理内存有256KB，所以要进行虚拟页地址--&gt;实际物理地址的映射。</p>
 
 <p>映射是由8对内核par+pdr和8对用户par+pdr组成的。
 mmu off时，虚地址空间前7页做不变映射，第八页映射到物理地址最高64K。
 mmu on时，映射靠的是内核态par，书中称内核态段地址寄存器，存放在KISA处。
 和用户态段地址寄存器，存放在UISA处。</p>
 
-<h1 id="section-1">栈</h1>
+<h1>栈</h1>
 
 <p>PDP11的栈是向下增长的。栈顶朝下。
 调用函数时，r5,r4,r3,r2依次入栈。
@@ -64,12 +64,13 @@ mmu on时，映射靠的是内核态par，书中称内核态段地址寄存器�
 r5值变成新的“过程底”。这么叫是因为r5当前值总代表当前过程在栈里的底部。</p>
 
 <p>函数返回时，用r5定位，恢复r4,r2,r4。这里r5起到的作用是指明一个过程在栈里的底。
-然后<code class="highlighter-rouge">mov r5, sp</code>，这样栈相当于把整个过程在栈里保存的东西都弹完了。
-最后<code class="highlighter-rouge">mov (sp)+, r5</code>，r5恢复成caller在栈里的“过程底”。</p>
+然后<code>mov r5, sp</code>，这样栈相当于把整个过程在栈里保存的东西都弹完了。
+最后<code>mov (sp)+, r5</code>，r5恢复成caller在栈里的“过程底”。</p>
 
 <p>这部分图解见<a href="http://blog.csdn.net/cszhao1980/article/details/7572908">cszhao讲解unix栈</a></p>
 
-<h1 id="ppda">PPDA</h1>
+<h1>PPDA</h1>
+
 <p>boot时，我们把内核态段寄存器的前6对页寄存器映射做了不变映射。
 第七对页寄存器映射到_end后第一个块。
 _u也被编址到140000，即虚拟地址第七页页首。</p>
@@ -79,43 +80,37 @@ _u也被编址到140000，即虚拟地址第七页页首。</p>
 <p>这中间什么关系！？什么时候做的虚地址到物理地址映射的？和内核态段寄存器有毛关系？</p>
 
 <p>cszhao的说法是，当分配了一个新的kernel page #6，就诞生了一个新的进程。
-具体来说，<code class="highlighter-rouge">newproc()</code>时，会尝试为新进程分配“私有空间”：</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="n">n</span> <span class="o">=</span> <span class="n">rip</span><span class="o">-&gt;</span><span class="n">p_size</span><span class="p">;</span>
+具体来说，<code>newproc()</code>时，会尝试为新进程分配“私有空间”：</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">n</span> <span class="o">=</span> <span class="n">rip</span><span class="o">-&gt;</span><span class="n">p_size</span><span class="p">;</span>
 <span class="n">a2</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">coremap</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">a2</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">rpp</span><span class="o">-&gt;</span><span class="n">p_addr</span> <span class="o">=</span> <span class="n">a2</span><span class="p">;</span> <span class="c1">//设置新进程的“私有空间”地址，新进程诞生！
 </span>    <span class="k">while</span><span class="p">(</span><span class="n">n</span><span class="o">--</span><span class="p">)</span>
         <span class="n">copyseg</span><span class="p">(</span><span class="n">a1</span><span class="o">++</span><span class="p">,</span><span class="n">a2</span><span class="o">++</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
-<h1 id="main">main</h1>
+</code></pre></div>
+<h1>main</h1>
 
 <p>1560行设置UISA:</p>
-
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="n">i</span> <span class="o">=</span> <span class="o">*</span><span class="n">ka6</span> <span class="o">+</span> <span class="n">USIZE</span><span class="p">;</span>   <span class="c1">//PPDA后第一个Block地址
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">i</span> <span class="o">=</span> <span class="o">*</span><span class="n">ka6</span> <span class="o">+</span> <span class="n">USIZE</span><span class="p">;</span>   <span class="c1">//PPDA后第一个Block地址
 </span><span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
     <span class="n">UISA</span><span class="o">-&gt;</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
     <span class="p">...</span>
     <span class="n">clearseg</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div>
+<h1>进程切换</h1>
 
-<h1 id="section-2">进程切换</h1>
 <p>进程不独享代码，我们无法根据当前执行的代码确定哪个进程处于active状态。
 那么该怎么办呢？我们应该通过进程私有的东西来确定。这就是进程的“私有空间”-》ppda。
 即kernel page #6，也就是ppda所在的page。</p>
 
 <p>我们通过KISA6来确定active进程，kisa6指向那个进程的“私有空间”，则该进程就是active进程。</p>
 
-<p>切换之前，首先保存当前进程的信息，到当前进程的ppda，这是<code class="highlighter-rouge">savu()</code>完成的。</p>
+<p>切换之前，首先保存当前进程的信息，到当前进程的ppda，这是<code>savu()</code>完成的。</p>
 
 <p>切换是由retu(rp-&gt;p_addr)完成的，参数是要被切进来的进程的ppda地起始block号！</p>
-
-<pre><code class="language-asm">0740  _retu:
+<div class="highlight"><pre><code class="language-asm" data-lang="asm">0740  _retu:
 0741  bis $340, PS
 0742  mov (sp)+, r1   // return addr -&gt; r1
 0743  mov (sp),  KISA6  //参数--&gt;KISA，kernal page #6映射到新进程的ppda拉！
@@ -126,15 +121,14 @@ _u也被编址到140000，即虚拟地址第七页页首。</p>
 0747  mov (r0)+, r5
 0748  bic $340, PS
 0749  jmp (r1)
-</code></pre>
-
-<h1 id="section-3">未完待续</h1>
+</code></pre></div>
+<h1>未完待续</h1>
 
 <p>还缺：</p>
 
 <ol>
-  <li>用户态、核心态进程是如何设置的。</li>
-  <li>用户态进程estabur过程。</li>
+<li>用户态、核心态进程是如何设置的。</li>
+<li>用户态进程estabur过程。</li>
 </ol>
 
         </section>
@@ -148,8 +142,7 @@ _u也被编址到140000，即虚拟地址第七页页首。</p>
                         <h2><a href="/methodology/2015/10/27/defensive-programming.html">代码大全2: 防御性编程</a></h2>
                     </header>
                     <section>
-                        <h2 id="assert">assert</h2>
-
+                        <h2>assert</h2>
 
                     </section>
                     <footer>
@@ -167,8 +160,7 @@ _u也被编址到140000，即虚拟地址第七页页首。</p>
                         <h2><a href="/os/2015/11/02/lions-unix-trap.html">莱昂式unix源码阅读2: 硬中断与trap</a></h2>
                     </header>
                     <section>
-                        <p>#clock中断</p>
-
+                        <h1>clock中断</h1>
 
                     </section>
                     <footer>
@@ -200,7 +192,7 @@ _u也被编址到140000，即虚拟地址第七页页首。</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -208,7 +200,7 @@ _u也被编址到140000，即虚拟地址第七页页首。</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

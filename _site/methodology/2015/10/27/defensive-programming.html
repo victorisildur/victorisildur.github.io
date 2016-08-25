@@ -44,29 +44,25 @@
         </header>
 
         <section>
-            <h2 id="assert">assert</h2>
+            <h2>assert</h2>
 
 <p>assert就是编程珠玑里的断言，用来确认前置条件和后置条件的。</p>
-
-<div class="language-c++ highlighter-rouge"><pre class="highlight"><code><span class="cp">#define ASSERT( condition, message ) { \
+<div class="highlight"><pre><code class="language-c++" data-lang="c++"><span class="cp">#define ASSERT( condition, message ) { \
     if ( !(condition) = {              \
         LogError( "assertion failed:", \
             #condition, message );     \
         exit( EXIT_FAILURE );          \
     }                                  \
 }
-</span></code></pre>
-</div>
-
+</span></code></pre></div>
 <p>当然，你也不能全依靠断言，系统总有理解能力之外的异常，鲁棒的代码应该既有断言也有异常处理。</p>
 
 <p>nonono, assert用来处理never gonna happen的问题，异常用来处理预料之中的问题。</p>
 
-<h2 id="exception">exception</h2>
+<h2>exception</h2>
 
 <p>异常处理要注意抽象的一致性。类只应向上抛自己这一层抽象的异常，例：</p>
-
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Employee</span> <span class="o">{</span>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nc">Employee</span> <span class="o">{</span>
   <span class="kd">public</span> <span class="n">TaxId</span> <span class="nf">GetTexId</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">EOFException</span> <span class="o">{</span>
      <span class="c1">// 很糟！EOF是下层的概念，不应被暴漏给上层。上层只应收到和employee有关的异常。</span>
   <span class="o">}</span>
@@ -77,16 +73,14 @@
      <span class="c1">// good，上层能理解是employee数据不可用</span>
   <span class="o">}</span>
 <span class="o">}</span>
-</code></pre>
-</div>
-
-<h2 id="barricade">barricade</h2>
+</code></pre></div>
+<h2>barricade</h2>
 
 <p>船舱隔板一样的作用。或者像消毒室一样。
 我们在internal class和external class之间搞一层专门做数据验证，对错误敏感的类。
 曾经的RESTFUL类就是一个例子。</p>
 
-<h2 id="debugging-aids">debugging aids</h2>
+<h2>debugging aids</h2>
 
 <p>开发的时候多搞点帮助debug的功能，比如一些附加按钮，提前发现问题总是好的！</p>
 
@@ -101,8 +95,7 @@
                         <h2><a href="/methodology/2015/10/26/table-driven.html">代码大全1: Table-driven method</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">代码大全系列</h2>
-
+                        <h2>代码大全系列</h2>
 
                     </section>
                     <footer>
@@ -120,8 +113,7 @@
                         <h2><a href="/os/2015/10/31/lions-unix.html">莱昂式unix源码阅读1: boot与进程</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">预备知识</h2>
-
+                        <h2>预备知识</h2>
 
                     </section>
                     <footer>
@@ -153,7 +145,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -161,7 +153,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

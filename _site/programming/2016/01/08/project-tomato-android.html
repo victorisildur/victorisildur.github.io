@@ -44,7 +44,8 @@
         </header>
 
         <section>
-            <h2 id="sdk">sdk下载问题</h2>
+            <h2>sdk下载问题</h2>
+
 <p>pptp不知道怎么回事，连接不上，在DO上中转下载了dl.google.com上的一个sdk，建起了一个project。
 但是还是缺很多component，用ss代理总是TLS问题，ss似乎https有问题。
 今天总算在sdk manager找到force http选项，能下载了，但是有checksum问题。
@@ -56,55 +57,59 @@
 
 <p>转眼24号了，回家一周了，人生真是堕落啊。。。 花了20块钱买了个巨慢的vpn，总算把开发环境搞好了</p>
 
-<h2 id="ui">ui部分</h2>
+<h2>ui部分</h2>
+
 <p>ui部分按照官网的best ui practice在搞，主题是toolbar + custom view + custom list，具体看图：</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_snap01.png" alt="ui version 1" /></p>
+<p><img src="http://victorisildur.github.io/assets/images/android_snap01.png" alt="ui version 1"></p>
 
 <p>具体注意：</p>
 
 <ol>
-  <li>进度圈中的button用linear layout和relative layout实现不了，要用frame layout，这样能堆叠起来</li>
-  <li>进度是用<code class="highlighter-rouge">onDraw()</code>画出来的，<code class="highlighter-rouge">canvas.drawArc()</code>里用<code class="highlighter-rouge">Stroke</code>画就行了</li>
-  <li>番茄历史是用<code class="highlighter-rouge">RecyclerView</code>画的，注意RV里有LayoutManager，LM里有Adapter，Adapter有ViewHolder，用的是<code class="highlighter-rouge">ViewHolder.onBindViewHolder()</code>实现数据到View的单向绑定</li>
+<li>进度圈中的button用linear layout和relative layout实现不了，要用frame layout，这样能堆叠起来</li>
+<li>进度是用<code>onDraw()</code>画出来的，<code>canvas.drawArc()</code>里用<code>Stroke</code>画就行了</li>
+<li>番茄历史是用<code>RecyclerView</code>画的，注意RV里有LayoutManager，LM里有Adapter，Adapter有ViewHolder，用的是<code>ViewHolder.onBindViewHolder()</code>实现数据到View的单向绑定</li>
 </ol>
 
-<p>fab是比较蛋疼的地方，首先是没控件，最后用了<code class="highlighter-rouge">android.support.design.widget.FloatingActionButton</code>，这个怎么实现的不懂，总之样子还可以，阴影效果也有。
+<p>fab是比较蛋疼的地方，首先是没控件，最后用了<code>android.support.design.widget.FloatingActionButton</code>，这个怎么实现的不懂，总之样子还可以，阴影效果也有。
 好吧，这个包的实现也有问题，没法运行时换icon，采用makovkastar的实现。</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_snap02.png" alt="ui version 2" /></p>
+<p><img src="http://victorisildur.github.io/assets/images/android_snap02.png" alt="ui version 2"></p>
 
 <p>定位上，我想放到两个material之间，用负值marginTop, marginLeft Hack了一下，实现的不是很好。</p>
 
-<h2 id="section">定时部分</h2>
+<h2>定时部分</h2>
+
 <p>当按下FAB，期望开始倒计时，相关动作有：</p>
 
 <ol>
-  <li>进度圈开始转动</li>
-  <li>计时结束：alert</li>
+<li>进度圈开始转动</li>
+<li>计时结束：alert</li>
 </ol>
 
-<h2 id="section-1">存储部分</h2>
+<h2>存储部分</h2>
+
 <p>用的是sqlite，封装的时候遇到几个问题：</p>
 
 <ol>
-  <li><code class="highlighter-rouge">db = helper.getReadableDatabase()</code>之后可以迅速<code class="highlighter-rouge">close()</code>，官方说cache过了，不用担心</li>
-  <li>AlertDialog生成传context的时候一定要用<code class="highlighter-rouge">this</code>而不是<code class="highlighter-rouge">getApplicationContext()</code>的结果，否则会报错：
+<li><code>db = helper.getReadableDatabase()</code>之后可以迅速<code>close()</code>，官方说cache过了，不用担心</li>
+<li>AlertDialog生成传context的时候一定要用<code>this</code>而不是<code>getApplicationContext()</code>的结果，否则会报错：
 You need to use a Theme.AppCompat theme (or descendant) with this activity.
 这什么问题呢？猜想是getApplicationContext的实现问题。
 StackOverflow上的解释是ui所需的context是Active Activity的上下文，而getApplicationContext提供的是整个app process的上下文。</li>
 </ol>
 
-<p>上机的时候遇到getAllRecords逻辑问题，要判断<code class="highlighter-rouge">cursor.moveToFirst()</code>的返回！<code class="highlighter-rouge">Adapter</code>绑定<code class="highlighter-rouge">dataSet</code>时也要做相应处理。</p>
+<p>上机的时候遇到getAllRecords逻辑问题，要判断<code>cursor.moveToFirst()</code>的返回！<code>Adapter</code>绑定<code>dataSet</code>时也要做相应处理。</p>
 
 <p>把start button-&gt; dialog-&gt; count down timer-&gt; add record连起来：</p>
 
 <ol>
-  <li>按下start button：把customDialog和context绑起来，这样context才能作为listener供稍后回调。onclick后调用<code class="highlighter-rouge">customDialog.show()</code></li>
-  <li>按下Dialog确定键：回调listener，listener里开始计数，并add record</li>
+<li>按下start button：把customDialog和context绑起来，这样context才能作为listener供稍后回调。onclick后调用<code>customDialog.show()</code></li>
+<li>按下Dialog确定键：回调listener，listener里开始计数，并add record</li>
 </ol>
 
-<h2 id="section-2">状态跳转</h2>
+<h2>状态跳转</h2>
+
 <p>考虑这样的情况，我按下start button，开始25min的工作，结束后该怎么办？
 我的希望是，提示工作结束（响铃、震动），开始休息模式，5min之后，休息结束。
 提示休息结束（响铃、震动），给用户快捷方式再次开始工作。</p>
@@ -112,25 +117,25 @@ StackOverflow上的解释是ui所需的context是Active Activity的上下文，�
 <p>so，工作状态和休息状态总是交替，但有几个地方需要特别注意：</p>
 
 <ol>
-  <li>提前结束休息？休息的timer要取消掉</li>
-  <li>初始化timer是什么状态？工作</li>
-  <li>工作时间和休息时间？搞到values里去</li>
-  <li>结束状态提示？震动、亮灯、状态栏，timerView也要有相应文字！好吧，最后是加了个rest done状态写的。</li>
+<li>提前结束休息？休息的timer要取消掉</li>
+<li>初始化timer是什么状态？工作</li>
+<li>工作时间和休息时间？搞到values里去</li>
+<li>结束状态提示？震动、亮灯、状态栏，timerView也要有相应文字！好吧，最后是加了个rest done状态写的。</li>
 </ol>
 
-<h2 id="section-3">震动、亮灯、状态栏</h2>
+<h2>震动、亮灯、状态栏</h2>
 
-<h3 id="notification-">状态栏：Notification (中文学名应该叫通知栏)</h3>
+<h3>状态栏：Notification (中文学名应该叫通知栏)</h3>
 
-<p>简单的<code class="highlighter-rouge">builder.build()</code>, <code class="highlighter-rouge">manager.notify()</code>就可以实现静态的notification，但是还缺两个功能，一是动态更新时间，二是在notification上实现action</p>
+<p>简单的<code>builder.build()</code>, <code>manager.notify()</code>就可以实现静态的notification，但是还缺两个功能，一是动态更新时间，二是在notification上实现action</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_notification.png" alt="notification ver 1" /></p>
+<p><img src="http://victorisildur.github.io/assets/images/android_notification.png" alt="notification ver 1"></p>
 
-<h3 id="section-4">震动，亮灯</h3>
+<h3>震动，亮灯</h3>
 
 <p>明天再写，小细节</p>
 
-<h2 id="section-5">统计页面</h2>
+<h2>统计页面</h2>
 
 <p>这个页面希望上边是饼状图，下边是柱状图，让用户看自己的历史分布</p>
 
@@ -140,15 +145,15 @@ StackOverflow上的解释是ui所需的context是Active Activity的上下文，�
 多弄几个Fragment代表每个page，初始化什么的全部托管给Page Class。
 实际上，AppCompatActivity是FragmentActivity的子类，所以天然集成Fragment，我们弄好view pager的管理就好。</p>
 
-<p>Toolbar采用custom view，注意custom view里的click事件要触发<code class="highlighter-rouge">viewPager.setCurrentItem()</code>，
-viewPager的<code class="highlighter-rouge">onPageChange</code>事件要触发custom view的样式改变。
+<p>Toolbar采用custom view，注意custom view里的click事件要触发<code>viewPager.setCurrentItem()</code>，
+viewPager的<code>onPageChange</code>事件要触发custom view的样式改变。
 互相依赖。</p>
 
 <p>Fragment的管理靠Adapter，Adapter夹在Fragment和viewPager控件中间，空间事件触发Fragment的换入换出，
 对Adapter来说，把index到Fragment的关系管好就行了。
 如下图所示：</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_toolbar.png" alt="toolbar" /></p>
+<p><img src="http://victorisildur.github.io/assets/images/android_toolbar.png" alt="toolbar"></p>
 
 <p>今天把饼状图弄了，遇到一个view pager的生命周期和三个fragment生命周期不一致的问题，
 对我们来说，希望在一个page reenter的时候触发fragment的onResume，但是实际上三个fragment的onResume都和view pager绑在一起了，
@@ -159,31 +164,31 @@ viewPager的<code class="highlighter-rouge">onPageChange</code>事件要触发cu
 <p>然后想做的效果是点击饼状图一个扇区时放大扇区，然后发现有事件分发问题，只有最后一个扇区能接收到touch事件，不知道怎么回事。
 这尼玛要delegateTouch，复杂的不行，链接留这里<a href="http://developer.android.com/training/gestures/viewgroup.html">delegate touch event</a>，考虑绕一下，用下面的列表来触发放大扇区事件。</p>
 
-<p>绕的时候遇到recycler view不支持onItemClick事件，但是RecycleView.ViewHolder有getPosition()方法，因此，在<code class="highlighter-rouge">onCreateViewHolder()</code>时，这时能同时访问到view holder和view本身，从而
+<p>绕的时候遇到recycler view不支持onItemClick事件，但是RecycleView.ViewHolder有getPosition()方法，因此，在<code>onCreateViewHolder()</code>时，这时能同时访问到view holder和view本身，从而
 可以在view的click事件中访问到position信息。
 当然，解耦的比较糟糕，而且用到了final。
 效果如下：</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/tomato_piechart.png" alt="pie chart" /></p>
+<p><img src="http://victorisildur.github.io/assets/images/tomato_piechart.png" alt="pie chart"></p>
 
-<h1 id="section-6">日视图与周视图，月视图</h1>
+<h1>日视图与周视图，月视图</h1>
 
 <p>今天的目标是搞定日视图、周视图、月视图、年视图。下面的列表是排名最高的Activity，上面的折线图是这些Activity的周折线、月折线、年折线。
 应该挺激励人的，恩。</p>
 
-<p>遇到个null object的问题，存储类里返回一个<code class="highlighter-rouge">new List&lt;&gt;()</code>，按说不是空对象，但return之后实际是null。
+<p>遇到个null object的问题，存储类里返回一个<code>new List&lt;&gt;()</code>，按说不是空对象，但return之后实际是null。
 应该是java的某种省内存优化，注意防御性编程！</p>
 
 <p>首先是把Calendar弄好，之前一直用的GregorianCalendar，和系统时间不一致，要换ContentProvider提供的时间。
-好吧，Calendar Provider是用来弄定时事件用的，获取系统时间用<code class="highlighter-rouge">Calendar.getInstance()</code>就行了，之前之所以时间有问题是因为送db取数据的时候，用的是<code class="highlighter-rouge">getInt()</code>方法，
+好吧，Calendar Provider是用来弄定时事件用的，获取系统时间用<code>Calendar.getInstance()</code>就行了，之前之所以时间有问题是因为送db取数据的时候，用的是<code>getInt()</code>方法，
 timeInMillis被截断成负数了，自然不对。</p>
 
 <p>然后是引导日统计到周统计、月统计的切换。这里发现用原有的fragment非常难做，因为：</p>
 
 <ol>
-  <li>原有的三个fragment由view pager管理，fragment manager不可控</li>
-  <li>存储，想要把用户所有历史都存下来？不合适吧</li>
-  <li>在单一fragment里实现要不断show, hide，太不经济了</li>
+<li>原有的三个fragment由view pager管理，fragment manager不可控</li>
+<li>存储，想要把用户所有历史都存下来？不合适吧</li>
+<li>在单一fragment里实现要不断show, hide，太不经济了</li>
 </ol>
 
 <p>所以，决定用web view做，嘿嘿，也是我擅长的方式。</p>
@@ -248,7 +253,7 @@ timeInMillis被截断成负数了，自然不对。</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -256,7 +261,7 @@ timeInMillis被截断成负数了，自然不对。</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

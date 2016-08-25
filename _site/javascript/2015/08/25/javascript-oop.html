@@ -44,10 +44,10 @@
         </header>
 
         <section>
-            <h2 id="section">初衷</h2>
-<p>面试网易，被一道prototype模拟类的问题问住了，问题是这样的：</p>
+            <h2>初衷</h2>
 
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">Super</span><span class="p">()</span> <span class="p">{</span>
+<p>面试网易，被一道prototype模拟类的问题问住了，问题是这样的：</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">Super</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">courses</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'math'</span><span class="p">,</span><span class="s1">'music'</span><span class="p">];</span>
 <span class="p">}</span>
 <span class="kd">function</span> <span class="nx">Sub</span><span class="p">()</span> <span class="p">{</span>
@@ -57,27 +57,24 @@
 <span class="nx">sub1</span><span class="p">.</span><span class="nx">courses</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">'chinese'</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">sub2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sub</span><span class="p">();</span>
 <span class="nx">sub1</span><span class="p">.</span><span class="nx">courses</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">'english'</span><span class="p">);</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>第一问比较简单，问sub1.courses, sub2.courses里面内容是什么。显然是一样的，因为顺着原型链找，找到的是同一个对象。</p>
 
 <p>第二问比较难，问如何修改上述代码，使得Sub实例集成的courses相互独立？</p>
 
-<h2 id="section-1">目标</h2>
+<h2>目标</h2>
 
 <p>用javascript实现：</p>
 
 <ol>
-  <li>类属性继承</li>
-  <li>类方法继承</li>
-  <li>实例属性继承</li>
-  <li>实例方法继承</li>
+<li>类属性继承</li>
+<li>类方法继承</li>
+<li>实例属性继承</li>
+<li>实例方法继承</li>
 </ol>
 
-<h2 id="section-2">实现</h2>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">Super</span><span class="p">()</span> <span class="p">{</span>
+<h2>实现</h2>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">Super</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">courses</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'math'</span><span class="p">,</span><span class="s1">'music'</span><span class="p">];</span>
 <span class="p">}</span>
 <span class="kd">function</span> <span class="nx">Sub</span><span class="p">()</span> <span class="p">{</span>
@@ -88,20 +85,17 @@
 <span class="kd">function</span> <span class="nx">f</span><span class="p">()</span> <span class="p">{}</span>
 <span class="nx">f</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Super</span><span class="p">();</span>
 <span class="nx">Sub</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">f</span><span class="p">();</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>一般来讲，javascript中我们愿意把类的方法放到原型对象里去，函数嘛，要那么多份拷贝干嘛，通过原型链统统调用同一个就好。</p>
 
-<h2 id="section-3">理论</h2>
+<h2>理论</h2>
 
 <p>把成员变量放构造器里，把成员方法放原型链里，这叫组合继承</p>
 
 <p>这是不是最优的呢？我们可以看到，构造器里调用了一次父类构造函数，prototype又调用了一次，那么，Super里的成员变量this.courses实际上是创建了两份的。这能不能改进呢？</p>
 
 <p>答案是用寄生式组合继承。什么意思呢？就是用构造器继承去继承成员变量，用原型链只去继承父类的原型</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">Super</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">Super</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">courses</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'math'</span><span class="p">,</span><span class="s1">'music'</span><span class="p">];</span>
 <span class="p">}</span>
 <span class="nx">Super</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">sayHi</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="nx">alert</span><span class="p">(</span><span class="s1">'Hi'</span><span class="p">);</span> <span class="p">}</span>
@@ -121,11 +115,8 @@
 <span class="cm">/* 这里保证父类的prototype被子类继承 */</span>
 <span class="nx">Sub</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nx">object_create</span><span class="p">(</span><span class="nx">Super</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
 <span class="nx">Sub</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">Sub</span><span class="p">;</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>完美的继承方案，不是吗？</p>
-
 
         </section>
         
@@ -138,9 +129,9 @@
                         <h2><a href="/javascript/2015/08/24/reactjs-getstarted.html">Reactjs的一些理解</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">宗旨</h2>
-<p>我认为React的component是关键，它是抽象过的节点，对此官网是这样说的：</p>
+                        <h2>宗旨</h2>
 
+<p>我认为React的component是关键，它是抽象过的节点，对此官网是这样说的：</p>
 
                     </section>
                     <footer>
@@ -158,8 +149,7 @@
                         <h2><a href="/javascript/2015/08/26/native-javascript.html">原生javascript知识补全</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-
+                        <h2>初衷</h2>
 
                     </section>
                     <footer>
@@ -191,7 +181,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -199,7 +189,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

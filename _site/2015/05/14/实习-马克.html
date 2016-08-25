@@ -44,54 +44,41 @@
         </header>
 
         <section>
-            <h1 id="mysql">mysql</h1>
+            <h1>mysql</h1>
+
 <ol>
-  <li>编码格式
-    <ol>
-      <li>ALTER TABLE mytable CONVERT TO CHARACTER SET utf8</li>
-      <li>DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
- 4.</li>
-    </ol>
-  </li>
+<li>编码格式
+
+<ol>
+<li>ALTER TABLE mytable CONVERT TO CHARACTER SET utf8</li>
+<li> DEFAULT CHARACTER SET utf8 COLLATE utf8<em>general</em>ci
+4.</li>
+</ol></li>
 </ol>
 
-<h1 id="emacs">emacs</h1>
+<h1>emacs</h1>
+
 <ol>
-  <li>禁用tab
+<li>禁用tab
 force Emacs to indent with spaces, never with TABs:
 M-x set-variable<RET> indent-tabs-mode<RET> nil
 Permanently force Emacs to indent with spaces, never with TABs:
-(setq-default indent-tabs-mode nil);  # put this in your .emacs file</RET></RET></li>
+(setq-default indent-tabs-mode nil);  # put this in your .emacs file</li>
 </ol>
 
-<h1 id="angularjs">angularjs</h1>
+<h1>angularjs</h1>
+
 <ol>
-  <li>不要在child scope里对 $parent.property赋值，可读不可写（原理不明）</li>
+<li>不要在child scope里对 $parent.property赋值，可读不可写（原理不明）</li>
 </ol>
 
-<h1 id="linux">linux</h1>
+<h1>linux</h1>
+
 <ol>
-  <li>PORT=8092 node server.js (为什么shell中能直接设置环境变量而且不用分隔符？)</li>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>是管道， &gt;是重定向</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>find libs/ -name “*.so”</td>
-          <td>xargs rm -f</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-  <li>vim里 :%s#^#pangu://localcluster/#        正则表达式替换</li>
+<li>PORT=8092 node server.js (为什么shell中能直接设置环境变量而且不用分隔符？)</li>
+<li>| 是管道， &gt;是重定向</li>
+<li>find libs/ -name &quot;*.so&quot; | xargs rm -f </li>
+<li>vim里 :%s#^#pangu://localcluster/#        正则表达式替换</li>
 </ol>
 
         </section>
@@ -105,28 +92,25 @@ Permanently force Emacs to indent with spaces, never with TABs:
                         <h2><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html">2015-05-09-javascript原型链与原型继承</a></h2>
                     </header>
                     <section>
-                        <p>#引子</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
-		<span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
-	<span class="p">},</span>
-	<span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
-		<span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
-		<span class="k">return</span> <span class="nx">object</span>
-	<span class="p">}</span>
+                        <h1>引子</h1>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="p">},</span>
+    <span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nx">object</span>
+    <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-<h1 id="section">原型链</h1>
-<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述" /></p>
-<ol>
-  <li>Func.prototype = object : {constructor, [[Prototype]]}</li>
-  <li>object.[[constructor]] = Func</li>
-  <li>new Func().[[Prototype]] = Func.prototype</li>
-  <li>var a = new Func()执行三步：</li>
-</ol>
+</code></pre></div>
+<h1>原型链</h1>
 
+<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述">
+1. Func.prototype = object : {constructor, [[Prototype]]}
+2. object.[[constructor]] = Func
+3. new Func().[[Prototype]] = Func.prototype
+4. var a = new Func()执行三步：</p>
 
                     </section>
                     <footer>
@@ -144,22 +128,23 @@ Permanently force Emacs to indent with spaces, never with TABs:
                         <h2><a href="/2015/05/23/javascript-scope-chain.html">2015-05-23-javascript scope chain</a></h2>
                     </header>
                     <section>
-                        <h1 id="scope-chain">scope chain</h1>
+                        <h1>scope chain</h1>
+
 <p>一个函数有一个scope chain
 函数每调用一次，该函数的scope上创建一个对象，函数的局部变量被当做属性赋值给这个新对象。
-所以对嵌套函数</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">A</span><span class="p">()</span> <span class="p">{</span>
-	<span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="s1">'A'</span><span class="p">;</span>
-	<span class="kd">function</span> <span class="nx">B</span><span class="p">()</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="s1">'B'</span>
-	<span class="p">}</span>
-	<span class="kd">function</span> <span class="nx">C</span><span class="p">()</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="s1">'C'</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre>
-</div>
-<p>scope A   &lt;—  scope B
+所以对嵌套函数
+<code>javascript
+function A() {
+    var a = &#39;A&#39;;
+    function B() {
+        var b = &#39;B&#39;
+    }
+    function C() {
+        var c = &#39;C&#39;
+    }
+}
+</code>
+scope A   &lt;---  scope B
        ^
        |
        |___ scope C
@@ -168,7 +153,6 @@ Permanently force Emacs to indent with spaces, never with TABs:
                            scope C上有新对象， 新对象有c属性。
                            B函数内能通过scope chain找到a 属性
                            C函数也能通过scope chain找到a 属性，两者是同一对象。因为都是在A()的这次调用里新建的对象的a属性。</p>
-
 
                     </section>
                     <footer>
@@ -200,7 +184,7 @@ Permanently force Emacs to indent with spaces, never with TABs:
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -208,7 +192,7 @@ Permanently force Emacs to indent with spaces, never with TABs:
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

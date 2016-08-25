@@ -44,14 +44,13 @@
         </header>
 
         <section>
-            <h2 id="on-one">$.on $.one</h2>
+            <h2>$.on $.one</h2>
 
 <p>用on的话，会增量的加事件监听，在redux这种反复subscribe的情景下，很容易出bug。
 因此，用one是很好的选择。</p>
 
 <p>来看看.one是如何实现的:</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// one</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// one</span>
 <span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">one</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="p">}</span>
@@ -75,21 +74,18 @@
     <span class="p">}</span>
     <span class="nx">element</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">realEvent</span><span class="p">(</span><span class="nx">handler</span><span class="p">.</span><span class="nx">e</span><span class="p">),</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">proxy</span><span class="p">,</span> <span class="nx">eventCapture</span><span class="p">(</span><span class="nx">handler</span><span class="p">,</span> <span class="nx">capture</span><span class="p">))</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>所以就是一触发，立马remove这个监听器，从而实现只触发一次。</p>
 
 <p>另一个问题是，.off是否会把所有.on添加的listener都删除掉？
 答案是能删掉，来看看实现吧：</p>
 
-<h2 id="data">$.data</h2>
+<h2>$.data</h2>
 
 <p>我们知道，$.data可以存任意object，这是如何实现的？</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">dataAttr</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="nx">camelize</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">camelCase</span><span class="p">,</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">dataAttr</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="nx">camelize</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">camelCase</span><span class="p">,</span>
     <span class="nx">exp</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">expando</span> <span class="o">=</span> <span class="s1">'Zepto'</span> <span class="o">+</span> <span class="p">(</span><span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()),</span> <span class="nx">emptyArray</span> <span class="o">=</span> <span class="p">[];</span>
-  
+
 <span class="c1">// Store value under camelized key on node</span>
 <span class="kd">function</span> <span class="nx">setData</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">id</span> <span class="o">=</span> <span class="nx">node</span><span class="p">[</span><span class="nx">exp</span><span class="p">]</span> <span class="o">||</span> <span class="p">(</span><span class="nx">node</span><span class="p">[</span><span class="nx">exp</span><span class="p">]</span> <span class="o">=</span> <span class="o">++</span><span class="nx">$</span><span class="p">.</span><span class="nx">uuid</span><span class="p">),</span>
@@ -97,16 +93,14 @@
     <span class="k">if</span> <span class="p">(</span><span class="nx">name</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="nx">store</span><span class="p">[</span><span class="nx">camelize</span><span class="p">(</span><span class="nx">name</span><span class="p">)]</span> <span class="o">=</span> <span class="nx">value</span>
     <span class="k">return</span> <span class="nx">store</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div>
+<p>存到内存里的一个变量data = {}里啦！ id由<code>$.uuid</code>生成，当然任意咯。</p>
 
-<p>存到内存里的一个变量data = {}里啦！ id由<code class="highlighter-rouge">$.uuid</code>生成，当然任意咯。</p>
+<h2>ajax</h2>
 
-<h2 id="ajax">ajax</h2>
+<p><code>INVALID_STATE_ERR: DOM Exception 11</code></p>
 
-<p><code class="highlighter-rouge">INVALID_STATE_ERR: DOM Exception 11</code></p>
-
-<p>这是个XMLHttpRequest对象抛出的异常，如果<code class="highlighter-rouge">xhr.open</code>前调用了xhr.withCredentials就会出问题。</p>
+<p>这是个XMLHttpRequest对象抛出的异常，如果<code>xhr.open</code>前调用了xhr.withCredentials就会出问题。</p>
 
 <p>详见这个issue: <a href="https://github.com/madrobby/zepto/issues/921">zepto issue 921</a></p>
 
@@ -170,7 +164,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -178,7 +172,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

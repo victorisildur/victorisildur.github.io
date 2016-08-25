@@ -44,20 +44,20 @@
         </header>
 
         <section>
-            <h2 id="booksim">booksim干嘛的</h2>
+            <h2>booksim干嘛的</h2>
 
 <p>做注包率试验！</p>
 
 <p>它仿真具体的路由器结构，比较偏硬件层。我们要做的就是想办法把loadaware广播算法移植过来，跑数据出来！</p>
 
-<h1 id="routefunc">routefunc</h1>
+<h1>routefunc</h1>
 
 <p>/src/routefunc.cc下有个Map，里面定义了config文件里routing_func = dor 被映射成哪个路由函数</p>
 
-<h1 id="section">不懂的地方</h1>
+<h1>不懂的地方</h1>
 
 <ol>
-  <li>我现在想打印一下router的output buffer，但是不知道怎么打印。特么的这玩意儿文档太少了</li>
+<li>我现在想打印一下router的output buffer，但是不知道怎么打印。特么的这玩意儿文档太少了</li>
 </ol>
 
 <p>把f-&gt;watch逻辑去掉了，现在output打印在watchfile.out里了</p>
@@ -65,54 +65,46 @@
 <p>可以明显看到，injection rate提高之后，latency疯狂提高</p>
 
 <ol>
-  <li>怎么在Uniform traffic的基础上添加broadcast?</li>
+<li>怎么在Uniform traffic的基础上添加broadcast?</li>
 </ol>
 
 <p>去改traffic.cpp的某个traffic的dest()方法。 让其dest = -2之类的特殊值。
 然后再routefunc里对这种特殊的dest，outputs要变多个。</p>
 
-<h2 id="noxim">noxim干嘛的</h2>
+<h2>noxim干嘛的</h2>
 
 <p>替换该死的booksim地，booksim改一下就跑不了了，他的路由也写得很奇怪（用的dimension right/left）。
 而且没有报错信息。搞得试验没法做了。</p>
 
 <p>so, 换noxim。这个用了虚拟机才搞定了。native装的Ubuntu有package坏了，非常蛋疼。</p>
 
-<h1 id="noxim-1">noxim路由步骤</h1>
+<h1>noxim路由步骤</h1>
 
 <ol>
-  <li>
-    <p><code class="highlighter-rouge">route(packet)</code></p>
-  </li>
-  <li>
-    <p><code class="highlighter-rouge">&lt;vector:int&gt;::routingAlgorithm(packet)</code>
-给定包，算输出方向</p>
-  </li>
-  <li>
-    <p><code class="highlighter-rouge">int::SelectionFunction(&lt;vector:int&gt;)</code></p>
-
-    <p>给定输出方向，算int值。int用来干嘛？Selection_RANDOM里，是在所有输出方向里任意选了一个。</p>
-
-    <p>这个地方就有问题了。他的原意是，这几个output都可以，都是candidate。selection策略是个n选1的策略。</p>
-
-    <p>但对我来说，我routingAlgorithm输出的多个输出，都是必须输出的，不存在select其中一个的需求。</p>
-
-    <p>所以应该这么改：</p>
-    <ol>
-      <li>Router::route()返回值变vector。</li>
-      <li>不要做selection操作。</li>
-      <li>所有用到route()的地方，对应处理下vector。</li>
-    </ol>
-  </li>
+<li><p><code>route(packet)</code></p></li>
+<li><p><code>&lt;vector:int&gt;::routingAlgorithm(packet)</code>
+给定包，算输出方向</p></li>
+<li><p><code>int::SelectionFunction(&lt;vector:int&gt;)</code></p></li>
 </ol>
 
-<h1 id="section-1">遇到问题</h1>
+<p>给定输出方向，算int值。int用来干嘛？Selection_RANDOM里，是在所有输出方向里任意选了一个。</p>
+
+<p>这个地方就有问题了。他的原意是，这几个output都可以，都是candidate。selection策略是个n选1的策略。</p>
+
+<p>但对我来说，我routingAlgorithm输出的多个输出，都是必须输出的，不存在select其中一个的需求。</p>
+
+<p>所以应该这么改：
+   1. Router::route()返回值变vector。
+   2. 不要做selection操作。
+   3. 所有用到route()的地方，对应处理下vector。</p>
+
+<h1>遇到问题</h1>
 
 <p>Router forward那一步的时候，遇到全部是cannot forward input[m] to output[n]</p>
 
-<p>current_level_tx有问题，需要再查</p>
+<p>current<em>level</em>tx有问题，需要再查</p>
 
-<p>current_level_tx 是和 ack_tx 配合用的一个 Alternating Bit Protocol。</p>
+<p>current<em>level</em>tx 是和 ack_tx 配合用的一个 Alternating Bit Protocol。</p>
 
 <p>A发包给B，包上附序列号0，B收到0之前一直发ack1，收到0发ack0。A收到ack0之前一直发0，收到ack1之后发1。</p>
 
@@ -126,31 +118,31 @@
 
 <p>so, 我们要修改reservation table，让他变得一对多。</p>
 
-<h1 id="buffer">buffer释放问题</h1>
+<h1>buffer释放问题</h1>
 
 <p>改这个改了三天。。。。遇到问题如下：</p>
 
 <ol>
-  <li>不能分配reservatin table</li>
-  <li>ABP协议失败</li>
-  <li>buffer卡死，仿真1w周期，只有2000周期有结果</li>
+<li>不能分配reservatin table</li>
+<li>ABP协议失败</li>
+<li>buffer卡死，仿真1w周期，只有2000周期有结果</li>
 </ol>
 
 <p>打印log调试了整整两天，发现是释放buffer的问题！这个有点subtle，一直没注意到。</p>
 
 <p>举个例子，有个包，其输入输出映射为 in1 -&gt; (o1,o2,o3)。</p>
 
-<p>现在<code class="highlighter-rouge">txProcess()</code>开始了，in1-&gt;o1, in2-&gt;o2都符合ABP，成功发送了，并释放了预约表。但in1-&gt;o3因为之前的包没传完，ABP失败！</p>
+<p>现在<code>txProcess()</code>开始了，in1-&gt;o1, in2-&gt;o2都符合ABP，成功发送了，并释放了预约表。但in1-&gt;o3因为之前的包没传完，ABP失败！</p>
 
-<p>正常的逻辑应该是在buffer里保留这个flit，预约表里只剩in1 -&gt; (o3)，下一次<code class="highlighter-rouge">txProcess()</code>继续尝试发掉这个flit，直到成功了再pop buffer。并释放in1-&gt;o3。</p>
+<p>正常的逻辑应该是在buffer里保留这个flit，预约表里只剩in1 -&gt; (o3)，下一次<code>txProcess()</code>继续尝试发掉这个flit，直到成功了再pop buffer。并释放in1-&gt;o3。</p>
 
 <p>而我的逻辑没考虑到in1-&gt;o3失败的情况，不管三七二十一，把buffer清掉了，这样in1-&gt;o3永远不会释放。慢慢地预约表就被占满了！自然统统发布出去！</p>
 
 <p>而且，buffer要记住自己还剩下往哪儿发，因为上面的讨论是基于in1-&gt;o1, in1-&gt;o2被释放掉的情况。然而实际当中只有filt_tail会这样。中间的flit没法通过预约表记录已经哪些发过了。</p>
 
-<p>所以我们要加一点数据结构，记录当前buffer[i]的output_ports中哪些已经发过了。直观的讲可以记录在buffer里，然而我觉得放reservation_table里更好，更符合它的定位。</p>
+<p>所以我们要加一点数据结构，记录当前buffer[i]的output<em>ports中哪些已经发过了。直观的讲可以记录在buffer里，然而我觉得放reservation</em>table里更好，更符合它的定位。</p>
 
-<h1 id="i-o">一次预约多个i-&gt;o问题</h1>
+<h1>一次预约多个i-&gt;o问题</h1>
 
 <p>又遇到逻辑问题，这次是预约表的问题。还是假设in1 -&gt; (o1,o2,o3)，之前我们认为in1-&gt;o1, in1-&gt;o2, in1-&gt;o3都能成功预约。这样在forwarding phase时，再有我们的判断是否都传完环节。</p>
 
@@ -164,87 +156,62 @@
 
 <p>新想法是搞优先级，如果一个flit是多输出，且预约不成功，就给它加到waiting list里。下一周期预约phase，先预约waiting list里的input。</p>
 
-<p>这样waiting_list[i]有两种状态：not_waiting，即优先级低的。和waiting_done，即优先级高的。</p>
+<p>这样waiting<em>list[i]有两种状态：not</em>waiting，即优先级低的。和waiting_done，即优先级高的。</p>
 
-<p>然而做实验发现仍有问题，那就是包的抵达率非常低，很多高优包总是预约不到（虽然优先级高）。这是因为 A-&gt;o1,o2; B1,B2,B3…-&gt;o1; C1,C2,C3…-&gt;o2。o1,o2的空窗交替出现，而且迅速被单播包占用。</p>
+<p>然而做实验发现仍有问题，那就是包的抵达率非常低，很多高优包总是预约不到（虽然优先级高）。这是因为 A-&gt;o1,o2; B1,B2,B3...-&gt;o1; C1,C2,C3...-&gt;o2。o1,o2的空窗交替出现，而且迅速被单播包占用。</p>
 
 <p>为了解决这一问题，我们应阻止单播包去预约o1,o2。阻塞单播包，只允许多播包。具体实现就是用一个wanted_list[o]。</p>
 
 <p>我毙了，只要是去等，就会产生及其频繁地哲学家进餐问题，等的代价太高了。我你妹根本降不下来。只能考虑拷贝，重发的策略了。。。</p>
 
-<h2 id="section-2">备份策略！</h2>
+<h2>备份策略！</h2>
 
 <p>每个周期执行三步：route and reserve(RR), backup, forward</p>
 
 <p>与原始两步法的不同：</p>
 
 <ul>
-  <li>
-    <p>route and reserve：</p>
+<li><p>route and reserve：</p>
 
-    <ul>
-      <li>
-        <p>算output ports: 先看backup unit是不是 非空、不是备份中、正在期望输出端口。 如果全满足，则去预约期望端口。预约成功后记得告诉backup_unit删除这个期望端口。</p>
-      </li>
-      <li>
-        <p>buffer[i] flit_head预约成功之后：看是不是多输出，是的话，告诉backup_unit开始备份。并设置backup_unit的期望端口。</p>
-      </li>
-      <li>
-        <p>总结一下：RR阶段，可能用到备份的地方有：用backup unit的期望输出去预约，删除BU的期望输出，告诉BU开始备份，设置BU期望端口。</p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p>backup:</p>
+<ul>
+<li>算output ports: 先看backup unit是不是 非空、不是备份中、正在期望输出端口。 如果全满足，则去预约期望端口。预约成功后记得告诉backup_unit删除这个期望端口。</li>
+<li>buffer[i] flit<em>head预约成功之后：看是不是多输出，是的话，告诉backup</em>unit开始备份。并设置backup_unit的期望端口。</li>
+<li>总结一下：RR阶段，可能用到备份的地方有：用backup unit的期望输出去预约，删除BU的期望输出，告诉BU开始备份，设置BU期望端口。</li>
+</ul></li>
+<li><p>backup:</p>
 
-    <ul>
-      <li>如果正在备份中，则备份buffer.front()</li>
-    </ul>
-  </li>
-  <li>
-    <p>forward:</p>
+<ul>
+<li>如果正在备份中，则备份buffer.front()</li>
+</ul></li>
+<li><p>forward:</p>
 
-    <ul>
-      <li>
-        <p>去取待转发的flit：看BU是不是 非空、不是备份中。如果全满足，则取BU里的flit。</p>
-      </li>
-      <li>
-        <p>发送flit完成后：如果是从BU里取的，则BU pop()</p>
-      </li>
-      <li>
-        <p>发送完一个flit_tail: 如果BU 正在备份中，则告诉BU结束备份。如果flit来自BU，且现在BU没有期望端口，则清空BU.</p>
-      </li>
-      <li>
-        <p>发送flit_head不成功：如果是BU来的flit_head，则告诉BU这个端口被释放了，你要再次期望它。</p>
-      </li>
-      <li>
-        <p>总结下：forward阶段，用到备份的地方有：取BU front，BU pop，告诉BU结束备份，清空BU，添加期望端口。</p>
-      </li>
-    </ul>
-  </li>
+<ul>
+<li>去取待转发的flit：看BU是不是 非空、不是备份中。如果全满足，则取BU里的flit。</li>
+<li>发送flit完成后：如果是从BU里取的，则BU pop()</li>
+<li>发送完一个flit_tail: 如果BU 正在备份中，则告诉BU结束备份。如果flit来自BU，且现在BU没有期望端口，则清空BU.</li>
+<li>发送flit<em>head不成功：如果是BU来的flit</em>head，则告诉BU这个端口被释放了，你要再次期望它。</li>
+<li>总结下：forward阶段，用到备份的地方有：取BU front，BU pop，告诉BU结束备份，清空BU，添加期望端口。</li>
+</ul></li>
 </ul>
 
 <p>发生了 段错误，用gdb调试之：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>gdb
+<div class="highlight"><pre><code class="language-" data-lang="">gdb
 file ./noxim
 set args -config config.yaml
 r
 backtrace
-</code></pre>
-</div>
+</code></pre></div>
+<p>发现是BU erase <em>expect</em>ports时发生问题，可能是之前setExpectPorts有问题，<code>setExpectPorts(const vector&lt;int&gt; expect_ports)</code> 里面直接把参数付给了私有成员。</p>
 
-<p>发现是BU erase _expect_ports时发生问题，可能是之前setExpectPorts有问题，<code class="highlighter-rouge">setExpectPorts(const vector&lt;int&gt; expect_ports)</code> 里面直接把参数付给了私有成员。</p>
+<p>又发现不能参数为<code>vector&lt;int&gt; &amp;</code>，会包连接找不到reference。不懂！</p>
 
-<p>又发现不能参数为<code class="highlighter-rouge">vector&lt;int&gt; &amp;</code>，会包连接找不到reference。不懂！</p>
-
-<p><code class="highlighter-rouge">vector.erase()</code>后iterator会自动指向下一个成员，不用再加一！</p>
+<p><code>vector.erase()</code>后iterator会自动指向下一个成员，不用再加一！</p>
 
 <p>错误的重新开始backup?</p>
 
 <p>BU 1-&gt;3没有传完，但是RR步骤，已经开始用Buffer去预约1-&gt;4了。这就有问题了。显然1-&gt;3没传完，reserve 1-&gt;4不应该成功。</p>
 
-<p>你妹啊，<code class="highlighter-rouge">isAvailable(port_out)</code>不管port_in情况的。虽然1-&gt;3占了，但4是空的，它就直接分给1-&gt;4了。</p>
+<p>你妹啊，<code>isAvailable(port_out)</code>不管port_in情况的。虽然1-&gt;3占了，但4是空的，它就直接分给1-&gt;4了。</p>
 
 <p>loadaware并没有完成loadaware。好像是const flit的原因？no，错在先push到buffer再改这个了，应该在Push前完成</p>
 
@@ -259,8 +226,7 @@ backtrace
                         <h2><a href="/os/2015/09/29/graphite.html">Graphite架构</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-
+                        <h2>初衷</h2>
 
                     </section>
                     <footer>
@@ -278,8 +244,7 @@ backtrace
                         <h2><a href="/methodology/2015/10/26/table-driven.html">代码大全1: Table-driven method</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">代码大全系列</h2>
-
+                        <h2>代码大全系列</h2>
 
                     </section>
                     <footer>
@@ -311,7 +276,7 @@ backtrace
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -319,7 +284,7 @@ backtrace
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

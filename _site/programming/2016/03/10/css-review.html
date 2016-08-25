@@ -44,11 +44,10 @@
         </header>
 
         <section>
-            <h2 id="text">Text</h2>
+            <h2>Text</h2>
 
-<h2 id="section">不换行，省略号</h2>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nt">white-space</span><span class="o">:</span> <span class="nt">normal</span><span class="o">|</span><span class="nt">nowrap</span><span class="o">|</span><span class="nt">pre</span><span class="o">|</span><span class="nt">pre-wrap</span><span class="o">|</span><span class="nt">pre-line</span><span class="o">;</span>
+<h2>不换行，省略号</h2>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nt">white-space</span><span class="o">:</span> <span class="nt">normal</span><span class="o">|</span><span class="nt">nowrap</span><span class="o">|</span><span class="nt">pre</span><span class="o">|</span><span class="nt">pre-wrap</span><span class="o">|</span><span class="nt">pre-line</span><span class="o">;</span>
 <span class="c">/* nowrap: 不换行, normal: 合并空行空格，换行, pre-wrap: 保留空行空格 */</span>
 <span class="nt">word-break</span><span class="o">:</span> <span class="nt">normal</span><span class="o">|</span><span class="nt">keep-all</span><span class="o">|</span><span class="nt">break-all</span><span class="o">;</span>
 <span class="c">/* break-all: 任意字母之间可以断掉换行 */</span>
@@ -58,151 +57,129 @@
 <span class="nt">text-overflow</span><span class="o">:</span> <span class="nt">ellipsis</span><span class="o">;</span>
 <span class="nt">overflow</span><span class="o">:</span> <span class="nt">hidden</span><span class="o">;</span>
 <span class="nt">white-space</span><span class="o">:</span> <span class="nt">no-wrap</span><span class="o">;</span>
-</code></pre>
-</div>
+</code></pre></div>
+<h2>text-shadow</h2>
 
-<h2 id="text-shadow">text-shadow</h2>
 <p>对p无效，对h有效？why?</p>
 
-<h2 id="section-1">雪碧图</h2>
+<h2>雪碧图</h2>
 
 <p>今天打算用一下雪碧图，compass的方案，其好处是不用手动去拼雪碧图，计算position。
 坏处是sass的，现在还不清楚怎么和less结合。
 而且定位怎么用rem表示也不知道。</p>
 
 <p>先装起来看看。</p>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="k">@import</span> <span class="s1">"compass/utilities/sprites"</span><span class="p">;</span>    <span class="o">//</span> <span class="err">加载</span><span class="nt">compass</span> <span class="nt">sprites</span><span class="err">模块</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="k">@import</span> <span class="s1">"compass/utilities/sprites"</span><span class="p">;</span>    <span class="o">//</span> <span class="err">加载</span><span class="nt">compass</span> <span class="nt">sprites</span><span class="err">模块</span>
 <span class="k">@import</span> <span class="s1">"share/*.png"</span><span class="p">;</span>                    <span class="o">//</span> <span class="err">导入</span><span class="nt">share</span><span class="err">目录下所有</span><span class="nt">png</span><span class="err">图片</span>
 <span class="k">@include</span> <span class="n">all-share-sprites</span><span class="p">;</span>                <span class="o">//</span> <span class="err">输出所有的雪碧图</span><span class="nt">css</span>
-</code></pre>
-</div>
-
-<p>这三句之后，会输出<code class="highlighter-rouge">stylesheets/share.css</code>。
+</code></pre></div>
+<p>这三句之后，会输出<code>stylesheets/share.css</code>。
 其中的backgroud-position都是以px为单位的。
-接下来要考虑和background-size的关系！</p>
+接下来要考虑和background-size的关系！ </p>
 
-<h2 id="section-2">模块化</h2>
+<h2>模块化</h2>
 
-<h2 id="smacss">SMACSS</h2>
+<h2>SMACSS</h2>
 
 <p>Scalable and Modular Architecture CSS，目的是让css模块化，使样式也符合DRY原则。
 它把样式分为如下五类：</p>
 
 <ul>
-  <li>base rules:   无论元素在页面哪里，都应该遵循的原则</li>
-  <li>layout rules: 分割页面的”布局”，它是module的容器</li>
-  <li>module rules: 模块，如sidebar, callout, product list</li>
-  <li>state rules:  layout/module在不同”状态”下的样式</li>
-  <li>theme rules:  主题，不同主题下layout和module的样子</li>
+<li>base rules:   无论元素在页面哪里，都应该遵循的原则</li>
+<li>layout rules: 分割页面的&quot;布局&quot;，它是module的容器</li>
+<li>module rules: 模块，如sidebar, callout, product list</li>
+<li>state rules:  layout/module在不同&quot;状态&quot;下的样式</li>
+<li>theme rules:  主题，不同主题下layout和module的样子</li>
 </ul>
 
-<p>命名规则：</p>
-<ul>
-  <li>layout: 用l- grid-之类的前缀</li>
-  <li>state:  用is-hidden, is-前缀</li>
-  <li>module: 普通命名，注意子类采用相同前缀</li>
-</ul>
+<p>命名规则：
+* layout: 用l- grid-之类的前缀
+* state:  用is-hidden, is-前缀
+* module: 普通命名，注意子类采用相同前缀</p>
 
-<p>模块的一些注意：</p>
-<ol>
-  <li>模块尽量不要用element，这样对html结构的依赖就太大了</li>
-  <li>选择器不要嵌套太深，越深就越难修改</li>
-  <li>子类的概念，一般用<code class="highlighter-rouge">nav nav-inverted</code>之类的</li>
-</ol>
+<p>模块的一些注意：
+1. 模块尽量不要用element，这样对html结构的依赖就太大了
+2. 选择器不要嵌套太深，越深就越难修改
+3. 子类的概念，一般用<code>nav nav-inverted</code>之类的</p>
 
-<h2 id="inline-block">inline-block</h2>
+<h2>inline-block</h2>
+
 <p>空格也会算成间隔！所以inline-block的时候，两个inline-block元素中间不要有空格！</p>
 
-<h2 id="transition">transition</h2>
+<h2>transition</h2>
+
 <p>移动端，对transform进行transition会出bug，响应严重滞后。但是对margin-right一类的进行transition，又会不平滑，非常蛋疼。</p>
 
 <p>进一步测试发现，chrome上是可以的，uc和qq浏览器都反映巨慢无比，而且这和timing-function是linear还是ease，transition-property是all还是transform无关。</p>
 
 <p>km上的方案是，要重新运行animate，用setTimeout法，把任务立马插入队列。这里需要深究为什么！！！</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nb">window</span><span class="p">.</span><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nb">window</span><span class="p">.</span><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
     <span class="nx">elem</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s1">'swiping-left'</span><span class="p">)</span>
 <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>再用插入队列的方案，用transition做动画，发现uc里完全不支持transition: transform，qq支持，但是经常卡死，完全不能用。</p>
 
-<h2 id="less">LESS</h2>
+<h2>LESS</h2>
 
-<h2 id="varvar">@var与@{var}</h2>
+<h2>@var与@{var}</h2>
 
 <p>variable用作value时，写作@var；用作property name, selector name等时，写作@{var}</p>
 
-<h2 id="input">input底部色条动画</h2>
+<h2>input底部色条动画</h2>
+
 <p>思路是input:focus时，将其背景大小从0变100%，
 背景位置center。
 然后给background设transition，这样背景色条就会从中间向两边慢慢扩散。</p>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nc">.bg</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.bg</span> <span class="p">{</span>
     <span class="nl">background-image</span><span class="p">:</span> <span class="n">linear-gradient</span><span class="p">(</span><span class="m">#62a8ea</span><span class="p">,</span> <span class="m">#62a8ea</span><span class="p">),</span> <span class="n">linear-gradient</span><span class="p">(</span><span class="m">#e4eaec</span><span class="p">,</span> <span class="m">#e4eaec</span><span class="p">);</span>
     <span class="nl">background-size</span><span class="p">:</span> <span class="m">0</span> <span class="m">2px</span><span class="p">,</span> <span class="m">100%</span> <span class="m">1px</span><span class="p">;</span>
 <span class="p">}</span>
 <span class="nc">.bg</span><span class="nd">:focus</span> <span class="p">{</span>
     <span class="nl">background-size</span><span class="p">:</span> <span class="m">100%</span> <span class="m">2px</span><span class="p">,</span> <span class="m">100%</span> <span class="m">1px</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div>
+<h2>高分屏适配</h2>
 
-<h2 id="section-3">高分屏适配</h2>
-<p>x5不支持<code class="highlighter-rouge">&lt;meta name="viewport" content="initial-scale=0.5"/&gt;</code>的计算，导致只能回到原来的做法。
+<p>x5不支持<code>&lt;meta name=&quot;viewport&quot; content=&quot;initial-scale=0.5&quot;/&gt;</code>的计算，导致只能回到原来的做法。
 公式为：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">rootFontSize</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">clientWidth</span> <span class="o">/</span> <span class="mi">10</span><span class="p">;</span>
-</code></pre>
-</div>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nc">.px2rem</span> <span class="o">(</span><span class="k">@name</span><span class="p">,</span> <span class="err">@</span><span class="nb">px</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">rootFontSize</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">clientWidth</span> <span class="o">/</span> <span class="mi">10</span><span class="p">;</span>
+</code></pre></div><div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.px2rem</span> <span class="o">(</span><span class="k">@name</span><span class="p">,</span> <span class="err">@</span><span class="nb">px</span><span class="p">)</span> <span class="p">{</span>
     <span class="o">@</span><span class="p">{</span><span class="err">name</span><span class="p">}</span><span class="o">:</span> <span class="k">@px</span> <span class="p">/</span> <span class="m">75</span> <span class="err">*</span> <span class="m">1px</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="nc">.px2px</span> <span class="o">(</span><span class="k">@name</span><span class="p">,</span> <span class="err">@</span><span class="nb">px</span><span class="p">)</span> <span class="p">{</span>
     <span class="o">@</span><span class="p">{</span><span class="err">name</span><span class="p">}</span><span class="o">:</span> <span class="nt">round</span><span class="o">(</span><span class="k">@px</span> <span class="p">/</span> <span class="m">2</span><span class="p">)</span> <span class="err">*</span> <span class="m">1px</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>px到rem的推导相对简单，px到px的除以2是因为设计稿宽750，而设备无关像素是375，所以测量值要除以2.</p>
 
-<h2 id="flex">flex失效问题</h2>
-<p>x5遇到的另一个问题是flex失效，暂时不清楚是什么原因造成的。</p>
+<h2>flex失效问题</h2>
 
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nc">.flex</span> <span class="p">{</span>
+<p>x5遇到的另一个问题是flex失效，暂时不清楚是什么原因造成的。</p>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.flex</span> <span class="p">{</span>
     <span class="nl">display</span><span class="p">:</span> <span class="n">-webkit-flex</span><span class="p">;</span>
     <span class="nl">-webkit-flex-direction</span><span class="p">:</span> <span class="n">row</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>weinre看了，就是不认flex，目测和tbs1.4版本关系，未经验证。
 最后是用float + 33.3333%解决的。</p>
 
-<h2 id="px">高分屏1px边框解决</h2>
+<h2>高分屏1px边框解决</h2>
 
 <p>思路是搞个1px的background，然后background为linear-gradient渐变，渐变时50%是有颜色的，50%是透明的。</p>
 
 <p>代码如下：</p>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nt">linear-gradient</span><span class="o">(</span><span class="nt">180deg</span><span class="o">,</span> <span class="k">@color</span><span class="p">,</span> <span class="err">@</span><span class="n">color</span> <span class="m">50%</span><span class="p">,</span> <span class="nb">transparent</span> <span class="m">50%</span><span class="p">)</span> <span class="nb">top</span>    <span class="nb">left</span>  <span class="p">/</span> <span class="m">100%</span> <span class="m">1px</span> <span class="nb">no-repeat</span><span class="p">,</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nt">linear-gradient</span><span class="o">(</span><span class="nt">180deg</span><span class="o">,</span> <span class="k">@color</span><span class="p">,</span> <span class="err">@</span><span class="n">color</span> <span class="m">50%</span><span class="p">,</span> <span class="nb">transparent</span> <span class="m">50%</span><span class="p">)</span> <span class="nb">top</span>    <span class="nb">left</span>  <span class="p">/</span> <span class="m">100%</span> <span class="m">1px</span> <span class="nb">no-repeat</span><span class="p">,</span>
 <span class="n">linear-gradient</span><span class="p">(</span><span class="m">90deg</span><span class="p">,</span>  <span class="err">@</span><span class="n">color</span><span class="p">,</span> <span class="err">@</span><span class="n">color</span> <span class="m">50%</span><span class="p">,</span> <span class="nb">transparent</span> <span class="m">50%</span><span class="p">)</span> <span class="nb">top</span>    <span class="nb">right</span> <span class="p">/</span> <span class="m">1px</span> <span class="m">100%</span> <span class="nb">no-repeat</span><span class="p">,</span>
 <span class="n">linear-gradient</span><span class="p">(</span><span class="m">0</span><span class="p">,</span>      <span class="err">@</span><span class="n">color</span><span class="p">,</span> <span class="err">@</span><span class="n">color</span> <span class="m">50%</span><span class="p">,</span> <span class="nb">transparent</span> <span class="m">50%</span><span class="p">)</span> <span class="nb">bottom</span> <span class="nb">right</span> <span class="p">/</span> <span class="m">100%</span> <span class="m">1px</span> <span class="nb">no-repeat</span><span class="p">,</span>
 <span class="n">linear-gradient</span><span class="p">(</span><span class="m">-90deg</span><span class="p">,</span> <span class="err">@</span><span class="n">color</span><span class="p">,</span> <span class="err">@</span><span class="n">color</span> <span class="m">50%</span><span class="p">,</span> <span class="nb">transparent</span> <span class="m">50%</span><span class="p">)</span> <span class="nb">bottom</span> <span class="nb">left</span>  <span class="p">/</span> <span class="m">1px</span> <span class="m">100%</span> <span class="nb">no-repeat</span><span class="p">;</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>后来发现x5内核对这个支持有问题，有些机子（vivo）会显示不出来。</p>
 
 <p>然后用的是和QQ健康一样的解决方案，用after元素搞一个2倍大的1px边框，然后scale 0.5，从而得到0.5px。</p>
 
 <p>代码如下：</p>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nc">.border-scale</span><span class="o">(</span><span class="k">@top</span><span class="p">,</span> <span class="err">@</span><span class="nb">right</span><span class="p">,</span> <span class="err">@</span><span class="nb">bottom</span><span class="p">,</span> <span class="err">@</span><span class="nb">left</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.border-scale</span><span class="o">(</span><span class="k">@top</span><span class="p">,</span> <span class="err">@</span><span class="nb">right</span><span class="p">,</span> <span class="err">@</span><span class="nb">bottom</span><span class="p">,</span> <span class="err">@</span><span class="nb">left</span><span class="p">)</span> <span class="p">{</span>
 <span class="nl">position</span><span class="p">:</span> <span class="nb">absolute</span><span class="p">;</span>
 <span class="nl">top</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
 <span class="nl">left</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
@@ -226,23 +203,23 @@
 <span class="nl">pointer-events</span><span class="p">:</span><span class="nb">none</span><span class="p">;</span>
 <span class="nl">z-index</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div>
+<h2>line-height</h2>
 
-<h2 id="line-height">line-height</h2>
 <p>line-height取值为百分比时，是相对于当前元素的font-size的，而且其默认值不是1，而是1.2或其他值（与font-family有关）。
 经常要手动设置为100%，否则字高对不齐！</p>
 
-<h2 id="position-absolute">position: absolute</h2>
+<h2>position: absolute</h2>
+
 <p>现象：loading展示不出来。</p>
 
 <p>结论：父元素下有两个absolute的子元素。
 后一个子如果太大的话，会把前一个子覆盖掉。</p>
 
-<h2 id="section-4">长页面优化</h2>
+<h2>长页面优化</h2>
 
 <p>页面很长时，滑动页面，会有很大的卡顿。
-场景页还会出现定位元元素”漂移，体验非常糟。</p>
+场景页还会出现定位元元素&quot;漂移，体验非常糟。</p>
 
 <p>这个没有搜到现成的解决方案，漂移问题通过反复试验发现，是一个父元素下同时有float元素和绝对定位元素，弃用这种写法就ok了.</p>
 
@@ -250,25 +227,27 @@
 
 <p>StackOverflow威武！<a href="http://stackoverflow.com/questions/15906508/chrome-browser-for-android-no-longer-supports-webkit-overflow-scrolling-is-the">android -webkit-overflow-scrolling</a></p>
 
-<h2 id="ios">iOS页面滑动事件</h2>
+<h2>iOS页面滑动事件</h2>
+
 <p>iOS上，会必现整个页面下移，而不是期望的l-content(overflow-y: auto)下移。
 原因不清楚，最后的解决是l-content设置为overflow-y: scroll; -webkit-overflow-scrolling: touch。
 l-wrapper设置为overflow-y: auto。</p>
 
 <p>其中，-webkit-overflow-scrolling是iOS特有的特性，iOS会创建原生控件UIScrollView的子类UIWebOverflowScrollView来加速。</p>
 
-<h2 id="section-5">安卓滚动条</h2>
+<h2>安卓滚动条</h2>
+
 <p>html, body, l-wrapper的高度都是定死的，l-content是长页面，高度有限制。
 l-content设置了overflow:scroll，但是l-content的滚动条出不来。</p>
 
 <p>这个问题还不知道是什么造成的，kathy说要去掉外层的高度限制，试了试没成功。</p>
 
-<h2 id="animation">animation性能问题</h2>
+<h2>animation性能问题</h2>
 
 <p>animation: transform: translateX发现很卡，按原来理解transform应该很厉害才对。
 这个后来发现是因为svg带了渐变就会很卡。</p>
 
-<h2 id="section-6">无限波浪</h2>
+<h2>无限波浪</h2>
 
 <p>想要实现无限波浪，核心是结束的点和开始的点一样。
 自己实现的时候，用两张图来轮转，补位的和前一个首尾相连。
@@ -278,16 +257,15 @@ samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到
 这样的好处是px量的准，也不需要多放一张图。
 实在厉害。</p>
 
-<h2 id="cssloading">css实现loading进度条</h2>
+<h2>css实现loading进度条</h2>
 
 <p>这里借用了svg stroke-dasharray 和 stroke-dashoffset属性。
 详见博客<a href="http://www.zhangxinxu.com/wordpress/2015/07/svg-circle-loading/">svg stroke</a></p>
 
-<p>实现过程中，iOS不支持<code class="highlighter-rouge">transform: matrix</code>。
-对此用<code class="highlighter-rouge">transform rotate</code>代替，注意rotate的轴心是由<code class="highlighter-rouge">transform-origin</code>确定的，默认为<code class="highlighter-rouge">0px 0px 0px</code>。
+<p>实现过程中，iOS不支持<code>transform: matrix</code>。
+对此用<code>transform rotate</code>代替，注意rotate的轴心是由<code>transform-origin</code>确定的，默认为<code>0px 0px 0px</code>。
 所以，最终代码如下：</p>
-
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;style&gt;</span>
  <span class="nc">.dash-animate</span> <span class="p">{</span>
      <span class="nl">animation</span><span class="p">:</span> <span class="n">dash</span> <span class="m">60s</span> <span class="n">linear</span><span class="p">;</span>
  <span class="p">}</span>
@@ -307,36 +285,31 @@ samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到
                 <span class="nt">&gt;&lt;/circle&gt;</span>
     <span class="nt">&lt;/g&gt;</span>
 <span class="nt">&lt;/svg&gt;</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>注意dasharray, dashoffset的值都取为2<em>PI</em>r，即往头部偏移一个周长，当60s后偏移为0，正好蓝色circle全部显示出来。</p>
 
-<p>这个方案纯css实现，要想重新计时，hide » show一下就好。</p>
+<p>这个方案纯css实现，要想重新计时，hide &gt;&gt; show一下就好。</p>
 
-<h2 id="postcss">postcss</h2>
+<h2>postcss</h2>
 
 <p>@keyframes X5内核不认，一般来说就直接@-webkit-keyframes了，但grunt-autoprefixer可以自动补全，gulp应该也有类似的，但我还没弄。</p>
 
-<h2 id="linear-gradient">linear-gradient</h2>
+<h2>linear-gradient</h2>
 
 <p>用gulp-autoprefixer时发现的问题，要用to left这样的语法，left这样的语法已经被废弃。</p>
 
-<h2 id="ios-1">iOS禁用垂直方向滑动</h2>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nb">document</span><span class="p">.</span><span class="nx">ontouchmove</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">evt</span><span class="p">)</span> <span class="p">{</span>
+<h2>iOS禁用垂直方向滑动</h2>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nb">document</span><span class="p">.</span><span class="nx">ontouchmove</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">evt</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">evt</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>详见这个thread <a href="http://stackoverflow.com/questions/7768269/ipad-safari-disable-scrolling-and-bounce-effect">stackoverflow</a></p>
 
-<h2 id="width-100">width: 100%</h2>
+<h2>width: 100%</h2>
 
 <p>遇到padding时候，padding不会算进100%里啊，100%一定要配合border-box用啊。</p>
 
-<h2 id="animation-fill-mode">animation-fill-mode</h2>
+<h2>animation-fill-mode</h2>
 
 <p>forwards: 设置对象状态为动画结束时的状态.</p>
 
@@ -344,42 +317,35 @@ samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到
 
 <p>both: 设置对象状态为动画开始or结束时的状态.</p>
 
-<h2 id="npm-install">npm install淘宝源</h2>
+<h2>npm install淘宝源</h2>
 
-<p>加–registry命令可解。</p>
+<p>加--registry命令可解。</p>
 
-<p><code class="highlighter-rouge">npm install xxx --save --registry=https://registry.npm.taobao.org</code></p>
+<p><code>npm install xxx --save --registry=https://registry.npm.taobao.org</code></p>
 
-<h2 id="date-input">date input样式</h2>
+<h2>date input样式</h2>
 
 <p>去除默认样式：</p>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nt">input</span> <span class="o">[</span><span class="nt">type</span><span class="o">=</span><span class="s2">'month'</span><span class="o">]</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nt">input</span> <span class="o">[</span><span class="nt">type</span><span class="o">=</span><span class="s2">'month'</span><span class="o">]</span> <span class="p">{</span>
     <span class="nl">-webkit-appearance</span><span class="p">:</span> <span class="nb">none</span> <span class="cp">!important</span><span class="p">;</span>
     <span class="nl">background-color</span><span class="p">:</span> <span class="nb">transparent</span> <span class="cp">!important</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>没什么用的写法：</p>
-
-<div class="language-css highlighter-rouge"><pre class="highlight"><code><span class="nd">::webkit-datetime-edit-fields-wrapper</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nd">::webkit-datetime-edit-fields-wrapper</span> <span class="p">{</span>
     <span class="nl">background-color</span><span class="p">:</span> <span class="m">#fff</span> <span class="cp">!important</span><span class="p">;</span>
 <span class="p">}</span>
 <span class="nd">::webkit-autofill</span> <span class="p">{</span>
     <span class="nl">background-color</span><span class="p">:</span> <span class="m">#fff</span> <span class="cp">!important</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
-<h2 id="overflow-x">overflow-x失效</h2>
+</code></pre></div>
+<h2>overflow-x失效</h2>
 
 <p>手Q上怎么搞overflow-x, important都不行。
-<code class="highlighter-rouge">body {position: fixed;}</code>才成功了。
+<code>body {position: fixed;}</code>才成功了。
 参考这个thread: <a href="http://stackoverflow.com/questions/14270084/overflow-xhidden-doesnt-prevent-content-from-overflowing-in-mobile-browsers">overflow-xhidden-doesnt-prevent-content-from-overflowing-in-mobile-browsers</a></p>
 
 <p>这个BFC能解释吗？ 这种问题靠谷歌大法去解有点挫啊。</p>
-
 
         </section>
         
@@ -441,7 +407,7 @@ samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -449,7 +415,7 @@ samjinli提出的完美解决方案是用一张宽度2200px的图，自身滚到
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

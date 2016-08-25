@@ -44,74 +44,67 @@
         </header>
 
         <section>
-            <h1 id="section">为什么读这本书</h1>
+            <h1>为什么读这本书</h1>
 
-<p>保证每种小型结构的正确性，利用有价值的的”组织技术”，将这些结构组合成更大的结构！</p>
+<p>保证每种小型结构的正确性，利用有价值的的&quot;组织技术&quot;，将这些结构组合成更大的结构！</p>
 
 <p>btw，lisp贯穿全书，这对玩溜emacs很有用</p>
 
-<h1 id="section-1">组合式</h1>
-
-<pre><code class="language-lisp">  (+    137     349)
+<h1>组合式</h1>
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp">  (+    137     349)
 ;;运算符       运算对象
-</code></pre>
-
-<p>将由运算符所刻画的”过程”，应用于有关的”实际参数”，就能得到组合式的值。</p>
+</code></pre></div>
+<p>将由运算符所刻画的&quot;过程&quot;，应用于有关的&quot;实际参数&quot;，就能得到组合式的值。</p>
 
 <p>注意，这个过程是递归的，应进一步描述为：</p>
 
 <ol>
-  <li>求该组合式的各个子表达式</li>
-  <li>将最左子表达式（运算符）的值的那个过程，应用于响应的实际参数</li>
+<li>求该组合式的各个子表达式</li>
+<li>将最左子表达式（运算符）的值的那个过程，应用于响应的实际参数</li>
 </ol>
 
-<h1 id="section-2">定义</h1>
-
-<pre><code class="language-lisp">(define pi 3.14)
-</code></pre>
-
+<h1>定义</h1>
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp">(define pi 3.14)
+</code></pre></div>
 <p>定义为名字关联相应的值，是一种首先的抽象手段。</p>
 
-<h1 id="section-3">复合过程</h1>
-
-<pre><code class="language-lisp">(define (square x) (* x x))
+<h1>复合过程</h1>
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp">(define (square x) (* x x))
 ;; (define (&lt;name&gt; &lt;formal parameters&gt;) &lt;body&gt;)
 
 (define (sum-of-squares x y)
     (+ (square x) (square y))
 )
-</code></pre>
-
+</code></pre></div>
 <p>复合过程的使用与基本过程完全一样，仅从上面sum-of-square的定义，看不出square是一个基本过程（像+,-,*一样），还是一个复合过程。</p>
 
 <p>复合过程在应用时，代换就是将过程体中的每个形式参数，用相应的实际参数代换后，对这一过程体求值。
 值得注意的是，还可以先不求值做实参代换，而是用运算对象表达式去代换形式参数，直到得到一个只包含基本运算符的表达式。
 最后再去执行求值。</p>
 
-<p>前一种，”完全展开后归约”的求值模型成为”正则序求值”；后一种，”先求值参数而后应用”，称为”应用序求值”。</p>
+<p>前一种，&quot;完全展开后归约&quot;的求值模型成为&quot;正则序求值&quot;；后一种，&quot;先求值参数而后应用&quot;，称为&quot;应用序求值&quot;。</p>
 
-<h1 id="section-4">高阶过程</h1>
+<h1>高阶过程</h1>
 
 <p>如果将过程限制为只能以数作为参数，那也会严重限制我们建立抽象的能力。
-如果过程能以过程为参数，就称为”高阶过程”。</p>
+如果过程能以过程为参数，就称为&quot;高阶过程&quot;。</p>
 
 <p>lambda就是匿名函数，python里直接叫这个，js里用的不要太多。</p>
 
-<h1 id="let">let</h1>
+<h1>let</h1>
 
 <p>js6里的let，竟已经1958就有了，天。。。</p>
 
 <p>let其实就是function内的变量：约束变量。函数里用着方便，函数外看不见。</p>
 
-<h1 id="section-5">数据抽象</h1>
+<h1>数据抽象</h1>
 
 <p>对数据也要抽象！
 过程抽象的同时却不抽象数据，后果就是widget里那样拼啊拼啊，都不知道属性值是在什么地方设置的。</p>
 
 <p>对数据抽象来说，由两部分抽象：构造函数，选择函数。
 比如有理数，确定了构造函数</p>
-
-<pre><code class="language-lisp">(define (make-rat n d)
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp">(define (make-rat n d)
     (cons n d))
 
 (define (numer x)
@@ -119,21 +112,20 @@
 
 (define (denom x)
     (cdr x))
-</code></pre>
-
+</code></pre></div>
 <p>对上层程序来说，数据具体如何组织被屏蔽了，只调用选择函数（相当于getter）就行。
-就好像对”数据的接口”，或”接口的数据”编程一样。</p>
+就好像对&quot;数据的接口&quot;，或&quot;接口的数据&quot;编程一样。</p>
 
-<h1 id="section-6">约定的“数据界面”</h1>
+<h1>约定的“数据界面”</h1>
 
-<p>我猜是data interface… 数据如何成为interface?
+<p>我猜是data interface... 数据如何成为interface?
 最好的例子就是list，以list为interface对list进行map, reduce, filter，就能级联的，模块化的表示操作。
 感觉hadoop就是基于这个思想啊。</p>
 
-<h1 id="section-7">函数式程序设计</h1>
-<p>函数中引入”赋值”，将使函数内部拥有局部状态，以同样参数对同一过程进行两次求值，不一定产生同样的结果。
-不引入任何赋值函数的程序设计称为”函数式程序设计”。</p>
+<h1>函数式程序设计</h1>
 
+<p>函数中引入&quot;赋值&quot;，将使函数内部拥有局部状态，以同样参数对同一过程进行两次求值，不一定产生同样的结果。
+不引入任何赋值函数的程序设计称为&quot;函数式程序设计&quot;。</p>
 
         </section>
         
@@ -195,7 +187,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -203,7 +195,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

@@ -46,18 +46,17 @@
             </header>
 
             <section>
-                <h2 id="connect">connect()</h2>
+                <h2>connect()</h2>
 
 <p>connect是Component的子类，其主要功能是state到react component强映射。
 看下源码，其实也是靠脏值检测：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">componentDidMount</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">componentDidMount</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">trySubscribe</span><span class="p">()</span>
 <span class="p">}</span>
 <span class="nx">trySubscribe</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">shouldSubscribe</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">unsubscribe</span><span class="p">)</span> <span class="p">{</span>
-	<span class="k">this</span><span class="p">.</span><span class="nx">unsubscribe</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">handleChange</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
-	<span class="k">this</span><span class="p">.</span><span class="nx">handleChange</span><span class="p">()</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">unsubscribe</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">handleChange</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">handleChange</span><span class="p">()</span>
     <span class="p">}</span>
 <span class="p">}</span>
 <span class="nx">handleChange</span><span class="p">()</span> <span class="p">{</span>
@@ -65,7 +64,7 @@
     <span class="kr">const</span> <span class="nx">storeState</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">getState</span><span class="p">()</span>
     <span class="kr">const</span> <span class="nx">prevStoreState</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">storeState</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">pure</span> <span class="o">&amp;&amp;</span> <span class="nx">prevStoreState</span> <span class="o">===</span> <span class="nx">storeState</span><span class="p">)</span> <span class="p">{</span>
-	<span class="k">return</span>
+    <span class="k">return</span>
     <span class="p">}</span>
     <span class="c1">//...</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">hasStoreStateChanged</span> <span class="o">=</span> <span class="kc">true</span>
@@ -74,65 +73,57 @@
 <span class="nx">shouldComponentUpdate</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">return</span> <span class="o">!</span><span class="nx">pure</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">haveOwnPropsChanged</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">hasStoreStateChanged</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
-<p>so, 其实也是subscribe，检测到state脏了，就把<code class="highlighter-rouge">this.hasStoreStateChanged</code>置位，然后<code class="highlighter-rouge">shouldComputeUpdate()</code>就会返回true，react component就会更新一波。
+</code></pre></div>
+<p>so, 其实也是subscribe，检测到state脏了，就把<code>this.hasStoreStateChanged</code>置位，然后<code>shouldComputeUpdate()</code>就会返回true，react component就会更新一波。
 至于shouldComputeUpdate何时调用，就要去看react源码了。
-文档里写的是new props/states被接收到的时候，会调用<code class="highlighter-rouge">shouldComponentUpdate()</code>。</p>
+文档里写的是new props/states被接收到的时候，会调用<code>shouldComponentUpdate()</code>。</p>
 
-<h2 id="jsx">JSX</h2>
+<h2>JSX</h2>
 
 <p>为什么要用jsx来写组件呢？
 首先要明白原来我们怎么写组件：display logic + template。
 我们自己的代码中，经常发现一个view的display logic非常长，想想网关的ToolbarView，疯狂的多的点击事件、渲染位置、回调然后渲染位置。
-写出来的代码很难直接和”view”联系到一起。</p>
+写出来的代码很难直接和&quot;view&quot;联系到一起。</p>
 
 <p>我们来看一个component的例子：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// Input (JSX):</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// Input (JSX):</span>
 <span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">Person</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="nb">window</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="p">?</span> <span class="nb">window</span><span class="p">.</span><span class="nx">name</span> <span class="p">:</span> <span class="s1">''</span><span class="p">}</span> <span class="sr">/&gt;</span><span class="err">;
 </span><span class="c1">// Output (JS):</span>
 <span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span>
     <span class="nx">Person</span><span class="p">,</span>
     <span class="p">{</span><span class="na">name</span><span class="p">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="p">?</span> <span class="nb">window</span><span class="p">.</span><span class="nx">name</span> <span class="p">:</span> <span class="s1">''</span><span class="p">}</span>
 <span class="p">);</span>
-</code></pre>
-</div>
-
-<p>一般的，我们用<code class="highlighter-rouge">React.createClass()</code>或<code class="highlighter-rouge">class MyCompnent extends React.Component</code>来创建组件。
+</code></pre></div>
+<p>一般的，我们用<code>React.createClass()</code>或<code>class MyCompnent extends React.Component</code>来创建组件。
 组件可以看做一个状态机。
 组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
-facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name/event-delegate">David Walsh's excellent blog post</a>。</p>
+facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name/event-delegate">David Walsh\&#39;s excellent blog post</a>。</p>
 
-<h2 id="section">组件的组合</h2>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Avatar</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+<h2>组件的组合</h2>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">Avatar</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
     <span class="na">render</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
        <span class="k">return</span> <span class="p">(</span>
           <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
-	     <span class="o">&lt;</span><span class="nx">PagePic</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
-</span>     	     <span class="o">&lt;</span><span class="nx">PageLink</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
-</span>	  <span class="o">&lt;</span><span class="sr">/div</span><span class="err">&gt;
+         <span class="o">&lt;</span><span class="nx">PagePic</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>             <span class="o">&lt;</span><span class="nx">PageLink</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>      <span class="o">&lt;</span><span class="sr">/div</span><span class="err">&gt;
 </span>       <span class="p">);</span>
     <span class="p">}</span>
 <span class="p">});</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>这里有Owner的概念，组件Avatar是组件PagePic和PageLink的Owner，因为后两者的props是Avatar来置的。</p>
 
-<h2 id="children-reconciliation">Children Reconciliation</h2>
+<h2>Children Reconciliation</h2>
 
 <p>这里没看懂什么意思，为什么要key?
 有key时reconcile行为和没key时有何不同？没写明白。</p>
 
-<h2 id="section-1">组件生命周期</h2>
+<h2>组件生命周期</h2>
 
 <ul>
-  <li>Mounting</li>
-  <li>Updating</li>
-  <li>Unmounting</li>
+<li>Mounting</li>
+<li>Updating</li>
+<li>Unmounting</li>
 </ul>
 
 <p>具体怎么调用，还要看源码，暂且不管。</p>
@@ -473,7 +464,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 网络编程的组成，以及学习重点。
 希望接下来的学习能更高效。</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -490,7 +480,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     </header>
                     <section>
                         <p>要理解为什么TCP不是完全可靠地，从而进行防御性编程，我们必须详细了解TCP协议！</p>
-
 
                     </section>
                     <footer>
@@ -526,7 +515,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <p>select与poll! 这个我在tornado的时候研究过！
 大体印象就是异步io的东西，今天有机会具体看一下拉</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -542,8 +530,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/11/27/apue-thread.html">unix环境高级编程8: 多线程</a></h2>
                     </header>
                     <section>
-                        <p>##一些语法</p>
-
+                        <h2>一些语法</h2>
 
                     </section>
                     <footer>
@@ -576,8 +563,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/11/25/apue-io.html">unix环境高级编程6: io、重定向、管道</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">一些概念</h2>
-
+                        <h2>一些概念</h2>
 
                     </section>
                     <footer>
@@ -612,7 +598,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     <section>
                         <p>看完了普通文件系统，接下来看设备。</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -631,7 +616,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <p>apue编程实践一共有15章，后面的章节涉及事件编程、线程、网络。
 必须快点看了，一天2章。出去玩之前搞定：</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -648,7 +632,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     </header>
                     <section>
                         <p>郁闷，github contributions老是没有，原来是没config email的原因</p>
-
 
                     </section>
                     <footer>
@@ -669,7 +652,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 代码都来源于APUE的配套实践教程。
 第一回，先搞个more的实现。</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -688,7 +670,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <p>低速io设备是指速度小于1000字符/s。
 这一块莱昂式直接陷入细节去讲了，导致完全没看懂。</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -704,8 +685,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/11/06/lions-unix-filesystem.html">莱昂式unix源码阅读4: file system</a></h2>
                     </header>
                     <section>
-                        <p>#构成</p>
-
+                        <h1>构成</h1>
 
                     </section>
                     <footer>
@@ -722,8 +702,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/11/04/lions-unix-io.html">莱昂式unix源码阅读3: buffer、磁盘、io</a></h2>
                     </header>
                     <section>
-                        <p>#buffer</p>
-
+                        <h1>buffer</h1>
 
                     </section>
                     <footer>
@@ -740,8 +719,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/11/02/lions-unix-trap.html">莱昂式unix源码阅读2: 硬中断与trap</a></h2>
                     </header>
                     <section>
-                        <p>#clock中断</p>
-
+                        <h1>clock中断</h1>
 
                     </section>
                     <footer>
@@ -758,8 +736,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/10/31/lions-unix.html">莱昂式unix源码阅读1: boot与进程</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">预备知识</h2>
-
+                        <h2>预备知识</h2>
 
                     </section>
                     <footer>
@@ -776,8 +753,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/methodology/2015/10/27/defensive-programming.html">代码大全2: 防御性编程</a></h2>
                     </header>
                     <section>
-                        <h2 id="assert">assert</h2>
-
+                        <h2>assert</h2>
 
                     </section>
                     <footer>
@@ -794,8 +770,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/methodology/2015/10/26/table-driven.html">代码大全1: Table-driven method</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">代码大全系列</h2>
-
+                        <h2>代码大全系列</h2>
 
                     </section>
                     <footer>
@@ -812,8 +787,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/10/13/booksim.html">修改booksim/noxim源码，实现loadaware broadcast</a></h2>
                     </header>
                     <section>
-                        <h2 id="booksim">booksim干嘛的</h2>
-
+                        <h2>booksim干嘛的</h2>
 
                     </section>
                     <footer>
@@ -830,8 +804,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/09/29/graphite.html">Graphite架构</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-
+                        <h2>初衷</h2>
 
                     </section>
                     <footer>
@@ -848,8 +821,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/09/28/gnu-make.html">GNU Make项目管理</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-
+                        <h2>初衷</h2>
 
                     </section>
                     <footer>
@@ -869,7 +841,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <p>上一次看ooad还是9月底，10月被小论文占了，10月底11月初被unix源码阅读占了。
 不过这本书可读性非常高，用非常鲜明的例子讲述了软件工程里的惯例和原则，读之令人喜悦。</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -885,8 +856,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/methology/2015/09/27/ooad.html">面向对象分析与设计1：优秀软件三部曲、灵活的设计</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">如何写出最优的软件？</h2>
-
+                        <h2>如何写出最优的软件？</h2>
 
                     </section>
                     <footer>
@@ -903,8 +873,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/09/26/gcc.html">gcc的使用</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">基本指令</h2>
-
+                        <h2>基本指令</h2>
 
                     </section>
                     <footer>
@@ -921,8 +890,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/09/26/linking-loading.html">连接与加载</a></h2>
                     </header>
                     <section>
-                        <h2 id="c-include">c++ #include引发的疑问</h2>
-
+                        <h2>c++ #include引发的疑问</h2>
 
                     </section>
                     <footer>
@@ -939,8 +907,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/javascript/2015/08/28/reactjs-2.html">Reactjs继续深入</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">提纲</h2>
-
+                        <h2>提纲</h2>
 
                     </section>
                     <footer>
@@ -957,8 +924,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/javascript/2015/08/26/native-javascript.html">原生javascript知识补全</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-
+                        <h2>初衷</h2>
 
                     </section>
                     <footer>
@@ -975,9 +941,9 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/javascript/2015/08/25/javascript-oop.html">javascript模拟类，完整版！</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-<p>面试网易，被一道prototype模拟类的问题问住了，问题是这样的：</p>
+                        <h2>初衷</h2>
 
+<p>面试网易，被一道prototype模拟类的问题问住了，问题是这样的：</p>
 
                     </section>
                     <footer>
@@ -994,9 +960,9 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/javascript/2015/08/24/reactjs-getstarted.html">Reactjs的一些理解</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">宗旨</h2>
-<p>我认为React的component是关键，它是抽象过的节点，对此官网是这样说的：</p>
+                        <h2>宗旨</h2>
 
+<p>我认为React的component是关键，它是抽象过的节点，对此官网是这样说的：</p>
 
                     </section>
                     <footer>
@@ -1013,11 +979,11 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/javascript/2015/08/15/angular-compile-watchers.html">从html上写ng-model，到$digest循环调用$$watchers之间发生了什么</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">目标</h2>
-<ol>
-  <li>搞清楚$digest循环时调用的$$watchers是哪里来的</li>
-</ol>
+                        <h2>目标</h2>
 
+<ol>
+<li>搞清楚$digest循环时调用的$$watchers是哪里来的</li>
+</ol>
 
                     </section>
                     <footer>
@@ -1034,11 +1000,11 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/javascript/2015/08/14/ng-directive.html">angular js自定义directive与集成jquery插件</a></h2>
                     </header>
                     <section>
-                        <p>##需求</p>
-<ol>
-  <li>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</li>
-</ol>
+                        <h2>需求</h2>
 
+<ol>
+<li>页面需要一个datetime-picker，而angular ui只有date picker和time picker。希望有个像jquery-datetimepicker那样的angular实现。</li>
+</ol>
 
                     </section>
                     <footer>
@@ -1057,7 +1023,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     <section>
                         <p>d3.js在stream和scheduler上都有用，它结合svg之后，可以做出很漂亮的可视化数据，而且编程风格非常优雅</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -1074,7 +1039,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     </header>
                     <section>
                         <p>title问题？</p>
-
 
                     </section>
                     <footer>
@@ -1093,7 +1057,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     <section>
                         <p>Problem:</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -1111,7 +1074,6 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     <section>
                         <p>因为涉及CSDN，所以用中文</p>
 
-
                     </section>
                     <footer>
                         <ul class="actions">
@@ -1127,12 +1089,12 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/javascript/2015/07/06/nodejs%E4%BD%BF%E7%94%A8%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98.html">2015-07-06-nodejs使用中遇到的问题</a></h2>
                     </header>
                     <section>
-                        <h1 id="json">json</h1>
-<ul>
-  <li>XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空</li>
-  <li>XMLHttpRequest.setRequestHeader必须在request open后再设置</li>
-</ul>
+                        <h1>json</h1>
 
+<ul>
+<li>XMLHttpRequest.send(JSON.stringify(obj))时， 需要设置Content-Type = application/json，否则req.body为空</li>
+<li>XMLHttpRequest.setRequestHeader必须在request open后再设置</li>
+</ul>
 
                     </section>
                     <footer>
@@ -1151,13 +1113,10 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                     <section>
                         <p>今天review了x易的课，发现csdn博客实在是。。。没有关注度
 今天开始转github.io，用jekyllrb写博客，目标找工作前拿到人生第一个star!
-步骤：</p>
-<ol>
-  <li>github.io配套设施搞好</li>
-  <li>nodejs写一个转换脚本</li>
-  <li>迁移！</li>
-</ol>
-
+步骤：
+1. github.io配套设施搞好
+2. nodejs写一个转换脚本
+3. 迁移！</p>
 
                     </section>
                     <footer>
@@ -1174,10 +1133,11 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
                         <h2><a href="/os/2015/06/24/epoll%E7%9A%84io%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B%E4%B8%8Etornado%E7%9A%84%E5%85%B3%E7%B3%BB.html">2015-06-24-epoll的io异步模型与tornado的关系</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">初衷</h1>
+                        <h1>初衷</h1>
+
 <p>TORNADO IOLOOP: A level-triggered I/O loop.
 ```python
-def connection_ready(sock, fd, events):
+def connection<em>ready(sock, fd, events):
     while True:
         try:
             connection, address = sock.accept()
@@ -1186,8 +1146,7 @@ def connection_ready(sock, fd, events):
                 raise
             return
         connection.setblocking(0)
-        handle_connection(connection, address)</p>
-
+        handle</em>connection(connection, address)</p>
 
                     </section>
                     <footer>
@@ -1204,13 +1163,14 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/job-related/2015/06/19/%E5%AE%9E%E4%B9%A0-%E6%96%B0%E9%A1%B9%E7%9B%AE%E4%B9%8B%E5%89%8D%E7%9A%84%E6%80%9D%E8%80%83.html">2015-06-19-【实习】新项目之前的思考</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">问题</h1>
-<h2 id="section-1">速度问题</h2>
+                        <h1>问题</h1>
+
+<h2>速度问题</h2>
+
 <p>smstream web速度遇到问题，原因总结下：
 一是没有充分利用后端模板，全靠angularjs做渲染，这样文件大小倒没有变化很大，但依赖restful接口传数据，且数据需要各种拼接，耗时3秒
 二是页面spa化严重，导致页面���胀，很多简单视图不得不去加载不需要的库和js
 三是数据库结构有问题，params, calls什么的是把json字符串化之后存到一个字段里去的。这样导致每次取数据库的时候都要json load一次，非常耗时</p>
-
 
                     </section>
                     <footer>
@@ -1227,9 +1187,9 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/javascript/2015/06/11/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E6%95%B0%E6%8D%AE%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%B8%89-js-model%E9%BB%91%E7%A7%91%E6%8A%80.html">2015-06-11-非常简单的js双向数据绑定框架（三）：js model黑科技</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">初衷</h1>
-<p>之前我们要在js域更新model，需要这样：</p>
+                        <h1>初衷</h1>
 
+<p>之前我们要在js域更新model，需要这样：</p>
 
                     </section>
                     <footer>
@@ -1246,16 +1206,14 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/javascript/2015/06/09/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%B8%80.html">2015-06-09-非常简单的js双向绑定框架（一）</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">初衷</h1>
-<p>搞了近5个月的angularjs项目，用起来非常顺手。最爽的是两个功能：</p>
-<ol>
-  <li>控制器的继承特性</li>
-  <li>数据的双向绑定</li>
-  <li>表达式控制显示与否
-前者减少了很多model的重复声明，赋值。后者大大简化了动态编辑，动态显示。比如我的表格需要根据某一列排序，我只用改动数据模型的顺序，视图会自动更新。
-但是，作为“Get your hands dirty”的小项目，用脏值检测和dom树编译太难了，目标1周的话搞不掂。所以借鉴knockoutjs的方法：</li>
-</ol>
+                        <h1>初衷</h1>
 
+<p>搞了近5个月的angularjs项目，用起来非常顺手。最爽的是两个功能：
+1. 控制器的继承特性
+2. 数据的双向绑定
+3. 表达式控制显示与否
+前者减少了很多model的重复声明，赋值。后者大大简化了动态编辑，动态显示。比如我的表格需要根据某一列排序，我只用改动数据模型的顺序，视图会自动更新。
+但是，作为“Get your hands dirty”的小项目，用脏值检测和dom树编译太难了，目标1周的话搞不掂。所以借鉴knockoutjs的方法：</p>
 
                     </section>
                     <footer>
@@ -1272,15 +1230,13 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/javascript/2015/06/09/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%BA%8C-%E6%8E%A7%E5%88%B6%E5%99%A8%E7%BB%A7%E6%89%BF.html">2015-06-09-非常简单的js双向绑定框架（二）：控制器继承</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">初衷</h1>
-<p>上一篇已经实现了数据的双向绑定，但model的控制范围是整个文档，在实际工程中必须要有作用范围���以便做ui模块的拆分。
-这一篇，我们希望实现像angularjs一样的控制器继承：</p>
-<ol>
-  <li>父controller的Model可以在子controller里被访问到</li>
-  <li>子controller的model不影响父controller</li>
-  <li>controller继承关系在html中指定，而不是js中指定</li>
-</ol>
+                        <h1>初衷</h1>
 
+<p>上一篇已经实现了数据的双向绑定，但model的控制范围是整个文档，在实际工程中必须要有作用范围���以便做ui模块的拆分。
+这一篇，我们希望实现像angularjs一样的控制器继承：
+1. 父controller的Model可以在子controller里被访问到
+2. 子controller的model不影响父controller
+3. controller继承关系在html中指定，而不是js中指定</p>
 
                     </section>
                     <footer>
@@ -1297,8 +1253,9 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/2015/05/30/%E9%A1%B5%E9%9D%A2%E5%88%B6%E4%BD%9C%E5%9F%BA%E7%A1%80.html">2015-05-30-页面制作基础</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">标签</h1>
-<p><img src="http://img.blog.csdn.net/20150530114406097" alt="这里写图片描述" /></p>
+                        <h1>标签</h1>
+
+<p><img src="http://img.blog.csdn.net/20150530114406097" alt="这里写图片描述"></p>
 
                     </section>
                     <footer>
@@ -1315,17 +1272,20 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/2015/05/29/javascript-%E5%9F%BA%E7%A1%80.html">2015-05-29-javascript 基础</a></h2>
                     </header>
                     <section>
-                        <h1 id="section">严格模式</h1>
-<h2 id="section-1">好处</h2>
+                        <h1>严格模式</h1>
+
+<h2>好处</h2>
+
 <p>消除语法模糊，避免一些安全问题
 提高编译、运行速度</p>
-<h2 id="section-2">区别</h2>
-<ol>
-  <li>不支持全局变量的隐式声明</li>
-  <li>不支持对象的重名属性</li>
-  <li>不支持argument.callee</li>
-</ol>
 
+<h2>区别</h2>
+
+<ol>
+<li>不支持全局变量的隐式声明</li>
+<li>不支持对象的重名属性</li>
+<li>不支持argument.callee</li>
+</ol>
 
                     </section>
                     <footer>
@@ -1342,22 +1302,23 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/2015/05/23/javascript-scope-chain.html">2015-05-23-javascript scope chain</a></h2>
                     </header>
                     <section>
-                        <h1 id="scope-chain">scope chain</h1>
+                        <h1>scope chain</h1>
+
 <p>一个函数有一个scope chain
 函数每调用一次，该函数的scope上创建一个对象，函数的局部变量被当做属性赋值给这个新对象。
-所以对嵌套函数</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">A</span><span class="p">()</span> <span class="p">{</span>
-	<span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="s1">'A'</span><span class="p">;</span>
-	<span class="kd">function</span> <span class="nx">B</span><span class="p">()</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="s1">'B'</span>
-	<span class="p">}</span>
-	<span class="kd">function</span> <span class="nx">C</span><span class="p">()</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="s1">'C'</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-</code></pre>
-</div>
-<p>scope A   &lt;—  scope B
+所以对嵌套函数
+<code>javascript
+function A() {
+    var a = &#39;A&#39;;
+    function B() {
+        var b = &#39;B&#39;
+    }
+    function C() {
+        var c = &#39;C&#39;
+    }
+}
+</code>
+scope A   &lt;---  scope B
        ^
        |
        |___ scope C
@@ -1366,7 +1327,6 @@ def connection_ready(sock, fd, events):
                            scope C上有新对象， 新对象有c属性。
                            B函数内能通过scope chain找到a 属性
                            C函数也能通过scope chain找到a 属性，两者是同一对象。因为都是在A()的这次调用里新建的对象的a属性。</p>
-
 
                     </section>
                     <footer>
@@ -1383,17 +1343,17 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/2015/05/14/%E5%AE%9E%E4%B9%A0-%E9%A9%AC%E5%85%8B.html">2015-05-14-【实习】马克</a></h2>
                     </header>
                     <section>
-                        <h1 id="mysql">mysql</h1>
-<ol>
-  <li>编码格式
-    <ol>
-      <li>ALTER TABLE mytable CONVERT TO CHARACTER SET utf8</li>
-      <li>DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
- 4.</li>
-    </ol>
-  </li>
-</ol>
+                        <h1>mysql</h1>
 
+<ol>
+<li>编码格式
+
+<ol>
+<li>ALTER TABLE mytable CONVERT TO CHARACTER SET utf8</li>
+<li> DEFAULT CHARACTER SET utf8 COLLATE utf8<em>general</em>ci
+4.</li>
+</ol></li>
+</ol>
 
                     </section>
                     <footer>
@@ -1410,28 +1370,25 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html">2015-05-09-javascript原型链与原型继承</a></h2>
                     </header>
                     <section>
-                        <p>#引子</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
-		<span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
-	<span class="p">},</span>
-	<span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-		<span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
-		<span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
-		<span class="k">return</span> <span class="nx">object</span>
-	<span class="p">}</span>
+                        <h1>引子</h1>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">Model</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nl">prototype</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nl">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="p">},</span>
+    <span class="nx">create</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="nx">object</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nx">object</span>
+    <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-<h1 id="section">原型链</h1>
-<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述" /></p>
-<ol>
-  <li>Func.prototype = object : {constructor, [[Prototype]]}</li>
-  <li>object.[[constructor]] = Func</li>
-  <li>new Func().[[Prototype]] = Func.prototype</li>
-  <li>var a = new Func()执行三步：</li>
-</ol>
+</code></pre></div>
+<h1>原型链</h1>
 
+<p><img src="http://img.blog.csdn.net/20150509142551955" alt="这里写图片描述">
+1. Func.prototype = object : {constructor, [[Prototype]]}
+2. object.[[constructor]] = Func
+3. new Func().[[Prototype]] = Func.prototype
+4. var a = new Func()执行三步：</p>
 
                     </section>
                     <footer>
@@ -1448,13 +1405,13 @@ def connection_ready(sock, fd, events):
                         <h2><a href="/2015/04/16/javascript-%E8%A1%A8%E6%A0%BC%E9%9D%9E%E7%A9%BA%E5%88%A4%E6%96%AD.html">2015-04-16-javascript 表格非空判断</a></h2>
                     </header>
                     <section>
-                        <p>#引子
-jquery自带的</p>
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;input</span> <span class="na">required</span><span class="nt">&gt;</span>
-</code></pre>
-</div>
-<p>非常好用，但是只能在一个form里做非空校验</p>
+                        <h1>引子</h1>
 
+<p>jquery自带的
+<code>html
+&lt;input required&gt;
+</code>
+非常好用，但是只能在一个form里做非空校验</p>
 
                     </section>
                     <footer>
@@ -1471,9 +1428,9 @@ jquery自带的</p>
                         <h2><a href="/2015/04/09/javascript%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F.html">2015-04-09-javascript正则表达式</a></h2>
                     </header>
                     <section>
-                        <p>#引子
-遇到的问题：</p>
+                        <h1>引子</h1>
 
+<p>遇到的问题：</p>
 
                     </section>
                     <footer>
@@ -1490,8 +1447,7 @@ jquery自带的</p>
                         <h2><a href="/os/2015/04/06/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1.html">2015-04-06-进程间通信</a></h2>
                     </header>
                     <section>
-                        <p>#引子</p>
-
+                        <h1>引子</h1>
 
                     </section>
                     <footer>
@@ -1521,7 +1477,7 @@ jquery自带的</p>
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -1529,7 +1485,7 @@ jquery自带的</p>
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>

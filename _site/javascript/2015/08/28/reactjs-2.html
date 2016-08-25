@@ -44,36 +44,31 @@
         </header>
 
         <section>
-            <h2 id="section">提纲</h2>
+            <h2>提纲</h2>
 
 <p>上一次初探了reactjs，知道了他主要是虚拟节点，单向数据流动，今天要再深入，试着写点更高级的。</p>
 
-<h2 id="section-1">例子</h2>
+<h2>例子</h2>
 
 <p>实现一个类似angularjs里filter的列表，要求能按关键字过滤，还能按条目属性过滤</p>
 
 <p>长得像这样：</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/filterball.png" alt="filterlist" /></p>
+<p><img src="http://victorisildur.github.io/assets/images/filterball.png" alt="filterlist"></p>
 
 <p>静态实现：</p>
 
 <ol>
-  <li>
-    <p>products数组，传入根vdom，根vdom foreach一下，把各个item再传入子vdom</p>
-  </li>
-  <li>
-    <p>过滤在foreach中完成，foreach的同时，探测product.name是否含this.props.filterText, 以及product.stock和this.props.inStockOnly</p>
-  </li>
+<li><p>products数组，传入根vdom，根vdom foreach一下，把各个item再传入子vdom</p></li>
+<li><p>过滤在foreach中完成，foreach的同时，探测product.name是否含this.props.filterText, 以及product.stock和this.props.inStockOnly</p></li>
 </ol>
 
 <p>加入动态：</p>
 
 <p>首先要实现的问题是，如何把input传回state，以及理解state与props的关系</p>
 
-<p>先明确一下，filterText和inStockOnly不论在<input />里还是在过滤逻辑里，都用的this.props</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="cm">/* SearchBar的vDom */</span>
+<p>先明确一下，filterText和inStockOnly不论在<input>里还是在过滤逻辑里，都用的this.props</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="cm">/* SearchBar的vDom */</span>
 <span class="o">&lt;</span><span class="nx">input</span>
      <span class="nx">type</span><span class="o">=</span><span class="s2">"text"</span>
      <span class="nx">placeholder</span><span class="o">=</span><span class="s2">"search..."</span>
@@ -86,12 +81,9 @@
 <span class="k">if</span><span class="p">(</span><span class="nx">product</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">filterText</span><span class="p">)</span> <span class="o">===</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="p">(</span><span class="o">!</span><span class="nx">product</span><span class="p">.</span><span class="nx">stocked</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">inStockOnly</span><span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>再看下input是如何逆向数据流动，改变this.state的：</p>
-
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">SearchBar</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">SearchBar</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
         <span class="cm">/* input的onChange属性指向这里 */</span>
         <span class="na">handleChange</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
             <span class="cm">/* refs指向两个input */</span>
@@ -115,9 +107,7 @@
         <span class="na">inStockOnly</span><span class="p">:</span> <span class="nx">inStockOnly</span>
     <span class="p">});</span>
 <span class="p">},</span>
-</code></pre>
-</div>
-
+</code></pre></div>
 <p>所以只用到了原生input虚拟节点的onChange事件，把这个事件捕获到的值一级级上传到根节点，改变根节点的state</p>
 
 <p>然后根节点渲染时，把state赋值给了子节点以改变子节点的props.filterText, props.inStockOnly</p>
@@ -125,7 +115,6 @@
 <p>所以归根结底，还是捕获事件，用监听器一级级上传数据，改变state，改变props，再一级级下传</p>
 
 <p>很清楚的单向数据流动（当然，代码多了点，监听器也多了点），很自由</p>
-
 
         </section>
         
@@ -138,8 +127,7 @@
                         <h2><a href="/javascript/2015/08/26/native-javascript.html">原生javascript知识补全</a></h2>
                     </header>
                     <section>
-                        <h2 id="section">初衷</h2>
-
+                        <h2>初衷</h2>
 
                     </section>
                     <footer>
@@ -157,8 +145,7 @@
                         <h2><a href="/os/2015/09/26/linking-loading.html">连接与加载</a></h2>
                     </header>
                     <section>
-                        <h2 id="c-include">c++ #include引发的疑问</h2>
-
+                        <h2>c++ #include引发的疑问</h2>
 
                     </section>
                     <footer>
@@ -190,7 +177,7 @@
 
               
               <li>
-                <a href="https://twitter.com/victorisildur" class="icon fa-twitter">
+                <a href="https://twitter.com/isi_liuxu" class="icon fa-twitter">
                   <span class="label">Twitter</span>
                 </a>
               </li>
@@ -198,7 +185,7 @@
 
               
               <li>
-                <a href="https://linkedin.com/in/刘旭" class="icon fa-linkedin">
+                <a href="https://linkedin.com/in/xu-liu-4a617679" class="icon fa-linkedin">
                   <span class="label">LinkedIn</span>
                 </a>
               </li>
