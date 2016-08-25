@@ -50,7 +50,7 @@
 现在我们点开一封未读邮件，在MVC中，邮件列表Model改变，并通知邮件列表ui自己状态已变。
 然后，要继续通知未读邮件Model自己变了，未读邮件Model再去通知view自己状态变了。</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/mvc.jpg" alt="mvc diagram"></p>
+<p><img src="http://localhost:4000/assets/images/mvc.jpg" alt="mvc diagram"></p>
 
 <p>这个流程本身是不繁琐的，但注意，在代码中邮件列表Model变了，不但通知注册在自己身上的所有View(观察者)，还要瀑布式的更新相关Model。
 相关Model又去通知自己身上的所有观察者。
@@ -151,7 +151,7 @@ MVC中Controller可以直接写Model，而Flux中Store只接受Action事件，�
 一、store改变后，直接修改相关view，不再依靠观察者模式解耦。
 二、谢绝瀑布式的Model变动，邮件列表Model变了想影响未读邮件Model? 发Action，等下一周期处理吧！</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/flux.jpg" alt="flux diagram"></p>
+<p><img src="http://localhost:4000/assets/images/flux.jpg" alt="flux diagram"></p>
 
 <p>我自己实现的flux代码，还是音乐播放器的例子：</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">Actions</span> <span class="o">=</span> <span class="p">{</span>

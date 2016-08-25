@@ -4,23 +4,33 @@
     <title>First a programmer, Then a web coder</title>
     <description>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
 </description>
-    <link>http://victorisildur.github.io/</link>
-    <atom:link href="http://victorisildur.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 25 Aug 2016 16:02:11 +0800</pubDate>
-    <lastBuildDate>Thu, 25 Aug 2016 16:02:11 +0800</lastBuildDate>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Thu, 25 Aug 2016 20:05:10 +0800</pubDate>
+    <lastBuildDate>Thu, 25 Aug 2016 20:05:10 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
         <title>threejs</title>
         <description>&lt;h2&gt;举个栗子&lt;/h2&gt;
 
-&lt;script src=&quot;http://victorisildur.github.io/js/three.js&quot;&gt;&lt;/script&gt;
+&lt;canvas id='canvas'&gt;
+ Your Browser don't support webGL, try update.
+&lt;/canvas&gt;
 
-&lt;script src=&quot;http://victorisildur.github.io/js/simple_cube.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;http://localhost:4000/js/three.js&quot;&gt;&lt;/script&gt;
+
+&lt;script src=&quot;http://localhost:4000/js/simple_cube.js&quot;&gt;&lt;/script&gt;
+
+&lt;h2&gt;3d 渲染流程&lt;/h2&gt;
+
+&lt;p&gt;详解见这个post &lt;a href=&quot;https://dev.opera.com/articles/introduction-to-webgl-part-1&quot;&gt;introduction-to-webgl-part-1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;主要经历 vertex buffer -&amp;gt; vertex shader -&amp;gt; triangle assembly -&amp;gt; rasterizer -&amp;gt; fragment shader -&amp;gt; frame buffer 这几步。&lt;/p&gt;
 </description>
         <pubDate>Thu, 25 Aug 2016 16:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/08/25/threejs.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/08/25/threejs.html</guid>
+        <link>http://localhost:4000/programming/2016/08/25/threejs.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/08/25/threejs.html</guid>
         
         
         <category>programming</category>
@@ -112,8 +122,8 @@ facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwa
 &lt;p&gt;具体怎么调用，还要看源码，暂且不管。&lt;/p&gt;
 </description>
         <pubDate>Wed, 17 Aug 2016 16:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/08/17/react.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/08/17/react.html</guid>
+        <link>http://localhost:4000/programming/2016/08/17/react.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/08/17/react.html</guid>
         
         
         <category>programming</category>
@@ -129,8 +139,8 @@ facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwa
 &lt;p&gt;&lt;code&gt;find . -type f | xargs wc -l&lt;/code&gt;&lt;/p&gt;
 </description>
         <pubDate>Mon, 08 Aug 2016 16:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/08/08/linux-cmd.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/08/08/linux-cmd.html</guid>
+        <link>http://localhost:4000/programming/2016/08/08/linux-cmd.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/08/08/linux-cmd.html</guid>
         
         
         <category>programming</category>
@@ -200,8 +210,8 @@ facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwa
 &lt;p&gt;详见这个issue: &lt;a href=&quot;https://github.com/madrobby/zepto/issues/921&quot;&gt;zepto issue 921&lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Mon, 01 Aug 2016 16:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/08/01/zepto.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/08/01/zepto.html</guid>
+        <link>http://localhost:4000/programming/2016/08/01/zepto.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/08/01/zepto.html</guid>
         
         
         <category>programming</category>
@@ -325,8 +335,8 @@ facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwa
 &lt;p&gt;求&lt;code&gt;_nearestSnap()&lt;/code&gt;前，首先运行&lt;code&gt;_initSnap()&lt;/code&gt;方法，它帮忙算了所有snap元素的坐标。&lt;/p&gt;
 </description>
         <pubDate>Mon, 25 Jul 2016 16:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/07/25/iscroll.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/07/25/iscroll.html</guid>
+        <link>http://localhost:4000/programming/2016/07/25/iscroll.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/07/25/iscroll.html</guid>
         
         
         <category>programming</category>
@@ -539,8 +549,8 @@ generator的暂停态直到下一次调用&lt;code&gt;caller.next()&lt;/code&gt;
 &lt;p&gt;更鬼一点：&lt;code&gt;import {a as aaa} from &amp;#39;xxx&amp;#39;&lt;/code&gt;&lt;/p&gt;
 </description>
         <pubDate>Fri, 01 Jul 2016 16:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/07/01/es2015.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/07/01/es2015.html</guid>
+        <link>http://localhost:4000/programming/2016/07/01/es2015.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/07/01/es2015.html</guid>
         
         
         <category>programming</category>
@@ -713,8 +723,8 @@ npm上有个expect库非常好，要运行es6写的测试用例要用&lt;code&gt
 &lt;/blockquote&gt;
 </description>
         <pubDate>Fri, 01 Jul 2016 01:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/07/01/protobuf.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/07/01/protobuf.html</guid>
+        <link>http://localhost:4000/programming/2016/07/01/protobuf.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/07/01/protobuf.html</guid>
         
         
         <category>programming</category>
@@ -740,8 +750,8 @@ npm上有个expect库非常好，要运行es6写的测试用例要用&lt;code&gt
 &lt;p&gt;需要看看npm 上其他人的jq-plugin&lt;/p&gt;
 </description>
         <pubDate>Sat, 28 May 2016 01:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/05/28/zepto-timepicker.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/05/28/zepto-timepicker.html</guid>
+        <link>http://localhost:4000/programming/2016/05/28/zepto-timepicker.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/05/28/zepto-timepicker.html</guid>
         
         
         <category>programming</category>
@@ -806,8 +816,8 @@ npm上有个expect库非常好，要运行es6写的测试用例要用&lt;code&gt
 优雅的方式是用回调，但只有第一次是真正需要等待回调的，所以也不是很好。 &lt;/p&gt;
 </description>
         <pubDate>Mon, 09 May 2016 01:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/05/09/js-design-pattern.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/05/09/js-design-pattern.html</guid>
+        <link>http://localhost:4000/programming/2016/05/09/js-design-pattern.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/05/09/js-design-pattern.html</guid>
         
         
         <category>programming</category>
@@ -897,8 +907,8 @@ Path也是SVG中最强大的元素。&lt;/p&gt;
 &lt;/tbody&gt;&lt;/table&gt;
 </description>
         <pubDate>Tue, 12 Apr 2016 01:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/04/12/html-review.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/04/12/html-review.html</guid>
+        <link>http://localhost:4000/programming/2016/04/12/html-review.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/04/12/html-review.html</guid>
         
         
         <category>programming</category>

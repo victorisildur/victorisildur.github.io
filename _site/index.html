@@ -48,9 +48,19 @@
             <section>
                 <h2>举个栗子</h2>
 
-<script src="http://victorisildur.github.io/js/three.js"></script>
+<canvas id='canvas'>
+ Your Browser don't support webGL, try update.
+</canvas>
 
-<script src="http://victorisildur.github.io/js/simple_cube.js"></script>
+<script src="http://localhost:4000/js/three.js"></script>
+
+<script src="http://localhost:4000/js/simple_cube.js"></script>
+
+<h2>3d 渲染流程</h2>
+
+<p>详解见这个post <a href="https://dev.opera.com/articles/introduction-to-webgl-part-1">introduction-to-webgl-part-1</a></p>
+
+<p>主要经历 vertex buffer -&gt; vertex shader -&gt; triangle assembly -&gt; rasterizer -&gt; fragment shader -&gt; frame buffer 这几步。</p>
 
             </section>
         

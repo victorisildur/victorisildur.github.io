@@ -8,5 +8,14 @@ excerpt: "webGL比2d canvas炫太多了"
 
 ## 举个栗子
 
+<canvas id='canvas'>
+ Your Browser don't support webGL, try update.
+</canvas>
 <script src="{{site.url}}/js/three.js"></script>
 <script src="{{site.url}}/js/simple_cube.js"></script>
+
+## 3d 渲染流程
+
+详解见这个post [introduction-to-webgl-part-1](https://dev.opera.com/articles/introduction-to-webgl-part-1)
+
+主要经历 vertex buffer -> vertex shader -> triangle assembly -> rasterizer -> fragment shader -> frame buffer 这几步。

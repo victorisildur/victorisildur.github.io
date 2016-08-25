@@ -61,7 +61,7 @@
 
 <p>ui部分按照官网的best ui practice在搞，主题是toolbar + custom view + custom list，具体看图：</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_snap01.png" alt="ui version 1"></p>
+<p><img src="http://localhost:4000/assets/images/android_snap01.png" alt="ui version 1"></p>
 
 <p>具体注意：</p>
 
@@ -74,7 +74,7 @@
 <p>fab是比较蛋疼的地方，首先是没控件，最后用了<code>android.support.design.widget.FloatingActionButton</code>，这个怎么实现的不懂，总之样子还可以，阴影效果也有。
 好吧，这个包的实现也有问题，没法运行时换icon，采用makovkastar的实现。</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_snap02.png" alt="ui version 2"></p>
+<p><img src="http://localhost:4000/assets/images/android_snap02.png" alt="ui version 2"></p>
 
 <p>定位上，我想放到两个material之间，用负值marginTop, marginLeft Hack了一下，实现的不是很好。</p>
 
@@ -129,7 +129,7 @@ StackOverflow上的解释是ui所需的context是Active Activity的上下文，�
 
 <p>简单的<code>builder.build()</code>, <code>manager.notify()</code>就可以实现静态的notification，但是还缺两个功能，一是动态更新时间，二是在notification上实现action</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_notification.png" alt="notification ver 1"></p>
+<p><img src="http://localhost:4000/assets/images/android_notification.png" alt="notification ver 1"></p>
 
 <h3>震动，亮灯</h3>
 
@@ -153,7 +153,7 @@ viewPager的<code>onPageChange</code>事件要触发custom view的样式改变�
 对Adapter来说，把index到Fragment的关系管好就行了。
 如下图所示：</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/android_toolbar.png" alt="toolbar"></p>
+<p><img src="http://localhost:4000/assets/images/android_toolbar.png" alt="toolbar"></p>
 
 <p>今天把饼状图弄了，遇到一个view pager的生命周期和三个fragment生命周期不一致的问题，
 对我们来说，希望在一个page reenter的时候触发fragment的onResume，但是实际上三个fragment的onResume都和view pager绑在一起了，
@@ -169,7 +169,7 @@ viewPager的<code>onPageChange</code>事件要触发custom view的样式改变�
 当然，解耦的比较糟糕，而且用到了final。
 效果如下：</p>
 
-<p><img src="http://victorisildur.github.io/assets/images/tomato_piechart.png" alt="pie chart"></p>
+<p><img src="http://localhost:4000/assets/images/tomato_piechart.png" alt="pie chart"></p>
 
 <h1>日视图与周视图，月视图</h1>
 

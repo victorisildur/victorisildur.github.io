@@ -1,12 +1,11 @@
-<script src="{{site.url}}/js/three.js"></script>
-
-<script>
 var scene = new THREE.Scene(),
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / window.innerHeight, 0.1, 1000),
-    renderer = new THREE.WebGLRenderer();
+    camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000),
+    renderer = new THREE.WebGLRenderer({
+	canvas: document.getElementById('canvas')
+    }),
+    size = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.6);
 
-renderer.setSize(window.innerWidth / 2, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+renderer.setSize(size, size);
 
 var geometry = new THREE.BoxGeometry(1, 1, 1),
     material = new THREE.MeshNormalMaterial(),
@@ -23,4 +22,3 @@ function render() {
     cube.rotation.y += 0.01;
 }
 render();
-</script>
