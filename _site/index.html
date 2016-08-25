@@ -41,92 +41,16 @@
     <section>
         
             <header class="major">
-                <h2>react技术栈</h2>
-                <p class="post-meta">Aug 17, 2016</p>
+                <h2>threejs</h2>
+                <p class="post-meta">Aug 25, 2016</p>
             </header>
 
             <section>
-                <h2>connect()</h2>
+                <h2>举个栗子</h2>
 
-<p>connect是Component的子类，其主要功能是state到react component强映射。
-看下源码，其实也是靠脏值检测：</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">componentDidMount</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">trySubscribe</span><span class="p">()</span>
-<span class="p">}</span>
-<span class="nx">trySubscribe</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">shouldSubscribe</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">unsubscribe</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">unsubscribe</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">handleChange</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">handleChange</span><span class="p">()</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="nx">handleChange</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">//...</span>
-    <span class="kr">const</span> <span class="nx">storeState</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">getState</span><span class="p">()</span>
-    <span class="kr">const</span> <span class="nx">prevStoreState</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">storeState</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">pure</span> <span class="o">&amp;&amp;</span> <span class="nx">prevStoreState</span> <span class="o">===</span> <span class="nx">storeState</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span>
-    <span class="p">}</span>
-    <span class="c1">//...</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">hasStoreStateChanged</span> <span class="o">=</span> <span class="kc">true</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span> <span class="nx">storeState</span> <span class="p">})</span>
-<span class="p">}</span>
-<span class="nx">shouldComponentUpdate</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="o">!</span><span class="nx">pure</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">haveOwnPropsChanged</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">hasStoreStateChanged</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>so, 其实也是subscribe，检测到state脏了，就把<code>this.hasStoreStateChanged</code>置位，然后<code>shouldComputeUpdate()</code>就会返回true，react component就会更新一波。
-至于shouldComputeUpdate何时调用，就要去看react源码了。
-文档里写的是new props/states被接收到的时候，会调用<code>shouldComponentUpdate()</code>。</p>
+<script src="http://victorisildur.github.io/js/three.js"></script>
 
-<h2>JSX</h2>
-
-<p>为什么要用jsx来写组件呢？
-首先要明白原来我们怎么写组件：display logic + template。
-我们自己的代码中，经常发现一个view的display logic非常长，想想网关的ToolbarView，疯狂的多的点击事件、渲染位置、回调然后渲染位置。
-写出来的代码很难直接和&quot;view&quot;联系到一起。</p>
-
-<p>我们来看一个component的例子：</p>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// Input (JSX):</span>
-<span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">Person</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="nb">window</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="p">?</span> <span class="nb">window</span><span class="p">.</span><span class="nx">name</span> <span class="p">:</span> <span class="s1">''</span><span class="p">}</span> <span class="sr">/&gt;</span><span class="err">;
-</span><span class="c1">// Output (JS):</span>
-<span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span>
-    <span class="nx">Person</span><span class="p">,</span>
-    <span class="p">{</span><span class="na">name</span><span class="p">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="p">?</span> <span class="nb">window</span><span class="p">.</span><span class="nx">name</span> <span class="p">:</span> <span class="s1">''</span><span class="p">}</span>
-<span class="p">);</span>
-</code></pre></div>
-<p>一般的，我们用<code>React.createClass()</code>或<code>class MyCompnent extends React.Component</code>来创建组件。
-组件可以看做一个状态机。
-组件的交互是通过事件代理完成的。所有事件都被顶层元素监听、分发处理。
-facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name/event-delegate">David Walsh\&#39;s excellent blog post</a>。</p>
-
-<h2>组件的组合</h2>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">Avatar</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
-    <span class="na">render</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-       <span class="k">return</span> <span class="p">(</span>
-          <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
-         <span class="o">&lt;</span><span class="nx">PagePic</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
-</span>             <span class="o">&lt;</span><span class="nx">PageLink</span> <span class="nx">name</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
-</span>      <span class="o">&lt;</span><span class="sr">/div</span><span class="err">&gt;
-</span>       <span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">});</span>
-</code></pre></div>
-<p>这里有Owner的概念，组件Avatar是组件PagePic和PageLink的Owner，因为后两者的props是Avatar来置的。</p>
-
-<h2>Children Reconciliation</h2>
-
-<p>这里没看懂什么意思，为什么要key?
-有key时reconcile行为和没key时有何不同？没写明白。</p>
-
-<h2>组件生命周期</h2>
-
-<ul>
-<li>Mounting</li>
-<li>Updating</li>
-<li>Unmounting</li>
-</ul>
-
-<p>具体怎么调用，还要看源码，暂且不管。</p>
+<script src="http://victorisildur.github.io/js/simple_cube.js"></script>
 
             </section>
         
@@ -136,6 +60,22 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
             
 
                 <article class="6u 12u(small)">
+                    <header>
+                        <h2><a href="/programming/2016/08/17/react.html">react技术栈</a></h2>
+                    </header>
+                    <section>
+                        react redux react-reduxx
+                    </section>
+                    <footer>
+                        <ul class="actions">
+                            <li><a href="/programming/2016/08/17/react.html" class="button">Read More</a></li>
+                        </ul>
+                    </footer>
+                </article>
+
+            
+
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/08/08/linux-cmd.html">linux命令细节汇总</a></h2>
                     </header>
@@ -151,7 +91,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/08/01/zepto.html">zepto源码阅读</a></h2>
                     </header>
@@ -167,7 +107,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/07/25/iscroll.html">iscroll源码阅读</a></h2>
                     </header>
@@ -183,7 +123,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/07/01/es2015.html">全面拥抱es2015: 从页面，后台到测试</a></h2>
                     </header>
@@ -199,7 +139,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/07/01/protobuf.html">用js解析protobuf</a></h2>
                     </header>
@@ -215,7 +155,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/05/28/zepto-timepicker.html">zepto timepicker插件</a></h2>
                     </header>
@@ -231,7 +171,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/05/09/js-design-pattern.html">js设计模式</a></h2>
                     </header>
@@ -247,7 +187,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/04/12/html-review.html">html细节汇总</a></h2>
                     </header>
@@ -263,7 +203,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/24/sicp.html">计算机程序的构造和解释</a></h2>
                     </header>
@@ -279,7 +219,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/24/elements-of-programming.html">编程的本质</a></h2>
                     </header>
@@ -295,7 +235,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/12/js-review.html">js细节汇总</a></h2>
                     </header>
@@ -311,7 +251,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/10/css-review.html">css细节汇总</a></h2>
                     </header>
@@ -327,7 +267,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/05/work-drag-and-drop.html">touch-dnd源码阅读</a></h2>
                     </header>
@@ -343,7 +283,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/03/02/flux.html">flux源码阅读</a></h2>
                     </header>
@@ -359,7 +299,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/02/27/web-mvc.html">网页设计模式: mvc与flux</a></h2>
                     </header>
@@ -375,7 +315,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/31/work-getstarted.html">work: get started</a></h2>
                     </header>
@@ -391,7 +331,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/31/project-tomato-webview.html">tomato项目: webview部分</a></h2>
                     </header>
@@ -407,7 +347,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/08/project-tomato-android.html">tomato项目: native部分</a></h2>
                     </header>
@@ -423,7 +363,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/08/project-tomato-web.html">tomato项目: web部分</a></h2>
                     </header>
@@ -439,7 +379,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/programming/2016/01/04/project-tomato.html">tomato项目: get started</a></h2>
                     </header>
@@ -455,7 +395,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/network/2015/12/07/network-programming.html">unix网络编程3: 网络编程学习目标</a></h2>
                     </header>
@@ -474,7 +414,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/network/2015/12/01/network-tcp-01.html">unix网络编程2: TCP详解</a></h2>
                     </header>
@@ -491,7 +431,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/network/2015/11/30/network-getstarted.html">unix网络编程1: 基本框架</a></h2>
                     </header>
@@ -507,7 +447,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/28/apue-ipc.html">unix环境高级编程9: 进程间通信</a></h2>
                     </header>
@@ -525,7 +465,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/27/apue-thread.html">unix环境高级编程8: 多线程</a></h2>
                     </header>
@@ -542,7 +482,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/26/apue-socket.html">unix环境高级编程7: server、socket</a></h2>
                     </header>
@@ -558,7 +498,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/25/apue-io.html">unix环境高级编程6: io、重定向、管道</a></h2>
                     </header>
@@ -575,7 +515,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/16/apue-process.html">unix环境高级编程5: 进程</a></h2>
                     </header>
@@ -591,7 +531,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/11/apue-console.html">unix环境高级编程4: 设备控制与事件驱动编程</a></h2>
                     </header>
@@ -608,7 +548,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/10/apue-ls.html">unix环境高级编程3: ls</a></h2>
                     </header>
@@ -626,7 +566,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/08/apue-who.html">unix环境高级编程2: who与cp</a></h2>
                     </header>
@@ -643,7 +583,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/08/apue-more.html">unix环境高级编程1: more</a></h2>
                     </header>
@@ -662,7 +602,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/07/lions-unix-tty.html">莱昂式unix源码阅读5: 低速io设备</a></h2>
                     </header>
@@ -680,7 +620,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/06/lions-unix-filesystem.html">莱昂式unix源码阅读4: file system</a></h2>
                     </header>
@@ -697,7 +637,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/04/lions-unix-io.html">莱昂式unix源码阅读3: buffer、磁盘、io</a></h2>
                     </header>
@@ -714,7 +654,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/11/02/lions-unix-trap.html">莱昂式unix源码阅读2: 硬中断与trap</a></h2>
                     </header>
@@ -731,7 +671,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/10/31/lions-unix.html">莱昂式unix源码阅读1: boot与进程</a></h2>
                     </header>
@@ -748,7 +688,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/methodology/2015/10/27/defensive-programming.html">代码大全2: 防御性编程</a></h2>
                     </header>
@@ -765,7 +705,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/methodology/2015/10/26/table-driven.html">代码大全1: Table-driven method</a></h2>
                     </header>
@@ -782,7 +722,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/10/13/booksim.html">修改booksim/noxim源码，实现loadaware broadcast</a></h2>
                     </header>
@@ -799,7 +739,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/09/29/graphite.html">Graphite架构</a></h2>
                     </header>
@@ -816,7 +756,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/09/28/gnu-make.html">GNU Make项目管理</a></h2>
                     </header>
@@ -833,7 +773,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/methology/2015/09/27/ooad2-architect.html">面向对象分析与设计2：面对大型问题</a></h2>
                     </header>
@@ -851,7 +791,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/methology/2015/09/27/ooad.html">面向对象分析与设计1：优秀软件三部曲、灵活的设计</a></h2>
                     </header>
@@ -868,7 +808,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/09/26/gcc.html">gcc的使用</a></h2>
                     </header>
@@ -885,7 +825,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/os/2015/09/26/linking-loading.html">连接与加载</a></h2>
                     </header>
@@ -902,7 +842,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/28/reactjs-2.html">Reactjs继续深入</a></h2>
                     </header>
@@ -919,7 +859,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/26/native-javascript.html">原生javascript知识补全</a></h2>
                     </header>
@@ -936,7 +876,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/25/javascript-oop.html">javascript模拟类，完整版！</a></h2>
                     </header>
@@ -955,7 +895,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/24/reactjs-getstarted.html">Reactjs的一些理解</a></h2>
                     </header>
@@ -974,7 +914,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/15/angular-compile-watchers.html">从html上写ng-model，到$digest循环调用$$watchers之间发生了什么</a></h2>
                     </header>
@@ -995,7 +935,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/14/ng-directive.html">angular js自定义directive与集成jquery插件</a></h2>
                     </header>
@@ -1016,7 +956,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/10/d3js.html">d3.js学习</a></h2>
                     </header>
@@ -1033,7 +973,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/08/10/%E8%87%AA%E5%B7%B1%E8%BD%AC%E5%8C%96%E8%BF%87%E6%9D%A5%E7%9A%84%E5%8D%9A%E5%AE%A2%E6%B8%B2%E6%9F%93%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3.html">解决博客渲染不正常问题</a></h2>
                     </header>
@@ -1050,7 +990,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/life/2015/07/09/my-first-blog.html">My First Blog On Jekyll</a></h2>
                     </header>
@@ -1067,7 +1007,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/nodejs/2015/07/09/how-to-migrate-blogs-from-csdn.html">How to migrate blogs from CSDN</a></h2>
                     </header>
@@ -1084,7 +1024,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/07/06/nodejs%E4%BD%BF%E7%94%A8%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98.html">2015-07-06-nodejs使用中遇到的问题</a></h2>
                     </header>
@@ -1106,7 +1046,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/life/2015/06/27/%E5%8D%9A%E5%AE%A2%E8%BF%81%E7%A7%BB.html">2015-06-27-博客迁移</a></h2>
                     </header>
@@ -1128,7 +1068,7 @@ facebook宣称这样更高效，参加这个blog<a href="https://davidwalsh.name
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/06/24/epoll%E7%9A%84io%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B%E4%B8%8Etornado%E7%9A%84%E5%85%B3%E7%B3%BB.html">2015-06-24-epoll的io异步模型与tornado的关系</a></h2>
                     </header>
@@ -1158,7 +1098,7 @@ def connection<em>ready(sock, fd, events):
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/job-related/2015/06/19/%E5%AE%9E%E4%B9%A0-%E6%96%B0%E9%A1%B9%E7%9B%AE%E4%B9%8B%E5%89%8D%E7%9A%84%E6%80%9D%E8%80%83.html">2015-06-19-【实习】新项目之前的思考</a></h2>
                     </header>
@@ -1182,7 +1122,7 @@ def connection<em>ready(sock, fd, events):
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/06/11/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E6%95%B0%E6%8D%AE%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%B8%89-js-model%E9%BB%91%E7%A7%91%E6%8A%80.html">2015-06-11-非常简单的js双向数据绑定框架（三）：js model黑科技</a></h2>
                     </header>
@@ -1201,7 +1141,7 @@ def connection<em>ready(sock, fd, events):
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/06/09/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%B8%80.html">2015-06-09-非常简单的js双向绑定框架（一）</a></h2>
                     </header>
@@ -1225,7 +1165,7 @@ def connection<em>ready(sock, fd, events):
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/javascript/2015/06/09/%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E7%9A%84js%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E6%A1%86%E6%9E%B6-%E4%BA%8C-%E6%8E%A7%E5%88%B6%E5%99%A8%E7%BB%A7%E6%89%BF.html">2015-06-09-非常简单的js双向绑定框架（二）：控制器继承</a></h2>
                     </header>
@@ -1248,7 +1188,7 @@ def connection<em>ready(sock, fd, events):
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/2015/05/30/%E9%A1%B5%E9%9D%A2%E5%88%B6%E4%BD%9C%E5%9F%BA%E7%A1%80.html">2015-05-30-页面制作基础</a></h2>
                     </header>
@@ -1267,7 +1207,7 @@ def connection<em>ready(sock, fd, events):
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/2015/05/29/javascript-%E5%9F%BA%E7%A1%80.html">2015-05-29-javascript 基础</a></h2>
                     </header>
@@ -1297,7 +1237,7 @@ def connection<em>ready(sock, fd, events):
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/2015/05/23/javascript-scope-chain.html">2015-05-23-javascript scope chain</a></h2>
                     </header>
@@ -1338,7 +1278,7 @@ scope A   &lt;---  scope B
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/2015/05/14/%E5%AE%9E%E4%B9%A0-%E9%A9%AC%E5%85%8B.html">2015-05-14-【实习】马克</a></h2>
                     </header>
@@ -1365,7 +1305,7 @@ scope A   &lt;---  scope B
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/2015/05/09/javascript%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8E%E5%8E%9F%E5%9E%8B%E7%BB%A7%E6%89%BF.html">2015-05-09-javascript原型链与原型继承</a></h2>
                     </header>
@@ -1400,7 +1340,7 @@ scope A   &lt;---  scope B
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/2015/04/16/javascript-%E8%A1%A8%E6%A0%BC%E9%9D%9E%E7%A9%BA%E5%88%A4%E6%96%AD.html">2015-04-16-javascript 表格非空判断</a></h2>
                     </header>
@@ -1423,7 +1363,7 @@ scope A   &lt;---  scope B
 
             
 
-                <article class="6u$ 12u(small)">
+                <article class="6u 12u(small)">
                     <header>
                         <h2><a href="/2015/04/09/javascript%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F.html">2015-04-09-javascript正则表达式</a></h2>
                     </header>
@@ -1442,7 +1382,7 @@ scope A   &lt;---  scope B
 
             
 
-                <article class="6u 12u(small)">
+                <article class="6u$ 12u(small)">
                     <header>
                         <h2><a href="/os/2015/04/06/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1.html">2015-04-06-进程间通信</a></h2>
                     </header>

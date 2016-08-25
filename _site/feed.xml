@@ -6,9 +6,26 @@
 </description>
     <link>http://victorisildur.github.io/</link>
     <atom:link href="http://victorisildur.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 25 Aug 2016 11:52:19 +0800</pubDate>
-    <lastBuildDate>Thu, 25 Aug 2016 11:52:19 +0800</lastBuildDate>
+    <pubDate>Thu, 25 Aug 2016 16:02:11 +0800</pubDate>
+    <lastBuildDate>Thu, 25 Aug 2016 16:02:11 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>threejs</title>
+        <description>&lt;h2&gt;举个栗子&lt;/h2&gt;
+
+&lt;script src=&quot;http://victorisildur.github.io/js/three.js&quot;&gt;&lt;/script&gt;
+
+&lt;script src=&quot;http://victorisildur.github.io/js/simple_cube.js&quot;&gt;&lt;/script&gt;
+</description>
+        <pubDate>Thu, 25 Aug 2016 16:27:00 +0800</pubDate>
+        <link>http://victorisildur.github.io/programming/2016/08/25/threejs.html</link>
+        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/08/25/threejs.html</guid>
+        
+        
+        <category>programming</category>
+        
+      </item>
     
       <item>
         <title>react技术栈</title>
@@ -882,100 +899,6 @@ Path也是SVG中最强大的元素。&lt;/p&gt;
         <pubDate>Tue, 12 Apr 2016 01:27:00 +0800</pubDate>
         <link>http://victorisildur.github.io/programming/2016/04/12/html-review.html</link>
         <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/04/12/html-review.html</guid>
-        
-        
-        <category>programming</category>
-        
-      </item>
-    
-      <item>
-        <title>计算机程序的构造和解释</title>
-        <description>&lt;h1&gt;为什么读这本书&lt;/h1&gt;
-
-&lt;p&gt;保证每种小型结构的正确性，利用有价值的的&amp;quot;组织技术&amp;quot;，将这些结构组合成更大的结构！&lt;/p&gt;
-
-&lt;p&gt;btw，lisp贯穿全书，这对玩溜emacs很有用&lt;/p&gt;
-
-&lt;h1&gt;组合式&lt;/h1&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;  (+    137     349)
-;;运算符       运算对象
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;将由运算符所刻画的&amp;quot;过程&amp;quot;，应用于有关的&amp;quot;实际参数&amp;quot;，就能得到组合式的值。&lt;/p&gt;
-
-&lt;p&gt;注意，这个过程是递归的，应进一步描述为：&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;求该组合式的各个子表达式&lt;/li&gt;
-&lt;li&gt;将最左子表达式（运算符）的值的那个过程，应用于响应的实际参数&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1&gt;定义&lt;/h1&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;(define pi 3.14)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;定义为名字关联相应的值，是一种首先的抽象手段。&lt;/p&gt;
-
-&lt;h1&gt;复合过程&lt;/h1&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;(define (square x) (* x x))
-;; (define (&amp;lt;name&amp;gt; &amp;lt;formal parameters&amp;gt;) &amp;lt;body&amp;gt;)
-
-(define (sum-of-squares x y)
-    (+ (square x) (square y))
-)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;复合过程的使用与基本过程完全一样，仅从上面sum-of-square的定义，看不出square是一个基本过程（像+,-,*一样），还是一个复合过程。&lt;/p&gt;
-
-&lt;p&gt;复合过程在应用时，代换就是将过程体中的每个形式参数，用相应的实际参数代换后，对这一过程体求值。
-值得注意的是，还可以先不求值做实参代换，而是用运算对象表达式去代换形式参数，直到得到一个只包含基本运算符的表达式。
-最后再去执行求值。&lt;/p&gt;
-
-&lt;p&gt;前一种，&amp;quot;完全展开后归约&amp;quot;的求值模型成为&amp;quot;正则序求值&amp;quot;；后一种，&amp;quot;先求值参数而后应用&amp;quot;，称为&amp;quot;应用序求值&amp;quot;。&lt;/p&gt;
-
-&lt;h1&gt;高阶过程&lt;/h1&gt;
-
-&lt;p&gt;如果将过程限制为只能以数作为参数，那也会严重限制我们建立抽象的能力。
-如果过程能以过程为参数，就称为&amp;quot;高阶过程&amp;quot;。&lt;/p&gt;
-
-&lt;p&gt;lambda就是匿名函数，python里直接叫这个，js里用的不要太多。&lt;/p&gt;
-
-&lt;h1&gt;let&lt;/h1&gt;
-
-&lt;p&gt;js6里的let，竟已经1958就有了，天。。。&lt;/p&gt;
-
-&lt;p&gt;let其实就是function内的变量：约束变量。函数里用着方便，函数外看不见。&lt;/p&gt;
-
-&lt;h1&gt;数据抽象&lt;/h1&gt;
-
-&lt;p&gt;对数据也要抽象！
-过程抽象的同时却不抽象数据，后果就是widget里那样拼啊拼啊，都不知道属性值是在什么地方设置的。&lt;/p&gt;
-
-&lt;p&gt;对数据抽象来说，由两部分抽象：构造函数，选择函数。
-比如有理数，确定了构造函数&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;(define (make-rat n d)
-    (cons n d))
-
-(define (numer x)
-    (cat x))
-
-(define (denom x)
-    (cdr x))
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;对上层程序来说，数据具体如何组织被屏蔽了，只调用选择函数（相当于getter）就行。
-就好像对&amp;quot;数据的接口&amp;quot;，或&amp;quot;接口的数据&amp;quot;编程一样。&lt;/p&gt;
-
-&lt;h1&gt;约定的“数据界面”&lt;/h1&gt;
-
-&lt;p&gt;我猜是data interface... 数据如何成为interface?
-最好的例子就是list，以list为interface对list进行map, reduce, filter，就能级联的，模块化的表示操作。
-感觉hadoop就是基于这个思想啊。&lt;/p&gt;
-
-&lt;h1&gt;函数式程序设计&lt;/h1&gt;
-
-&lt;p&gt;函数中引入&amp;quot;赋值&amp;quot;，将使函数内部拥有局部状态，以同样参数对同一过程进行两次求值，不一定产生同样的结果。
-不引入任何赋值函数的程序设计称为&amp;quot;函数式程序设计&amp;quot;。&lt;/p&gt;
-</description>
-        <pubDate>Thu, 24 Mar 2016 17:27:00 +0800</pubDate>
-        <link>http://victorisildur.github.io/programming/2016/03/24/sicp.html</link>
-        <guid isPermaLink="true">http://victorisildur.github.io/programming/2016/03/24/sicp.html</guid>
         
         
         <category>programming</category>

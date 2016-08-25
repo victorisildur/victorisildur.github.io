@@ -22,3 +22,5 @@ linkedin_username:    xu-liu-4a617679  # Replace this with your LinkedIn usernam
 markdown: redcarpet
 redcarpet:
   extensions: ["tables"]
+
+future: true
