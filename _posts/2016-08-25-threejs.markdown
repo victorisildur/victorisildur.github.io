@@ -19,3 +19,28 @@ excerpt: "webGL比2d canvas炫太多了"
 详解见这个post [introduction-to-webgl-part-1](https://dev.opera.com/articles/introduction-to-webgl-part-1)
 
 主要经历 vertex buffer -> vertex shader -> triangle assembly -> rasterizer -> fragment shader -> frame buffer 这几步。
+
+## 主要组成
+
+```javascript
+var scene = new THREE.Scene(),
+    camera = new THREE.PerspectiveCamera(...),
+    renderer = new THREE.WebGLRenderer(...);
+    
+scene.add(...);
+renderer.render(scene, camera);
+```
+
+从精简后的代码可以看出，3d场景的主要组成是三部分：renderer，camera，scene.
+形状啦、材质啦、都是scene的一部分而已。
+
+## 材质
+
+例子中的材质是`new THREE.MeshNormalMaterial()`，法向材质，无参数，
+由面的法向量和camera的位置关系决定颜色，主要是调试方便。
+
+Lambert材质是散射模型，可以指定color, emissive参数规定散射颜色、自发光颜色。
+如不加入光源，散射是看不到的。
+光照我理解也是scene的一部分，看到了再试。
+
+Phong材质是适合反射的模型，它多了一个specular参数标示反射系数。
