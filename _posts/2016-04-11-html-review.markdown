@@ -42,3 +42,7 @@ Path也是SVG中最强大的元素。
 | Quadratic Bezier Curve | `Q x1 y1, x y`, `q dx1 dy1, dx dy` | 二次贝塞尔曲线。(x1, y1)是control point, (x,y)是终止点。|
 | Extend Quadratic Bezier Curve | `T x y`, `t dx dy` | 这里control point也不用声明了，默认为上一个Q或T的control point的倒影。|
 | Arc | `A rx ry x-axis-rotation large-arc-flag sweep-flag x y` | 给定两点，连接两点椭圆的rx ry，有2个椭圆可以连接这两点。每个椭圆上又有两条路可走。因此，large-arc-flag: arc走过的角度是否大于180度。sweep-flag: arc是角度正方向移动or负方向移动。这里角度正方向有点坑的，是顺时针，和平时坐标系里的正角度不同。|
+
+## select
+
+`dir='rtl'`用来标识左右对齐，这里用text-align没用的。
