@@ -44,3 +44,24 @@ Lambert材质是散射模型，可以指定color, emissive参数规定散射颜�
 光照我理解也是scene的一部分，看到了再试。
 
 Phong材质是适合反射的模型，它多了一个specular参数标示反射系数。
+
+## 物体
+
+Mesh是一种物体，物体由`材质 + 形状`组成。
+为什么叫Mesh呢？不是因为它是四方的，而是因为它由顶点、边、面组成。
+其他物体还有：线段（Line），骨骼（Bone），粒子系统（Partical System）。
+
+THREE.Mesh继承自THREE.Object3D。
+包含scale, rotation, position属性。
+回想下我们demo里的旋转实现：
+
+```javascript
+function render() {
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+}
+```
+
+scale, rotation, position都是THREE.Vector3实例，所以都有x,y,z三个属性。
