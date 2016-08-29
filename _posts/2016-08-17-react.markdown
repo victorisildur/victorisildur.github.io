@@ -133,3 +133,7 @@ class MyComponent extends React.Component {
    }
 }
 ```
+
+然后，在`componentDidMount()`里请求服务器，并在成功回调里`setState()`，这样render就会被调用。
+记住，react总表现的好像情况组件，然后全部重新渲染一样！
+这是它的设计目标！
