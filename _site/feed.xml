@@ -6,9 +6,27 @@
 </description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 25 Aug 2016 20:05:10 +0800</pubDate>
-    <lastBuildDate>Thu, 25 Aug 2016 20:05:10 +0800</lastBuildDate>
+    <pubDate>Mon, 29 Aug 2016 20:34:24 +0800</pubDate>
+    <lastBuildDate>Mon, 29 Aug 2016 20:34:24 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>nodejs细节辑录</title>
+        <description>&lt;h2&gt;Access-Control-Allow-Origin&lt;/h2&gt;
+
+&lt;p&gt;Access-Control-Allow-Origin不能用Blob语法。
+一个Origin由&lt;strong&gt;domain + scheme + port number&lt;/strong&gt;构成。&lt;/p&gt;
+
+&lt;p&gt;判断跨域的细节上，non-simple请求要首先发一个preflight（type &amp;#39;OPTION&amp;#39;）请求，提前验一下。&lt;/p&gt;
+</description>
+        <pubDate>Mon, 29 Aug 2016 16:27:00 +0800</pubDate>
+        <link>http://localhost:4000/programming/2016/08/29/nodejs.html</link>
+        <guid isPermaLink="true">http://localhost:4000/programming/2016/08/29/nodejs.html</guid>
+        
+        
+        <category>programming</category>
+        
+      </item>
     
       <item>
         <title>threejs</title>
@@ -27,6 +45,46 @@
 &lt;p&gt;详解见这个post &lt;a href=&quot;https://dev.opera.com/articles/introduction-to-webgl-part-1&quot;&gt;introduction-to-webgl-part-1&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;主要经历 vertex buffer -&amp;gt; vertex shader -&amp;gt; triangle assembly -&amp;gt; rasterizer -&amp;gt; fragment shader -&amp;gt; frame buffer 这几步。&lt;/p&gt;
+
+&lt;h2&gt;主要组成&lt;/h2&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;scene&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;THREE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Scene&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;camera&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;THREE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;PerspectiveCamera&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(...),&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;THREE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;WebGLRenderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(...);&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;scene&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(...);&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scene&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;camera&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;从精简后的代码可以看出，3d场景的主要组成是三部分：renderer，camera，scene.
+形状啦、材质啦、都是scene的一部分而已。&lt;/p&gt;
+
+&lt;h2&gt;材质&lt;/h2&gt;
+
+&lt;p&gt;例子中的材质是&lt;code&gt;new THREE.MeshNormalMaterial()&lt;/code&gt;，法向材质，无参数，
+由面的法向量和camera的位置关系决定颜色，主要是调试方便。&lt;/p&gt;
+
+&lt;p&gt;Lambert材质是散射模型，可以指定color, emissive参数规定散射颜色、自发光颜色。
+如不加入光源，散射是看不到的。
+光照我理解也是scene的一部分，看到了再试。&lt;/p&gt;
+
+&lt;p&gt;Phong材质是适合反射的模型，它多了一个specular参数标示反射系数。&lt;/p&gt;
+
+&lt;h2&gt;物体&lt;/h2&gt;
+
+&lt;p&gt;Mesh是一种物体，物体由&lt;code&gt;材质 + 形状&lt;/code&gt;组成。
+为什么叫Mesh呢？不是因为它是四方的，而是因为它由顶点、边、面组成。
+其他物体还有：线段（Line），骨骼（Bone），粒子系统（Partical System）。&lt;/p&gt;
+
+&lt;p&gt;THREE.Mesh继承自THREE.Object3D。
+包含scale, rotation, position属性。
+回想下我们demo里的旋转实现：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;requestAnimationFrame&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scene&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;camera&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;cube&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rotation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.01&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;cube&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rotation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.01&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;scale, rotation, position都是THREE.Vector3实例，所以都有x,y,z三个属性。&lt;/p&gt;
 </description>
         <pubDate>Thu, 25 Aug 2016 16:27:00 +0800</pubDate>
         <link>http://localhost:4000/programming/2016/08/25/threejs.html</link>
@@ -120,6 +178,43 @@ facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwa
 &lt;/ul&gt;
 
 &lt;p&gt;具体怎么调用，还要看源码，暂且不管。&lt;/p&gt;
+
+&lt;h2&gt;开发环境&lt;/h2&gt;
+
+&lt;p&gt;jsx的预编译用babel-preset-react完成，考虑es2015的话，要install的模块有：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;react react-dom&lt;/li&gt;
+&lt;li&gt;webpack babel-loader&lt;/li&gt;
+&lt;li&gt;babel-core babel-preset-es2015 babel-preset-react&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;webpack中，loaders这样配置即可：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;nx&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;jsx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;loader&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'babel-loader'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;exclude&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;node_modules&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;presets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'es2015'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'react'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2&gt;STATE vs PROPS&lt;/h2&gt;
+
+&lt;p&gt;什么时候用props, 什么时候用state?
+写FriendList时，最开始是把friendInfos当做props传给控件的，然后我发现自己不知道该如何更新FriendList。
+正确的做法是把可能引起UI更新的数据放state里。&lt;/p&gt;
+
+&lt;p&gt;注意，用&lt;code&gt;class MyComponent extends React.Component&lt;/code&gt;语法时，不能使用&lt;code&gt;getInitialState()&lt;/code&gt;方法。
+用Constructor代替即可：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kr&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;MyComponent&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Component&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+   &lt;span class=&quot;nx&quot;&gt;constructor&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;kr&quot;&gt;super&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;state&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...};&lt;/span&gt;
+   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;然后，在&lt;code&gt;componentDidMount()&lt;/code&gt;里请求服务器，并在成功回调里&lt;code&gt;setState()&lt;/code&gt;，这样render就会被调用。
+记住，react总表现的好像情况组件，然后全部重新渲染一样！
+这是它的设计目标！&lt;/p&gt;
 </description>
         <pubDate>Wed, 17 Aug 2016 16:27:00 +0800</pubDate>
         <link>http://localhost:4000/programming/2016/08/17/react.html</link>
@@ -818,97 +913,6 @@ npm上有个expect库非常好，要运行es6写的测试用例要用&lt;code&gt
         <pubDate>Mon, 09 May 2016 01:27:00 +0800</pubDate>
         <link>http://localhost:4000/programming/2016/05/09/js-design-pattern.html</link>
         <guid isPermaLink="true">http://localhost:4000/programming/2016/05/09/js-design-pattern.html</guid>
-        
-        
-        <category>programming</category>
-        
-      </item>
-    
-      <item>
-        <title>html细节汇总</title>
-        <description>&lt;h2&gt;base标签&lt;/h2&gt;
-
-&lt;p&gt;一般地，a标签里的href是相对于当前文档的，用了base标签后就对此修正了。
-语法如下：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;base&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;xx.com/xxx&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;application cache&lt;/h2&gt;
-
-&lt;p&gt;网关里url参数经常变动，导致html被多份缓存。
-想知道有没有办法html强制不要去缓存，在这个回答里发现不可以，一定会被缓存：&lt;a href=&quot;http://stackoverflow.com/questions/5045782/html5-cache-manifest-no-cache-for-html-file-itself&quot;&gt;html5-cache-manifest-no-cache-for-html-file-itself&lt;/a&gt;。&lt;/p&gt;
-
-&lt;h2&gt;svg path&lt;/h2&gt;
-
-&lt;p&gt;path 的d属性是一长串命令的组合，Move To, Line To, Arc To。
-由此可以方便的声明任意形状。
-Path也是SVG中最强大的元素。&lt;/p&gt;
-
-&lt;p&gt;我们来看下命令怎么用，命令首先分大小写。
-大写命令后跟绝对坐标、小写命令后跟相对坐标。
-主要几种命令：&lt;/p&gt;
-
-&lt;table&gt;&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Command&lt;/th&gt;
-&lt;th&gt;Code&lt;/th&gt;
-&lt;th&gt;Comment&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;Move to&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;M x y&lt;/code&gt;, &lt;code&gt;m dx dy&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Line to&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;L x y&lt;/code&gt;, &lt;code&gt;l dx dy&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Horizontal Line&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;H x&lt;/code&gt;, &lt;code&gt;h dx&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Vertical Line&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;V y&lt;/code&gt;, &lt;code&gt;v dy&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Close Path&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;Z&lt;/code&gt;, &lt;code&gt;z&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Cubic Bezier Curve&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;C x1 y1, x2 y2, x y&lt;/code&gt;, &lt;code&gt;c dx1 dy1, dx2 dy2, dx dy&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;三次贝塞尔曲线。这里起始点是不需要说明的，起始点就是path现在到达的坐标。(x,y)是终止点，(x1,y1)(x2,y2)是中间两个control point。&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Extend Cubic Bezier Curve&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;S x2 y2, x y&lt;/code&gt;, &lt;code&gt;s dx2 dy2, dx dy&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;这里第一个control point也不用声明了，默认为上一个C或S的control point的倒影。&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Quadratic Bezier Curve&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;Q x1 y1, x y&lt;/code&gt;, &lt;code&gt;q dx1 dy1, dx dy&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;二次贝塞尔曲线。(x1, y1)是control point, (x,y)是终止点。&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Extend Quadratic Bezier Curve&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;T x y&lt;/code&gt;, &lt;code&gt;t dx dy&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;这里control point也不用声明了，默认为上一个Q或T的control point的倒影。&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Arc&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;A rx ry x-axis-rotation large-arc-flag sweep-flag x y&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;给定两点，连接两点椭圆的rx ry，有2个椭圆可以连接这两点。每个椭圆上又有两条路可走。因此，large-arc-flag: arc走过的角度是否大于180度。sweep-flag: arc是角度正方向移动or负方向移动。这里角度正方向有点坑的，是顺时针，和平时坐标系里的正角度不同。&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-</description>
-        <pubDate>Tue, 12 Apr 2016 01:27:00 +0800</pubDate>
-        <link>http://localhost:4000/programming/2016/04/12/html-review.html</link>
-        <guid isPermaLink="true">http://localhost:4000/programming/2016/04/12/html-review.html</guid>
         
         
         <category>programming</category>
