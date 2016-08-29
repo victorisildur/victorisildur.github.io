@@ -96,3 +96,40 @@ var Avatar = React.createClass({
 * Unmounting
 
 具体怎么调用，还要看源码，暂且不管。
+
+## 开发环境
+
+jsx的预编译用babel-preset-react完成，考虑es2015的话，要install的模块有：
+
+* react react-dom
+* webpack babel-loader
+* babel-core babel-preset-es2015 babel-preset-react
+
+webpack中，loaders这样配置即可：
+
+```javascript
+test: /.jsx?$/,
+loader: 'babel-loader',
+exclude: /node_modules/,
+query: {
+    presets: ['es2015', 'react']
+}
+```
+
+## STATE vs PROPS
+
+什么时候用props, 什么时候用state?
+写FriendList时，最开始是把friendInfos当做props传给控件的，然后我发现自己不知道该如何更新FriendList。
+正确的做法是把可能引起UI更新的数据放state里。
+
+注意，用`class MyComponent extends React.Component`语法时，不能使用`getInitialState()`方法。
+用Constructor代替即可：
+
+```javascript
+class MyComponent extends React.Component {
+   constructor (props, context) {
+      super (props, context);
+      this.state = {init: true, ...};
+   }
+}
+```
