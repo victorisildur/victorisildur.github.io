@@ -6,8 +6,8 @@
 </description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 29 Aug 2016 20:34:24 +0800</pubDate>
-    <lastBuildDate>Mon, 29 Aug 2016 20:34:24 +0800</lastBuildDate>
+    <pubDate>Mon, 29 Aug 2016 20:38:43 +0800</pubDate>
+    <lastBuildDate>Mon, 29 Aug 2016 20:38:43 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -213,7 +213,7 @@ facebook宣称这样更高效，参加这个blog&lt;a href=&quot;https://davidwa
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;然后，在&lt;code&gt;componentDidMount()&lt;/code&gt;里请求服务器，并在成功回调里&lt;code&gt;setState()&lt;/code&gt;，这样render就会被调用。
-记住，react总表现的好像情况组件，然后全部重新渲染一样！
+记住，react总表现的好像清空组件，然后全部重新渲染一样！
 这是它的设计目标！&lt;/p&gt;
 </description>
         <pubDate>Wed, 17 Aug 2016 16:27:00 +0800</pubDate>
