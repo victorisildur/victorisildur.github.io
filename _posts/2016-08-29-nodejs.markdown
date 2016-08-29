@@ -1,0 +1,14 @@
+---
+layout: post
+title: "nodejs细节辑录"
+date: 2016-08-29 08:27:00
+categories: programming
+excerpt: "http, https, fs, 积累细节"
+---
+
+## Access-Control-Allow-Origin
+
+Access-Control-Allow-Origin不能用Blob语法。
+一个Origin由**domain + scheme + port number**构成。
+
+判断跨域的细节上，non-simple请求要首先发一个preflight（type 'OPTION'）请求，提前验一下。
