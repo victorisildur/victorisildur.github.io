@@ -177,4 +177,11 @@ if (pure && prevStoreState === storeState)
 这里因为不是纯函数，===为真！ state仍是原来那个对象（虽然值不同了）。
 所以不会更新啦！
 
-## Connect Curry函数
+## React-Router
+
+用这个的原意是想实现 `#/`是列表页，`#/detail`是详情页这样的功能。
+但他的api是`browserHistory.push('detail')`之后会跳到`xx.qq.com/detail`，毛都不会发生。
+
+或者`browserHistory.push(location.pathname + '#/detail')`，url会正确变成`xx.qq.com/iot/mobile/demo.html#/detail`，但是组件不会正常切换。
+
+简直难用啊，到底是hash里维护路径还是怎样，orz
