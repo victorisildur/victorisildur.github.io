@@ -20,5 +20,7 @@ excerpt: "jsx, sass, 到处都是编译器变体在工作"
 词法分析(lexical analysis)就是tokenizer(lexer).
 句法分析(syntactic analysis)就是生产AST.
 
+太累了，明天补完
+
 
 
