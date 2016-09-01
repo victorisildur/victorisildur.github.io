@@ -20,7 +20,52 @@ excerpt: "jsx, sass, 到处都是编译器变体在工作"
 词法分析(lexical analysis)就是tokenizer(lexer).
 句法分析(syntactic analysis)就是生产AST.
 
-太累了，明天补完
+对于`(add 2 (subtract 4 2))`Parser生产出的token大概是这样：
 
+```javascript
+[
+{type: 'paren',  value: '('},
+{type: 'name',   value: 'add'},
+{type: 'number', value: '2'},
+{type: 'paren',  value: ')'},
+{type: 'name',   value: 'subtract'},
+{type: 'number', value: '4'},
+{type: 'number', value: '2'},
+{type: 'paren',  value: ')'},
+{type: 'paren',  value: ')'}
+]
+```
 
+句法分析生成的AST长这样：
 
+```javascript
+{
+    type: 'Program',
+    body: [
+	{
+	    type: 'CallExpression',
+	    name: 'add',
+	    params: [
+		{
+		    type: 'NumberLiteral',
+		    value: '2'
+		},
+		{
+		    type: 'CallExpression',
+		    name: 'subtract',
+		    params: [
+			{
+			    type: 'NumberLiteral',
+			    value: '4'
+			},
+			{
+			    type: 'NumberLiteral',
+			    value: '2'
+			}
+		    ]
+		}
+	    ]
+	}
+    ]
+}
+```
