@@ -69,3 +69,8 @@ excerpt: "jsx, sass, 到处都是编译器变体在工作"
     ]
 }
 ```
+
+## Transformation
+
+我们可以在AST node上CRUD属性，或者CRUD节点。
+这里我们要transform到c-like语法，所以是重新构建一个AST.
