@@ -74,3 +74,15 @@ excerpt: "jsx, sass, 到处都是编译器变体在工作"
 
 我们可以在AST node上CRUD属性，或者CRUD节点。
 这里我们要transform到c-like语法，所以是重新构建一个AST.
+
+转化时，我们首先遍历AST，这里采用dfs，前序的。
+对转化AST来说，visiting每个node就足够了。
+我们用一个visitor对象来做这件事：
+
+```javascript
+var visitor = {
+    NumberLiteral(node, parent) {}
+    CallExpression(node, parent) {}
+}
+```
+
