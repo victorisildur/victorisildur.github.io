@@ -151,3 +151,43 @@ traverse(ast, {
 
 ## transformer
 
+我们已经得到AST形如这样：
+
+```c
+Program
+|---CallExpression
+   |---NumberLiteral
+   |---CallExpression
+   |---NumberLiteral
+       |---NumberLiteral
+```
+
+要转成新的AST形如这样：
+
+```c
+Program
+|---ExpressionStatement
+    |---CallExpression
+        |---NumberLiteral
+        |---CallExpression
+            |---NumberLiteral
+            |---NumberLiteral
+```
+
+要实现这样的转化，就是在dfs遍历每个节点的过程中，
+首先node自身转化成新node2，然后：
+
+1. `parent._context`对应的parent的对应新nodeP的儿子，把node2加到nodeP的儿子里。
+2. `node._context`表示node2的儿子。
+
+所以，把各节点的_context连成树，每个节点都是新AST的节点的儿子。如`ExpressionStatement.expression`, `CallExpression.arguments`
+
+主要代码如下：
+
+```javascript
+function(node, parent) {
+    let expression = {type: 'CallExpression', callee: {name: node.name}, arguments: []}
+    parent._context.push(expression);
+    node._context = expression.arguments;
+}
+```
