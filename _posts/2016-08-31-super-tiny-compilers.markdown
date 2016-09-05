@@ -130,3 +130,24 @@ if (token.type === 'paren' && token.value === '(') {
 ```
 
 这里`({curr, node} = walk(tokens, curr))`的写法是解构语法在已定义过的变量(curr已经定义过了)时的写法。
+
+
+## traverser
+
+有了ast之后，我们希望转化它，这由一个visitor实现。
+visitor定义了遇到节点后做什么事。
+traverse的过程大致如下：
+
+```javascript
+traverse(ast, {
+   Program(node, parent) {...}
+   CallExpression(node, parent) {}
+   NumberLiteral(node, parent) {}
+});
+```
+
+这里实现比较简单，就是dfs而已，就不贴了。
+主要看用在transformer里是怎么用的。
+
+## transformer
+
