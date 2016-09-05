@@ -158,7 +158,7 @@ Program
 |---CallExpression
    |---NumberLiteral
    |---CallExpression
-   |---NumberLiteral
+       |---NumberLiteral
        |---NumberLiteral
 ```
 
@@ -196,3 +196,48 @@ function(node, parent) {
 新节点需要多wrap一层。
 
 具体实现见[transform.js](https://github.com/victorisildur/super-tiny-compiler/blob/master/src/transform.js)
+
+值得注意的是，javascript允许"递归赋值"，在实现中有这样的语句：
+
+```javascript
+let newNode = {
+    type: 'CallExpression',
+    arguments: []
+};
+
+// old node's _context point to new node's children
+node._context = newNode.arguments;
+
+if (parent.type === 'Program') {
+   newNode = {
+       type: 'ExpressionStatement',
+       expression: newNode
+   };
+}
+```
+
+这里第二次newNode被wrap时，newNode的属性引用了原来的newNode。
+js这里的处理是原来的newNode object仍然存在，只是指针名给了新的newNode。
+我发现这个特性非常合理，这个`node._context = newNode.arguments`总是指向老对象的arguments属性。
+
+## Code Generation
+
+最后一步啦！想办法把新的AST再转成c-like的大字符串就行了！
+
+过程非常简单，递归转字符串就行，实现在这里：[code_generator.js](https://github.com/victorisildur/super-tiny-compiler/blob/master/src/code_generator.js)
+
+## 思考
+
+总结下过程：
+
+```javascript
+const compiler = lisp => {
+    let tokens = tokenizer(lisp);
+    let ast = parser(tokens);
+    let newAst = transform(ast);
+    let newCode = codeGenerator(newAst);
+    return newCode;
+};
+```
+
+弄完回头看，关键其实是AST，只要有了AST，转code其实很随意，也其实不需要transform构建新树。
