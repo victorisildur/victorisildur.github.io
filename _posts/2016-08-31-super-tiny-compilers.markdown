@@ -191,3 +191,8 @@ function(node, parent) {
     node._context = expression.arguments;
 }
 ```
+
+主要注意的是Program的儿子CallExpressions在javascript里认为是ExpressionStatement。
+新节点需要多wrap一层。
+
+具体实现见[transform.js](https://github.com/victorisildur/super-tiny-compiler/blob/master/src/transform.js)
