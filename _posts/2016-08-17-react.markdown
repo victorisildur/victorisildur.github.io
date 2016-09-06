@@ -185,3 +185,7 @@ if (pure && prevStoreState === storeState)
 或者`browserHistory.push(location.pathname + '#/detail')`，url会正确变成`xx.qq.com/iot/mobile/demo.html#/detail`，但是组件不会正常切换。
 
 简直难用啊，到底是hash里维护路径还是怎样，orz
+
+## 核心思想
+
+作者总结的核心设计思想：[react-basic](https://github.com/reactjs/react-basic)
