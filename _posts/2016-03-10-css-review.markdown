@@ -342,3 +342,21 @@ input [type='month'] {
 
 这个BFC能解释吗？ 这种问题靠谷歌大法去解有点挫啊。
 
+## flex兼容
+
+```css
+// -webkit-box是09年的写法
+display: -webkit-flex;
+display: -webkit-box;
+display: flex;
+
+// -webkit-box-align是09年的写法，纵向排列方式
+-webkit-box-align: center;
+-webkit-align-items: center;
+align-items: center;
+
+// -webkit-box-pack是09年的写法，横向排列方式
+-webkit-box-pack: center;
+-webkit-justify-content: center;
+justify-content: center;
+```
