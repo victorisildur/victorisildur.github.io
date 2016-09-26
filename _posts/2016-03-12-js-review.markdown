@@ -156,3 +156,16 @@ function (a) {
 ```
 
 虽然a是形参，但由于`var a`的存在，这个context下首先访问到的值是undefined。
+
+## location.href
+
+首先区别`window.location`, `window.location.href`, `document.location`:
+
+1. window.location和document.location是同一个对象。
+2. 对window.location.href赋值和对window.location赋值是等效的。具体原理不知。
+
+
+然后是奇怪的地方，`location.href`如果赋值为一个普通字符串，浏览器会把它当做相对路径处理。
+只有赋值为一个'http://|https://|//'开头的字符串，浏览器才会把它当做绝对路径处理。
+
+在实际过程中，发现'http://'开头也不好使了，用'//'实现了想要的'跳转到相同协议路径'的功能。
