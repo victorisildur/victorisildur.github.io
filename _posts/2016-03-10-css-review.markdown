@@ -360,3 +360,21 @@ align-items: center;
 -webkit-justify-content: center;
 justify-content: center;
 ```
+
+## 渐进增强图片
+
+[slack.com](slack.com)的首页用了一张很大的图，但最开始是很糊的一张图，然后慢慢变清晰。
+这个效果比直接放一张清晰大图，等它从上到下慢慢加载要好太多了！
+这是怎么做到的呢？
+
+css代码里有这样一行：
+
+```css
+background-image: url(...nasa-header-image.jpg), url(...nasa-header-image@tiny.jpg);
+```
+
+这是css3允许的mutiple backgrounds。
+即定义多个背景，列表中的第一个背景在最上面，最后一个背景在最下面。
+
+显然，这里低分辨率的图片放下面，高分辨率的图片放上面。
+达到的效果就是低分辨率的图先展示出来，然后慢慢被高分辨的图从上到下覆盖。
