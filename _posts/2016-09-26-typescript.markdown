@@ -33,3 +33,43 @@ vs下的emacs模式插件不太好用，vim插件的还原度要高很多。
 ```javascript
 "vim.useCtrlKeys": true
 ```
+
+## ts, react下的webpack配置
+
+首先，react+typescript的文件我们特殊命名为`.tsx`文件。
+
+然后loaders里这样配置：
+
+```javascript
+loaders: [{
+   test: /\.tsx?$/,
+   loader: 'babel-loader!ts-loader',
+   exclude: [
+      'node_modules'
+   ]
+}],
+noParse: Object.keys(externals)
+```
+
+所以`.tsx`文件先过babel-loader，再过ts-loader。
+但根据我们之前的经验[http://victorisildur.github.io/programming/2016/08/17/react.html](http://victorisildur.github.io/programming/2016/08/17/react.html).
+要想使babel-loader认得react的jsx语法，要配置loader的query属性，配置成`presets: ['es2015', 'react']`这样。
+但这里没有啊?
+
+这里就牵扯到`.babelrc`的问题了。
+在项目的根目录里，有个`.babelrc`文件，里面是个json形如这样：
+
+```javascript
+{
+   presets,
+   plugin,
+   env: {
+      development: {
+          plugins
+      }
+   }
+}
+```
+
+这个配置文件指引着babel以何种preset, plugin去编译你的文件。
+具体见这里：[https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/user-handbook.md#toc-babelrc](https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/user-handbook.md#toc-babelrc)
