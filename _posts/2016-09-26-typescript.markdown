@@ -24,3 +24,12 @@ interface Person {
 ```
 
 这样能解决javascript弱类型出现的很多bug
+
+## vs code的vim模式
+
+vs下的emacs模式插件不太好用，vim插件的还原度要高很多。
+使用过程中，为了让所有vim快捷键生效（包括和windows快捷键冲突的那些），应在settings.json中开启如下设置：
+
+```javascript
+"vim.useCtrlKeys": true
+```
