@@ -6,7 +6,7 @@ categories: programming
 excerpt: javascript设计模式，通向完美代码之路
 ---
 
-# singleton
+## singleton
 
 需求是这样的，ProductInfo类需要去查product列表，这个列表希望用一个静态变量，以节省空间。
 问题是列表需要ajax取到才行，singleton模式Init滞后，所以适合这个场景。
@@ -66,3 +66,10 @@ var mySingleton = (function () {
 
 注意到init里有一个循环等待gotData的动作，是不是觉得太暴力？
 优雅的方式是用回调，但只有第一次是真正需要等待回调的，所以也不是很好。 
+
+## 依赖、关联、聚合、组合
+
+* 依赖： FileWriter ----> IoUtil. 有require的意味在里面
+* 关联： Person &rarr; House. 两者有关系，互相是has-a的关系
+* 聚合： Libary <>&rarr; Books. 和关联基本一样，但是是复数概念。has-many的关系
+* 组合： Head &diams; &rarr; Hands. 和聚合一样是has-many, has-a的意味，但注意是不可拆分的那种，composed-of的意味。
