@@ -85,3 +85,6 @@ var mySingleton = (function () {
 这样就能实现UI中：创建一个textView，在上面加一个scrollView，再在上面加一个borderView这样的需求：
 
 ![scrollView, borderView]({{site.url}}/assets/images/scroll_border_view.jpg)
+
+这里有个很好的javascript版decorator模式的实现：
+[https://github.com/tcorral/Design-Patterns-in-Javascript/tree/es6/Decorator](https://github.com/tcorral/Design-Patterns-in-Javascript/tree/es6/Decorator)
