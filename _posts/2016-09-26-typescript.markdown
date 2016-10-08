@@ -73,3 +73,57 @@ noParse: Object.keys(externals)
 
 这个配置文件指引着babel以何种preset, plugin去编译你的文件。
 具体见这里：[https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/user-handbook.md#toc-babelrc](https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/user-handbook.md#toc-babelrc)
+
+## react action的高级抽象
+
+异步操作总是存在pending -> started -> performing -> done类似的状态迁移，这里，
+异步操作不只是指ajax等网络操作，ui变化也算哦。
+
+要是我们对每个操作都手工维护这些个state，显然太累了。
+所以qcloud团队对此作了WorkflowState和WorkflowAction这两个抽象：
+
+```typescript
+export enum OperationState {
+    /** indicates an operation is not started yet */
+        Pending = "Pending" as any,
+
+    /** indicates an operation is started, under user interactions */
+        Started = "Started" as any,
+
+    /** indicates the operation is performing after an user action */
+        Performing = "Performing" as any,
+
+    /** indicates the operation is done (success or failed info is in operation result) */
+        Done = "Done" as any
+}
+
+export type WorkflowState<TTarget extends Identifiable, TParam> = {
+    /** current operation state */
+        operationState: OperationState;
+
+    /** target is specific when started */
+        targets?: TTarget[];
+
+    /** params will be stored after perform */
+        params?: TParam;
+
+    /** result is specific when done */
+        results?: OperationResult<TTarget>[];
+}
+```
+
+可以看到，workflowState总是含operationState，总是由pending, started, performing, done这四个状态组成。
+至于WorkflowAction，继承自[FSA, flux-standard-action](https://github.com/acdlite/flux-standard-action)，
+只不过对payload的类型作了typescript generic限制：
+
+```typescript
+export interface ReduxAction<TPayload> {
+       /**
+         * The action type, the `number` type is to support enum.
+            * */
+         type: string | number;
+         payload?: TPayload;
+         error?: boolean;
+         meta?: any;
+}
+```
