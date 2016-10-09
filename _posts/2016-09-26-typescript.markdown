@@ -127,3 +127,16 @@ export interface ReduxAction<TPayload> {
          meta?: any;
 }
 ```
+
+具体到写代码时，总是用`generateWorkflowReducer({actionType})`来生成一个workflowState和对应的reducer。
+用`generateWorkflowActionCreator({actionType})`来生成一个`workflowActionCreator:{start, perform, cancel}`.
+
+`workflowActionCreator.start()`实际发出一个`{type: actionType, trigger: OperationTrigger.Start}`的action。`{type: actionType, trigger: OperationTrigger.Start}`的action。
+workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
+跃迁图如下：
+
+
+workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
+跃迁图如下：
+
+
