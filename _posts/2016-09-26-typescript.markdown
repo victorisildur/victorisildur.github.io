@@ -139,4 +139,4 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 跃迁图如下：
 
-
+![workflow state 状态机]({{site.url}}/assets/images/workflowState_workflowAction.png)
