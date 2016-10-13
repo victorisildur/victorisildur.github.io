@@ -378,3 +378,16 @@ background-image: url(...nasa-header-image.jpg), url(...nasa-header-image@tiny.j
 
 显然，这里低分辨率的图片放下面，高分辨率的图片放上面。
 达到的效果就是低分辨率的图先展示出来，然后慢慢被高分辨的图从上到下覆盖。
+
+## option direction
+
+对`<select><option>`控件，如果想要实现文字靠右的效果，`text-align: right`是没有用的。
+对此，要使用`direction: rtl`css属性，或者`<select dir="rtl">` html属性。
+
+单纯这样会使'4*6'这样的字符串逆序，原因未知。
+解决方法是对select元素和option元素使用不同的direction:
+
+```css
+select { direction: rtl; }
+option { direction: ltr; }
+```
