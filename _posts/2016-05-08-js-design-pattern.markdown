@@ -88,3 +88,10 @@ var mySingleton = (function () {
 
 这里有个很好的javascript版decorator模式的实现：
 [https://github.com/tcorral/Design-Patterns-in-Javascript/tree/es6/Decorator](https://github.com/tcorral/Design-Patterns-in-Javascript/tree/es6/Decorator)
+
+## Command模式
+
+Command模式用户解耦client, requester, invoker. UML如图：
+
+![command pattern]({{site.url}}/assets/images/command_pattern.png)
+
