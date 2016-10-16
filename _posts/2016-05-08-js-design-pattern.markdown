@@ -91,7 +91,53 @@ var mySingleton = (function () {
 
 ## Command模式
 
-Command模式用户解耦client, requester, invoker. UML如图：
+Command模式用户解耦client, receiver, invoker. UML如图：
 
 ![command pattern]({{site.url}}/assets/images/command_pattern.png)
+
+对我实际例子来说，receiver是红外发射器，发射十六进制码。
+client是页面，
+invoker用来解耦这两个。
+
+页面的功能是纯粹的，点按钮，发送command到invoker，然后让invoker invoke.
+
+receiver的功能也是纯粹的，负责发送 温度改变、模式改变、风速改变等红外指令。
+
+解耦就靠Interface Command. 代码如下：
+
+```javascript
+interface Command {
+    execute: () => any
+}
+class Invoker {
+    setCommand (command) {
+        this.command = command;
+    }
+    invoke () {
+        this.command.execute();
+    }
+}
+class AirConditioner {
+    incTemp () {}
+    decTemp () {}
+    coolMode () {}
+    heatMode () {}
+}
+class TempIncCommand {
+    constructor(receiver, command) {
+    }
+    execute() {
+        receiver.incTemp();
+    }
+}
+// UI
+const receiver = new AirConditioner();
+const tempIncCommand(receiver);
+const invoker = new Invoker();
+
+$('.temp-inc-btn').on('click', () => {
+    invoker.setCommand(tempIncCommand);
+    invoker.invoke();
+}
+```
 
