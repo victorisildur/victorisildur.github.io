@@ -169,3 +169,17 @@ function (a) {
 只有赋值为一个'http://|https://|//'开头的字符串，浏览器才会把它当做绝对路径处理。
 
 在实际过程中，发现'http://'开头也不好使了，用'//'实现了想要的'跳转到相同协议路径'的功能。
+
+## Number
+
+Number.toString和Number.parseInt可以方便的完成进制转换：
+
+```javascript
+// Number.prototype.toString([radix])
+var n = 43;
+n.toString(16) === '2b';
+// Number.parseInt(string[, radix])
+var n1 = '110';
+Number.parseInt(n1, 2) === 6
+Number.parseInt(n1, 10) === 110
+```
