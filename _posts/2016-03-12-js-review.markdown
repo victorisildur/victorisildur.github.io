@@ -183,3 +183,9 @@ var n1 = '110';
 Number.parseInt(n1, 2) === 6
 Number.parseInt(n1, 10) === 110
 ```
+
+## DOM Exception 18
+
+An attempt was made to break through the security policy of the user agent
+
+iOS 10不能用js去动cookie!
