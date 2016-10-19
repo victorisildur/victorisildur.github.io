@@ -189,3 +189,13 @@ $(document).on(Action.PLAYING, function() {
 
 现状是Model又没有移植需求，Model独立了，View逻辑乱了，得不偿失。
 还是用Flux吧。
+
+## 更新
+
+Flux的问题： 屁大点事儿都要dispatcher处理。
+比如一个按钮的中间态。
+
+redux的解决方式：@connect 的mapStateToProps。组件只关心和自己息息相关的state.
+解放了dispatcher逻辑。
+
+
