@@ -188,4 +188,10 @@ Number.parseInt(n1, 10) === 110
 
 An attempt was made to break through the security policy of the user agent
 
-iOS 10不能用js去动cookie!
+iOS 8不能用js去动cookie! iOS 9机器没有这个问题。
+
+document.cookie.match, localStorage.getItem都会导致这个报错。
+最好的办法是全部try catch。
+但网关太依赖localStorage了，就算解了也会有别的问题.
+
+
