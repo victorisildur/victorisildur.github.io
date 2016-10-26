@@ -138,7 +138,15 @@ function createThunkMiddleware(extraArgument) {
 }
 ```
 
-搜了下没搜到，不知道什么意思
+这个是curry函数，举个例子, ```let add = x => y => x + y```等价于
+
+```javascript
+let add = function(x) {
+    return function(y) {
+        return x + y
+    }
+}
+```
 
 ## $.on
 

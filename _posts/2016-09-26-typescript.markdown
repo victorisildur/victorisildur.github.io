@@ -144,3 +144,7 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 除了普通workflow，qcloud团队还对fetch(异步取数据), query(查找)动作进行了抽象，fetch状态机如下：
 
 ![fetcher state 状态机]({{site.url}}/assets/images/fetcherState_fetcherTrigger.png)
+
+## vim 快捷键
+
+* 代码自动缩进：ggvG=
