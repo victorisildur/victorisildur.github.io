@@ -194,4 +194,7 @@ document.cookie.match, localStorage.getItem都会导致这个报错。
 最好的办法是全部try catch。
 但网关太依赖localStorage了，就算解了也会有别的问题.
 
+## Invalid left-hand side expression in postfix operation
 
+二次压缩js遇到的问题，比较诡异，不知道具体那句话导致的。
+但以后ars代码自己不要压缩了，让ars去压缩。
