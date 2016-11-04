@@ -189,3 +189,8 @@ if (pure && prevStoreState === storeState)
 ## 核心思想
 
 作者总结的核心设计思想：[react-basic](https://github.com/reactjs/react-basic)
+
+## 作用域
+
+private method里访问不到`this.props`, 只有`render()`里能访问到`this.props`?
+用箭头函数可解

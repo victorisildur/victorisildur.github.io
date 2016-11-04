@@ -148,3 +148,12 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 ## vim 快捷键
 
 * 代码自动缩进：ggvG=
+
+## Typescript + React下this.context的问题
+
+要使用this.context，要在父元素定义`getChildContext()`方法，除此以外：
+
+1. 在父组件定义`static childContextTypes = {color: React.PropTypes.string}`
+2. 在要使用`this.context`的子组件，定义`static contextTypes = {color: ReactPropTypes.string}`
+
+注意，getChildContext方法不能用在@connect组件上，会报`typeof ProductApp is not assignable to parameter of type 'ComponentClass<{}> | StatelessComponent<{}>`，不知道为什么
