@@ -153,7 +153,10 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 
 要使用this.context，要在父元素定义`getChildContext()`方法，除此以外：
 
-1. 在父组件定义`static childContextTypes = {color: React.PropTypes.string}`
-2. 在要使用`this.context`的子组件，定义`static contextTypes = {color: ReactPropTypes.string}`
+1. 在父组件定义`static childContextTypes = {color: React.PropTypes.string}`, 声明自己传给下面的context是什么类型的。
+2. 在要使用`this.context`的子组件，定义`static contextTypes = {color: ReactPropTypes.string}`，声明自己要接受的context是什么类型的。
+3. 在要使用`this.context`的子组件，定义context: RootProps. 这感觉是typescript的bug, 否则this.context拿不到。
 
 注意，getChildContext方法不能用在@connect组件上，会报`typeof ProductApp is not assignable to parameter of type 'ComponentClass<{}> | StatelessComponent<{}>`，不知道为什么
+
+注意！！不推荐使用context这个特性！！因为context变动时，子元素不一定会去更新！！
