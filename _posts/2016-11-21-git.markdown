@@ -1,0 +1,18 @@
+---
+layout: post
+title: "git细节辑录"
+date: 2016-11-21 08:27:00
+categories: programming
+excerpt: "git pro"
+---
+
+* reset HEAD <file>... 把文件从stage态变到modified态
+* checkout -- <file>... 把文件从modified态变到Unmodified态（抛弃本地修改）
+* stash 入栈, 并回到unmodified态
+* stash list 列出栈
+* stach apply@{2} 回到栈2
+* checkout <branch> 切换到分支（底层是HEAD指针移到Branch指针）, 同时把工作目录中的文件换成分支所指向的快照内容
+* git pull = git fetch + git merge
+* git fetch 更新的是refs/remotes/<remote>/下的内容。git merge 更新的是refs/heads下的内容
+
+
