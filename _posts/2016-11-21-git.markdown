@@ -6,13 +6,21 @@ categories: programming
 excerpt: "git pro"
 ---
 
-* reset HEAD <file>... 把文件从stage态变到modified态
-* checkout -- <file>... 把文件从modified态变到Unmodified态（抛弃本地修改）
-* stash 入栈, 并回到unmodified态
-* stash list 列出栈
-* stach apply@{2} 回到栈2
-* checkout <branch> 切换到分支（底层是HEAD指针移到Branch指针）, 同时把工作目录中的文件换成分支所指向的快照内容
-* git pull = git fetch + git merge
-* git fetch 更新的是refs/remotes/<remote>/下的内容。git merge 更新的是refs/heads下的内容
-
+* `reset HEAD <file>...` 把文件从stage态变到modified态
+* `checkout -- <file>...` 把文件从modified态变到Unmodified态（抛弃本地修改）
+* `stash` 入栈, 并回到unmodified态
+* `stash list` 列出栈
+* `stach apply@{2}` 回到栈2
+* `checkout <branch>` 切换到分支（底层是HEAD指针移到Branch指针）, 同时把工作目录中的文件换成分支所指向的快照内容
+* `git pull` = `git fetch` + `git merge`
+* `git fetch` 更新的是`refs/remotes/<remote>/`下的内容。`git merge` 更新的是`refs/heads`下的内容
+* `checkout -b <branch>` = `branch <branch>` + `checkout <branch>` : 新建并前往分支
+* `checkout -b <branch> <remote>/<remote-branch>`把远程分支分化出一个相同的本地分支，以便本地开发.
+学名叫跟踪分支(tracking branch).
+这个命令等同于`git checkout --track <remote>/<remote-branch>`
+* `branch -d <branch>` 删除分支
+* `git push <remote> <branch>:<remote-branch>` 本地分支推送到远程分支
+* `git push <remote> :<remote-branch>` 删除远程分支
+* `git checkout <branch> & git rebase <master>` 把分支rebase到主干。
+原则：*不要对已提交的对象进行rebase!!!*
 
