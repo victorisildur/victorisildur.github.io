@@ -160,3 +160,7 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 注意，getChildContext方法不能用在@connect组件上，会报`typeof ProductApp is not assignable to parameter of type 'ComponentClass<{}> | StatelessComponent<{}>`，不知道为什么
 
 注意！！不推荐使用context这个特性！！因为context变动时，子元素不一定会去更新！！
+
+## AutoFocus
+
+需求是form加载的瞬间，光标移到form里的input上。给input加autoFocus属性就行了，其他跟自动的一样.

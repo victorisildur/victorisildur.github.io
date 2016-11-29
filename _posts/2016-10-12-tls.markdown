@@ -72,3 +72,7 @@ solution 1的方案有致命缺陷，就是公钥私钥都是张三给的，黑�
 4. 客户发送张三公钥加密后的随机字符串，张三解密后回传，若一致，则确认张三身份。
 
 实际中的https基本就是solution 3. 
+
+## Fiddler如何截获https？
+
+有个文章写得非常清楚，看这里：[http://www.jianshu.com/p/54dd21c50f21](http://www.jianshu.com/p/54dd21c50f21)
