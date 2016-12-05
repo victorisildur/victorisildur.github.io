@@ -164,3 +164,14 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 ## AutoFocus
 
 需求是form加载的瞬间，光标移到form里的input上。给input加autoFocus属性就行了，其他跟自动的一样.
+
+## typescript module
+
+使用react-ace的过程中报错'cannot find module react-ace'.
+这里首先要理解当代码中```import B from 'B'```时，typescript是如何去找到B的。
+
+1. typescript使用类似node的策略去找B模块。具体过程就是一层层往上找，找不到就去node_modules目录找
+2. 如果递归结束仍没找到B.ts/B.d.ts，去ambient模块找
+
+这里ambient模块防止/ambient目录下，但暂时不清楚这个路径是tsconfig声明的或者怎样。
+总之，在这里新建一个```react-ace.d.ts```，里面用shorthand ambient module语法声明```react-act```模块，就可以```import 'react-act'```了。
