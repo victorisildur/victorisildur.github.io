@@ -175,3 +175,9 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 
 这里ambient模块防止/ambient目录下，但暂时不清楚这个路径是tsconfig声明的或者怎样。
 总之，在这里新建一个```react-ace.d.ts```，里面用shorthand ambient module语法声明```react-act```模块，就可以```import 'react-act'```了。
+
+## TypeError: Super expression must either be null or a function not undefined
+
+有人提过这个issue, 貌似是React不支持PureComponent的问题，但React是框架提供的，我们不能更新，弃用react-ace??
+
+暂时用```brace```这个库，直接操作dom解决了。
