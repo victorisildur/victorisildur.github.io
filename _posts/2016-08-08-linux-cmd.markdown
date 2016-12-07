@@ -11,3 +11,14 @@ excerpt: linux cmd的零碎积累
 找目录下所有文件总行数
 
 `find . -type f | xargs wc -l`
+
+## echo nameserver 8.8.8.8 >> /etc/resolv.conf
+
+`>>` 是追加输出重定向，`>`是清空原文件的重定向。
+
+`resolv.conf`是dns配置文件，配置文件通常放在`/etc`里，
+`etc`就是and so on的那个etc，常用子目录有：
+
+* `/etc/rc`, `/etc/rc.d`, `/etc/rc*.d` 启动、改变运行级时运行的scripts
+* `/etc/passwd` 用户数据库
+* `/etc/profile` 启动bash时执行的文件
