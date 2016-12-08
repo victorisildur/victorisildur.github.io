@@ -23,8 +23,12 @@ ONBUILD COPY package.json /usr/src/app
 ONBUILD RUN npm --registry=https://registry.npm.taobao.org --disturl=https://npm.taobao.org/mirrors/node install
 ONBUILD RUN node_modules/.bin/tsc -p . | true
 
-CMD npm start
+CMD ['npm' 'start']
 ```
+
+Dockerfile的每一行都会新生成一个（临时）image，`FROM ...`这一行是必须的，它声明了base image.
+
+`WORKDIR`命令设置工作目录，影响`pwd`
 
 一些常见问题： 
 

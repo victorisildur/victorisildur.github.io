@@ -22,3 +22,14 @@ excerpt: linux cmd的零碎积累
 * `/etc/rc`, `/etc/rc.d`, `/etc/rc*.d` 启动、改变运行级时运行的scripts
 * `/etc/passwd` 用户数据库
 * `/etc/profile` 启动bash时执行的文件
+* `/etc/inittab` 启动进程init的配置文件
+
+注意`/etc/inittab`在debian, ubuntu中是没有的，只有`/etc/init`目录下的一坨，具体见这个文章：
+[http://blog.csdn.net/heqiyu34/article/details/18793857](http://blog.csdn.net/heqiyu34/article/details/18793857)
+
+## apt-get 安装到哪里了
+
+一般是安装到`/usr/bin`，也有可能安装到`/usr/games`。
+具体是谁决定的呢？ apt-get内部其实是下下来package及其依赖，安装过程是交给dpkg处理的。
+
+直观的，我们可以运行`dpkg -L <package>`来看一个package的文件都放到了哪里。
