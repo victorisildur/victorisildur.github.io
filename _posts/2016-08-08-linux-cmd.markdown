@@ -56,6 +56,7 @@ echo "#2 arg: $2"
 # expr
 
 ```shell
+# 数字运算
 val=`expr 2 + 2 \* 2`
 echo "result is : $val"
 val1=4
@@ -74,4 +75,77 @@ if [ $val -lt $val1 -a $val -gt $val2]
 then
     echo "$val less than $val1 and $val greater than $val2"
 fi
+# 字符串运算
+str1="hahah"
+str2="ttww"
+if [ $str1 = $str2 ]
+then
+    echo "$str1 equal $str2"
+fi
+# 文件运算符
+file="expr.sh"
+if [ -r $file ]
+then
+   echo "文件可读"
+fi
 ```
+
+# if elif else
+
+```shell
+if [ $1 -gt $2 ]
+then
+    echo "$1 > $2"
+elif [ $1 -lt $2 ]
+then
+    echo "$1 < $2"
+else
+    echo "$1 == $2"
+fi
+```
+
+# while
+
+```shell
+while read film
+do
+    echo $film is good!
+done
+```
+
+# case
+
+```shell
+echo input number 1~4
+read num
+case $num in
+    1) echo you choose 1
+    ;;
+    2) echo you choose 2
+    ;;
+    *) echo you choose sth else
+    ;;
+esac
+```
+
+# function
+
+```shell
+add() {
+    sum=0
+    for i in $@
+    do
+        sum=`expr $sum + $i`
+    done
+    return $sum
+}
+add 1 2 3 4 5 6 7
+echo $?
+```
+
+# 重定向
+
+`command > file 2>&1` 标准输出和stderr都重定向到file
+
+`command > /dev/null 2>&1` 标准输出和stderr都重定向到`/dev/null`，因为写入`/dev/null`的内容都会被丢弃，所以相当于禁用输出
+
