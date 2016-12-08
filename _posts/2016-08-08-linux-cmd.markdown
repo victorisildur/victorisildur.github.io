@@ -149,3 +149,28 @@ echo $?
 
 `command > /dev/null 2>&1` 标准输出和stderr都重定向到`/dev/null`，因为写入`/dev/null`的内容都会被丢弃，所以相当于禁用输出
 
+# 文件引用
+
+```shell
+source lib.sh
+add 1 2 3 4 5 6 7
+```
+
+# 查找pattern
+
+grep 有2中正则模式： basic和perl. basic中`\d`, `{n}`都不支持，只有简单的语法集。
+
+所以用`grep -P '^\d{3}-\d{3}-\d{4}$' file.txt`就对了。
+
+sed -r 使用extended regexp，结合p命令也能达到grep的功能：
+
+`sed -n -r '/^\d{3}-\d{3}-\d{4}$/p' file.txt`
+
+关于sed的pattern space, address, hold space，有篇很好的文章：
+[http://www.cnblogs.com/pmars/archive/2013/02/20/2918159.html](http://www.cnblogs.com/pmars/archive/2013/02/20/2918159.html)
+
+也可以用awk来过滤record:
+
+`awk '/^[0-9]{3}-[0-9]{3}-[0-9]{4}/' file.txt`
+
+但看awk版本不同，`{n}`可能不支持，这个和sed的基础模式差不多，都是比较弱的正则。
