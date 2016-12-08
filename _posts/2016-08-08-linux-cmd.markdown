@@ -33,3 +33,45 @@ excerpt: linux cmd的零碎积累
 具体是谁决定的呢？ apt-get内部其实是下下来package及其依赖，安装过程是交给dpkg处理的。
 
 直观的，我们可以运行`dpkg -L <package>`来看一个package的文件都放到了哪里。
+
+## Shell Script
+
+# 数组
+
+```shell
+array_name=(val1 val2 val3 ... valn)
+echo ${array_name[0]} # read arr[0]
+echo ${array_name[@]} # read arr[0...n]
+echo ${#array_name[@]} # read arr length
+```
+
+# 传递参数
+
+```shell
+echo "executing file name: $0"
+echo "#1 arg: $1"
+echo "#2 arg: $2"
+```
+
+# expr
+
+```shell
+val=`expr 2 + 2 \* 2`
+echo "result is : $val"
+val1=4
+val2=6
+if [ $val == $val1 ]
+then
+    echo "$val equals $val1"
+fi
+
+if [ $val -lt $val1 ]
+then
+    echo "$val less then $val1"
+fi
+
+if [ $val -lt $val1 -a $val -gt $val2]
+then
+    echo "$val less than $val1 and $val greater than $val2"
+fi
+```
