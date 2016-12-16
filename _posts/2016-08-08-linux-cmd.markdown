@@ -174,3 +174,32 @@ sed -r 使用extended regexp，结合p命令也能达到grep的功能：
 `awk '/^[0-9]{3}-[0-9]{3}-[0-9]{4}/' file.txt`
 
 但看awk版本不同，`{n}`可能不支持，这个和sed的基础模式差不多，都是比较弱的正则。
+
+# awk
+
+awk 用于处理record特别方便，我们看一个统计词频的例子：
+
+```awk
+{
+    for(i=1; i<=NF; i++) {
+        Dict[$i]++;
+    }
+}
+END {
+    for(i in Dict) {
+        print i, Dict[i]
+    }
+}
+```
+
+这里用到了awk里的字典，方便的是字典对未定义过的key, value默认为0.
+
+注意，不用`awk -f <script_file>` 直接 `awk 'script'`时，一定要用单引号。
+
+
+# sort
+
+上述统计词频打印出来的结果是未排序的，我们希望对`word_name word_count`这样的record再去排序，应如下sort:
+
+`sort -n -r -k 2` 意思是倒序、数字排序，对第二个词排序。
+
