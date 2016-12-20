@@ -23,6 +23,10 @@ overflow: hidden;
 white-space: no-wrap;
 ```
 
+遇到一个tricky的问题：pre的white-space属性默认为`pre`, 对超长的一行不会换行，导致无法搞限宽pre. 要手动改pre-wrap才行。
+
+这里注意`pre`与`pre-wrap`, `pre-line`的区别：`pre`只在源码里有换行时换行，`pre-wrap`保留空格、遇到边界也换行，`pre-line`合并空格、遇到边界也换行。
+
 ## text-shadow
 对p无效，对h有效？why?
 
