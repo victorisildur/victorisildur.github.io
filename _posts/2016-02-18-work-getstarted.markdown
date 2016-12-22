@@ -1,12 +1,12 @@
 ---
 layout: post
 title: "work: get started"
-date: 2016-01-31 08:27:00
+date: 2016-02-18 08:27:00
 categories: programming
 excerpt: 工作笔记，工作细节与经验辑录
 ---
 
-# 工具链
+## 工具链
 
 grunt进行自动化工作，包括：
 
@@ -31,7 +31,7 @@ insert的良好替代是grunt-include-replace，tmpl的良好替代是angular/re
 
 由于压缩了Zeptojs，文件大小从129KB减小到了64KB。
 
-# 调试
+## 调试
 
 fiddler做proxy，手机设置proxy为本机，端口为fiddler端口，然后fiddler rule加一条
 
@@ -53,10 +53,10 @@ emacs load path默认是`emacs_install_path/VERSION/site-lisp`和`emacs_install_
 
 web-mode非常吊，`C-c C-n`可以切换opening/closing tags.
 
-# js问题
+## js问题
 `document.write()`如果是在embedded script里写，则不会调用`document.open()`，这个open是会清空文档的。
 
-# css问题
+## css问题
 
 rem在padding中计算不准，要绕一下. 
 字会比理想的小，不要用padding算，以ceiling过的rem为准，用line-height确保总大小无偏差。
@@ -75,20 +75,53 @@ backgrond-size 100%相对于什么？？
 display: list-item; 
 box-sizing: border-box; 用border计算宽高，与content-box相对。
 
-# ps技巧
+## ps技巧
 
 仅当前可见：alt点击眼睛
 复制选框内所有图层：ctrl + shift + c， 然后ctrl+n就是可见区域大小拉！
 组移到最上面： ctrl + shift + ]
 
-# 性能问题
+## 性能问题
 
-1. 进入子设备页，loading很久
-2. 操作子设备，中间态很久
-3. 灯挂掉
+1. 进入子设备页，loading很久: js内联，依赖onload事件
+2. 操作子设备，中间态很久: 后台问题
+3. 灯挂掉: x5内核canvas有适配性问题，小米4上渲染不出来
 
-# uin
+## uin
 cookie里有时候是没有的，这个不可依赖！
 
-# device.js
+cookie作用域*.qq.com，这个是native webview里限制的。所以Fiddler映射的时候不能乱来。
+
+## device.js
 里面有个验证，device的exports有个`/(qq\.com)/.test(location.hostname)`的逻辑，所以发到测试环境所有device接口都不能用。
+
+## webpack
+
+# webpack css-split
+这个要解决的问题是style-loader插入style的方式太慢了，也不能利用到缓存。
+但同时我们又希望分模块require不同的css。
+如何js里看来css是分模块的，加载起来却是打包好的css和js并行加载？
+
+webpack ExtractTextPlugin解决如下：
+
+```
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+module.exports = {
+    module: {
+        loaders: [
+	    { test: /\.css$/,
+	      loader: ExtractTextPlugin.extract('style-loader', 'css-loader')
+	    }
+	]
+    },
+    plugins: [
+        new ExtractTextPlugin('style.css')
+    ]
+}
+```
+
+这样，所有`require('base.css')`之类的css引用都被打包到`style.css`里。
+
+# webpack ddl
+webpack编译太慢了？ external是一种思路，ddl是另一种。
