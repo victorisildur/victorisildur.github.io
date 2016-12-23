@@ -104,7 +104,7 @@ cookie作用域*.qq.com，这个是native webview里限制的。所以Fiddler映
 
 webpack ExtractTextPlugin解决如下：
 
-```
+```javascript
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
@@ -123,5 +123,107 @@ module.exports = {
 
 这样，所有`require('base.css')`之类的css引用都被打包到`style.css`里。
 
+# webpack lib split
+
+外部依赖库是不经常动的，不应被每次打包进bundle里，对此第一反应是multiple entry:
+
+```javascript
+module.exports = {
+  entry: {
+    main: './index.js',
+    vendor: 'moment'
+  },
+  output: {
+    filename: '[chunkhash].[name].js',
+    path: __dirname
+  }
+}
+```
+
+这样本意是把lib单独打到一个vendor.js里，首先报错：`a dependency to an entry point is not all allowed`.
+
+这是个webpack的奇怪issue: [https://github.com/webpack/webpack/issues/300](https://github.com/webpack/webpack/issues/300)
+
+解决后moment库既被打包进了1adsf3azasdf.vendor.js, 也被打包进了a123a23c1il34cx.main.js.
+
+对此web提供了CommonsChunkPlugin:
+
+```javascript
+module.exports = {
+  entry: {
+    main: './index.js',
+    vendor: 'moment'
+  },
+  output: {
+    filename: '[chunkhash].[name].js',
+    path: __dirname
+  },
+  plugins: [
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor'
+    })
+  ]
+}
+```
+
+这里webpack用jsonp包了下vendor，保证main chunk一定能调用到vendor chunk，这里实现细节还不清楚，暂且不表。
+另外注意只这样配置，你会发现改了业务逻辑后，vendor hash还是变了，这是因为chunk里包含了webpack的运行时代码。
+需要CommonsChunkPlugin里把manifest加上:
+
+```javascript
+new webpack.optimize.CommonsChunkPlugin({
+  names: ['vendor', 'manifest']
+})
+```
+
+现在，外部库、应用逻辑、webpack运行时代码被分离打包了, 但还存在一个问题：chunk名是带hash的，名字一长串，html里怎么引用呢？
+
+`webpack --json`会输出一个Json文件，其中assetsByChunkName表明了chunkfile的全名。
+
 # webpack ddl
+
 webpack编译太慢了？ external是一种思路，ddl是另一种。
+
+dll的思路是，把webpack不去分析库文件，只把库文件拼在一起，并标上ID，同时输出一个manifest.json，说明module name -> id的映射关系。
+
+应用代码要引用库里的模块时，只依赖manifest.json，这样依赖dll只需一次编译，优于CommonsChunkPlugin!
+
+基于这个思路编译是两步走的，第一步编译ddl:
+
+```javascript
+module.exports = {
+  output: {
+    path: './lib',
+    filename: '[hash].[name].js',
+    library: '[name]_[hash]',
+    libraryTarget: 'var'
+  },
+  entry: {
+    dll: ['react', 'react-dom', 'react-router', 'react-addons-css-transition-group']
+  },
+  plugins: [
+    new webpack.DllPlugin({
+      path: './manifest.json',
+      name: '[name]_[hash]',
+      context: __dirname
+    })
+  ]
+}
+```
+
+第一步输出了`lib/d3s1u2b2.dll.js`和`manifest.json`。
+第二步利用`manifest.json`编译业务代码：
+
+```javascript
+module.exports = {
+  entry: './index.js',
+  output: {filename: './index.bundle.js', path: __dirname},
+  plugins: [
+    new webpack.DllReferencePlugin({
+      context: __dirname,
+      manifest: require('./manifest.json'),
+      sourceType: 'var'
+    })
+  ]
+}
+```
