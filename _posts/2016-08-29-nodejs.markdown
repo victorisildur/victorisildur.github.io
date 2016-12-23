@@ -24,4 +24,16 @@ NODE_ENV是跟着express流行起来的一个环境变量，设置请到cli里�
 
 注意，`process.env.NODE_ENV`无法再浏览器环境访问到，但有时又想要在浏览器运行时判断测试环境，此时应用`webpack.DefinePlugin`把node环境的东西注入到浏览器环境全局变量。
 
+webpack.DefinePlugin在实际处理时，是把全局变量当做宏处理的，直接替换成字符串。
+
+## global
+
+* __dirname
+* __filename
+* console
+* global
+* process
+* require()
+
+这里global相当于浏览器环境下的window，我们可以在子模块中赋值`global.<attrname>`，在其他模块中都能访问到。
 
