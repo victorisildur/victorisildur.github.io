@@ -12,3 +12,16 @@ Access-Control-Allow-Origin不能用Blob语法。
 一个Origin由**domain + scheme + port number**构成。
 
 判断跨域的细节上，non-simple请求要首先发一个preflight（type 'OPTION'）请求，提前验一下。
+
+## process.env
+
+这个变量和__dirname一样，只有在node环境下才能访问到，所以运行webpack时是可以访问到的.
+NODE_ENV是跟着express流行起来的一个环境变量，设置请到cli里做：
+
+`export NODE_ENV　hahahaha_env ; webpack`
+
+这样子webpack根据`process.env.NODE_ENV`去做不同打包，而不是用DefinePlugin把环境判断做到生成好的代码里，生成好的代码是无冗余的。
+
+注意，`process.env.NODE_ENV`无法再浏览器环境访问到，但有时又想要在浏览器运行时判断测试环境，此时应用`webpack.DefinePlugin`把node环境的东西注入到浏览器环境全局变量。
+
+
