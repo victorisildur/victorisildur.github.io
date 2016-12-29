@@ -23,4 +23,4 @@ excerpt: "git pro"
 * `git push <remote> :<remote-branch>` 删除远程分支
 * `git checkout <branch> & git rebase <master>` 把分支rebase到主干。
 原则：*不要对已提交的对象进行rebase!!!*
-
+* `rebase <target-branch>` 把目前所在分支的变化补丁在target分支上重放一遍，当前分支会变成target-branch的直接下游。rebase实质上抛弃了当前分支上的一些commit，而在target-branch下游产生了相似的commit。对于工作中当前分支上的其他人来说，rebase会使他们损失惨重。
