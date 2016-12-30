@@ -181,3 +181,18 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 有人提过这个issue, 貌似是React不支持PureComponent的问题，但React是框架提供的，我们不能更新，弃用react-ace??
 
 暂时用```brace```这个库，直接操作dom解决了。
+
+## webpack code split
+
+ace这个库太大了，约700kB，非常有必要code split按需加载。
+
+遇到第一个问题是typescript node.d.ts里定义require函数不含ensure()方法，暂时直接改node.d.ts解决了。
+问题是require.d.ts放在子目录里，为什么会影响全局的require定义？
+
+第二个问题是按需文件1.1.js引用url相对于特定页面url:`xx.qq.com/iot/products/demo/1.1.js`。
+而编译出的`1.1.js`在根目录。
+设置了`webpack.output.publicPath`后解决了`1.1.js`url不对的问题.
+
+第三个问题是`ace/mode/json`需加载`json.js`，会报`ace is not defined`.
+这里发现是require('brace'), require('brace/mode/json')顺序问题.
+`require.ensure()`只保证1.1.js加载了，具体调用时，只有调用了require('brace')，这个模块里的代码才会把ace注册到window对象上。
