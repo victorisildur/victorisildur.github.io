@@ -73,3 +73,38 @@ function setData(node, name, value) {
 这是个XMLHttpRequest对象抛出的异常，如果`xhr.open`前调用了xhr.withCredentials就会出问题。
 
 详见这个issue: [zepto issue 921](https://github.com/madrobby/zepto/issues/921)
+
+## tap
+
+先说结论，tap存在点透问题，有没有触发路径呢？
+顶部元素tap后隐藏，底部元素的click也会触发。（及时顶底元素不构成父子关系）
+
+复现情景：
+
+```html
+<div class='bottom'></div>
+<div class='top'></div>
+<script>
+    $('.top').on('tap', function(e) {
+        $(this).hide();
+    });
+    $('.bottom').on('click', function(e) {
+        alert('bottom clicked, target: ' + $(e.target).attr('class'));
+    });
+</script>
+```
+
+究其原因，touch库是在document上监听touchstart, touchmove, touchend实现的。
+这里说细一点，底部元素click事件触发时还会取到target就是底部元素，这就非常不对了。
+
+看下源码，最后发送的tap事件确实是由touchstart元素发射的：`var event = $.Event('tap'); touch.el.trigger(event);`. 
+
+这里的问题在哪里呢？
+
+打断点发现，点击了顶层元素后，touchstart, touchend监听器监听到了两次，两次直接间隔小于250ms，所以会触发doubleTap。
+这是因为鼠标调试的原因，手机上测试不会出现。
+
+然后考虑为何出现点透，click有300ms的延时，300ms到来时，顶层元素已经隐藏了，浏览器只能看现在最顶元素是谁，发现是刚才的底元素，于是发射了底元素的click事件。
+
+要解决这个问题，在于所有click事件都不要等300ms，大家都立马发射click事件。
+具体来说，把目标元素的click事件监听器直接取消掉，只留touch监听器。
