@@ -196,3 +196,68 @@ ace这个库太大了，约700kB，非常有必要code split按需加载。
 第三个问题是`ace/mode/json`需加载`json.js`，会报`ace is not defined`.
 这里发现是require('brace'), require('brace/mode/json')顺序问题.
 `require.ensure()`只保证1.1.js加载了，具体调用时，只有调用了require('brace')，这个模块里的代码才会把ace注册到window对象上。
+
+## Redux Middleware
+
+先看结论，Middleware是两层库里化的函数：
+
+```javascript
+const logger = store => next => action => {
+    console.log('dispatching', action);
+    let result = next(action);
+    console.log('next state', store.getState());
+    return result;
+}
+```
+
+这里store作为第一个库里参数，是为了中间件访问store；
+next作为第二个库里参数，是为了store.dispatch链式访问。
+
+applyMiddleware如何让中间件生效呢？它应该在用户声明store后做一次`store.dispatch`的初始化操作：
+
+```javascript
+function applyMiddleware(store, middlewares) {
+    middlewares.reverse();
+    let dispatch = store.dispatch;
+    middlewares.forEach(middleware => 
+        dispatch = middleware(store)(dispatch)
+    });
+
+    return Object.assign({}, store, { dispatch });
+}
+```
+
+可惜最终代码没有这么直观，而是用到了compose, 对象spread这样的语言特性：
+
+```javascript
+export default function applyMiddleware(...middlewares) {
+    // modifiedCreateStore = applyMiddleware(middlewares)(createStore)(reducer)
+    return (createStore) => (reducer, preloadedState, enhancer) => {
+        const store = createStore(reducer, preloadedState, enhancer);
+        let dispatch = store.dispatch;
+        let chain = [];
+        const middlewareAPI = {
+            getState: store.getState,
+            dispatch: (action) => dispatch(action)
+        }
+        chain = middlewares.map(middleware => middleware(middlewareAPI)) // 第一次库里化： 传入store.getState
+        dispatch = compose(...chain)(store.dispatch); // 第二次库里化： 传入next
+        // 最后得到的dispatch是(action) => state
+        return {
+            ...store,
+            dispatch
+        };
+    }
+}
+```
+
+这里可能会奇怪了，我调用applyMiddleware用的是`createStore(reducer, applyMiddleware(thunk, createLogger))`这样啊？
+这里内部其实还是用了包装`createStore()`的调用方式：
+
+```javascript
+export default function createStore(reducer, preloadedState, enhancer) {
+    if (typeof enhancer !== 'undefined') {
+        return enhancer(createStore)(reducer, preloadedState);
+    }
+}
+```
