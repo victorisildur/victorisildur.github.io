@@ -54,7 +54,30 @@ Hilo有canvas, webgl, dom三种模式，Hilo的DomElement模式管理Dom元素�
 
 有了直观印象，我们来看Tween是如何缓动DomElement的：
 
+1. `ticker.start()`触发一个`runLoop`，不断执行`ticker.addTick(tickingTarget)`中tickingTarget的tick方法，传参是上一次tick到这一次tick见的实际间隔
+2. tickingTarget如stage, Tween执行tick方法，stage调用父类View的_render方法，代理到父类Container的render方法，Container一个个唤起其儿子的_render方法. (`box.addTo(stage)`把box注册成stage的儿子)
+3. box作为一个DomElement，其_render被调用，然后代理给全局的`renderer.transform(this)`
+4. 全局renderer是一个DOMRenderer, 其transform函数缓存DomElement的x,y之类的属性(`new Hilo.DomElement`时初始化), 如果改变，则js直接改变该元素的`style.transform.x`
 
+到此为止，这个tick里完成了哪些事儿呢？
+更新了stage? 并没有，代理让儿子去更新了。
+更新了DomElement? 也没有，renderer检查儿子的x,y属性，这一串逻辑没有改写儿子属性，所以也不会去改写其style.
+
+那么为什么动？
+我们猜想是上一个tick里，Tween吧儿子属性改写了。
+所以这个框架代理的非常之凶，表面上看每个DomElement在每个Tick都更新了自己的`transform3d(x)`。
+实际上每个Tick里Tween改写DomElement的属性，下一周期DomRenderer改写DomElement的style。
+
+为了验证这个猜想，我们看看tick里Tween发生了什么：
+
+1. `Tween.tick()`中遍历所有Tween上注册的缓动Tween对象，调用其_update()方法. (`Tween.to(box, ...)`新建了一个Tween对象，并注册到Tween静态变量里)
+2. `Tween._update()`中调用`me.ease()`，计算变化的ratio
+3. `me._render(ratio)`，改变DomElement上的属性
+
+注意，Chrome Timeline有个大坑，如果连续调用两个`obj.tick()`, 虽然obj不同，`tick()`内容不同，
+但timeline上显示这段时间都在执行第一个`obj.tick()`，如下图：
+
+![timeline bug]({{site.url}}/assets/images/hilo_stage_tween_tick.png)
 
 
 
