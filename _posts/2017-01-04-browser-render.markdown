@@ -27,7 +27,7 @@ excerpt: "Layout层->Paint层->Graphic层，理解为何动画卡顿。Createjs�
   2. Paint, 生成PaintLayer组成的树，PaintLayer聚合了同一stack context上的LayoutObjects, 描述了如何对LayoutObjects进行像素填充
   3. Composite，生成GraphicLayer组成的树，GraphicLayer聚合了符合特定条件的PaintLayers，又叫合成层，描述了GPU看到的层是怎样的
 2. 优化思路：
-  1. 动画元素单另成一个合成层，可减少主线程开销[http://km.oa.com/group/26246/articles/show/265989?kmref=search&from_page=1&no=6](http://km.oa.com/group/26246/articles/show/265989?kmref=search&from_page=1&no=6)
+  1. 动画元素单另成一个合成层，可减少主线程开销. css3 animation, transition效果平滑内在原因就是新建了合成层。[http://km.oa.com/group/26246/articles/show/265989?kmref=search&from_page=1&no=6](http://km.oa.com/group/26246/articles/show/265989?kmref=search&from_page=1&no=6)
   2. 合成层不宜过多，浪费渲染资源[http://km.oa.com/group/TGideas/articles/show/262915](http://km.oa.com/group/TGideas/articles/show/262915)
 
 看不到优化思路外链的骚蕊了，内网限制 :(
