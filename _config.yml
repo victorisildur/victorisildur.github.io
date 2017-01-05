@@ -19,8 +19,5 @@ github_username:      victorisildur  # Replace this with your GitHub username
 linkedin_username:    xu-liu-4a617679  # Replace this with your LinkedIn username
 
 # Build settings
-markdown: redcarpet
-redcarpet:
-  extensions: ["tables"]
 
 future: true
