@@ -15,6 +15,8 @@ excerpt: "Layout层->Paint层->Graphic层，理解为何动画卡顿。Createjs�
   2. 开发者工具->settings->experiments->Layers panel
 * 页面上直接看CompositeLayer边界
   1. 开发者工具->more tools->rendering->layer borders
+* 页面上实时看repaint区域
+  1. 开发者工具->more tools->rendering->Paint Flashing
 
 # 具体流程
 
@@ -31,5 +33,28 @@ excerpt: "Layout层->Paint层->Graphic层，理解为何动画卡顿。Createjs�
   2. 合成层不宜过多，浪费渲染资源[http://km.oa.com/group/TGideas/articles/show/262915](http://km.oa.com/group/TGideas/articles/show/262915)
 
 看不到优化思路外链的骚蕊了，内网限制 :(
+
+ps，想要看官方文档，不想看二手货，请移步chromium.org: [https://www.chromium.org/developers/design-documents](https://www.chromium.org/developers/design-documents)
+
+## Hilo
+
+Hilo有canvas, webgl, dom三种模式，Hilo的DomElement模式管理Dom元素，本质上是用n多层合成层分离3d transform的元素。
+
+# Render Dom
+
+我们来看个甩鞭子的例子: [https://github.com/victorisildur/hilo-demos](https://github.com/victorisildur/hilo-demos) 
+
+打开Layers面板观察，每个小盒子都是一个合成层，而且从不触发重绘。
+同时Element观察，每个小盒子的运动是css transform translate3d属性不断变化控制的，而不是animate完成的，这里可能会问了，what? 
+是Tween.to里靠js定期修改了transform属性麽？这会不会省了paint环节，但增了style环节？
+
+看下timeline，确实如此：
+
+![timeline]({{site.url}}/assets/images/hilo_tween_render.png)
+
+有了直观印象，我们来看Tween是如何缓动DomElement的：
+
+
+
 
 
