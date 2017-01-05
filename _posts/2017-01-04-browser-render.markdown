@@ -3,7 +3,7 @@ layout: post
 title: "浏览器渲染原理与动画"
 date: 2017-01-04 08:51:00
 categories: programming
-excerpt: "Layout层->Paint层->Graphic层，理解为何动画卡顿。Createjs，css动画对比"
+excerpt: "Layout层>Paint层>Graphic层，理解为何动画卡顿。Createjs，css动画对比"
 ---
 
 ## 浏览器渲染流程
@@ -12,11 +12,11 @@ excerpt: "Layout层->Paint层->Graphic层，理解为何动画卡顿。Createjs�
 
 * Layers Panel查看PaintLayer, CompositeLayer
   1. `chrome://flags`打开`enable-devtools-experiments`
-  2. 开发者工具->settings->experiments->Layers panel
+  2. 开发者工具--settings--experiments--Layers panel
 * 页面上直接看CompositeLayer边界
-  1. 开发者工具->more tools->rendering->layer borders
+  1. 开发者工具--more tools--rendering--layer borders
 * 页面上实时看repaint区域
-  1. 开发者工具->more tools->rendering->Paint Flashing
+  1. 开发者工具--more tools--rendering--Paint Flashing
 
 # 具体流程
 
