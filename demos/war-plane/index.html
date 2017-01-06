@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>war plane</title>
+        <style>
+         html,body {
+             width: 100%;
+             height: 100%;
+             margin: 0;
+         }
+        </style>
+    </head>
+    <body>
+        <div id='game-container'></div>
+        <script src='//victorisildur.github.io/js/hilo-standalone.js'></script>
+        <script>
+         var width = window.innerWidth,
+             height = window.innerHeight,
+             planeSize = 270,
+             keyState = {};
+         console.debug(`w: ${width}, h: ${height}`);
+         function initStage() {
+             var stage = new Hilo.Stage({
+                 renderType: 'canvas',
+                 container: document.getElementById('game-container'),
+                 width: width,
+                 height: height
+             });
+             document.addEventListener('keydown', function(e) {
+                 keyState[e.keyCode] = true;
+             });
+             document.addEventListener('keyup', function(e) {
+                 keyState[e.keyCode] = false;
+             });
+             return stage;
+         }
+         function initTicker(stage) {
+             var ticker = new Hilo.Ticker(60);
+             ticker.addTick(stage);
+             ticker.addTick(Hilo.Tween);
+             ticker.start();
+             return ticker;
+         }
+         // 飞机
+         var Plane = Hilo.Class.create({
+             Extends: Hilo.Bitmap,
+             constructor: function(props) {
+                 Plane.superclass.constructor.call(this, props);
+             },
+             velocity: 8,
+             startX: 0,
+             startY: 0,
+             getReady: function() {
+                 this.x = this.startX;
+                 this.y = this.startY;
+             },
+             fly: function(direction) {
+                 switch(direction) {
+                     case 'up':
+                         this.y -= this.velocity; break;
+                     case 'down':
+                         this.y += this.velocity; break;
+                     case 'left':
+                         this.x -= this.velocity; break;
+                     case 'right':
+                         this.x += this.velocity; break;
+                 }
+             },
+             fire: function() {
+                 var bullet = new Bullet({
+                     x: this.x + planeSize/2 - 10,
+                     y: this.y - 40,
+                     radius: 10
+                 });
+                 bullet.addTo(stage);
+                 bullet.fly();
+             }
+         });
+         function initPlane(stage) {
+             var plane = new Plane({
+                 image: 'img/warplane.png',
+                 startX: (width - planeSize)/2,
+                 startY: height - planeSize
+             }).addTo(stage);
+             plane.getReady();
+             return plane;
+         }
+         // 子弹
+         var Bullet = Hilo.Class.create({
+             Extends: Hilo.Graphics,
+             constructor: function(props) {
+                 Bullet.superclass.constructor.call(this, props);
+                 this.lineStyle(5, '#ff0')
+                     .beginFill('#f03')
+                     .drawCircle(0, 0, this.radius)
+                     .endFill();
+             },
+             startX: 0,
+             startY: -1,
+             radius: 10,
+             velocity: 5,
+             fly: function() {
+                 var duration = Math.round(this.y / this.velocity);
+                 Hilo.Tween.to(this, {y: -20}, {duration: duration});
+             }
+         });
+         // 天空
+         function initSky(stage) {
+             var sky = new Hilo.Bitmap({
+                 id: 'sky',
+                 image: 'img/evening_starry_sky.jpg',
+                 x: 0,
+                 y: -1 * height,
+                 width: width,
+                 height: height * 2
+             });
+             sky.addTo(stage);
+             Hilo.Tween.to(sky, {y: 0}, {duration: 5000, loop: true});
+             return sky;
+         }
+         // game init
+         var stage = initStage();
+         var sky = initSky(stage);
+         var plane = initPlane(stage);
+         var ticker = initTicker(stage);
+         stage.onUpdate = function() {
+             if(keyState[38])
+                 plane.fly('up');
+             if(keyState[40])
+                 plane.fly('down');
+             if(keyState[37])
+                 plane.fly('left'); 
+             if(keyState[39])
+                 plane.fly('right');
+             if(keyState[32])
+                 plane.fire();
+         }
+        </script>
+    </body>
+</html>

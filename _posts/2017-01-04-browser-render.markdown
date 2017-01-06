@@ -6,9 +6,9 @@ categories: programming
 excerpt: "Layout层,Paint层,Graphic层,理解为何动画卡顿. Createjs,css动画对比"
 ---
 
-## 浏览器渲染流程
+# 浏览器渲染流程
 
-# 工欲善其事, 必先利其器
+## 工欲善其事, 必先利其器
 
 * Layers Panel查看PaintLayer, CompositeLayer
   1. `chrome://flags`打开`enable-devtools-experiments`
@@ -18,7 +18,7 @@ excerpt: "Layout层,Paint层,Graphic层,理解为何动画卡顿. Createjs,css�
 * 页面上实时看repaint区域
   1. 开发者工具--more tools--rendering--Paint Flashing
 
-# 具体流程
+## 具体流程
 
 这篇的总结的很好，理论部分就交给它了：[http://taobaofed.org/blog/2016/04/25/performance-composite](http://taobaofed.org/blog/2016/04/25/performance-composite/)
 
@@ -36,11 +36,11 @@ excerpt: "Layout层,Paint层,Graphic层,理解为何动画卡顿. Createjs,css�
 
 ps，想要看官方文档，不想看二手货，请移步chromium.org: [https://www.chromium.org/developers/design-documents](https://www.chromium.org/developers/design-documents)
 
-## Hilo
+# Hilo
 
 Hilo有canvas, webgl, dom三种模式，Hilo的DomElement模式管理Dom元素，本质上是用n多层合成层分离3d transform的元素。
 
-# Render Dom
+## Render Dom
 
 我们来看个甩鞭子的例子: [https://github.com/victorisildur/hilo-demos](https://github.com/victorisildur/hilo-demos) 
 
@@ -80,4 +80,6 @@ Hilo有canvas, webgl, dom三种模式，Hilo的DomElement模式管理Dom元素�
 ![timeline bug]({{site.url}}/assets/images/hilo_stage_tween_tick.png)
 
 
+## Render Canvas
 
+我们来看个打飞机的例子： [war plane]({{site.url}}/demos/war-plane/index.html)
