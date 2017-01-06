@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> tween example </title>
+    </head>
+    <body>
+        <div id='game-container'></div>
+        <script src='//victorisildur.github.io/js/hilo-standalone.js'></script>
+        <script>
+         var gameContainer = document.getElementById('game-container');
+             
+         function initStage() {
+             // width, height
+             var width = window.innerWidth,
+                 height = window.innerHeight;
+             gameContainer.style.width = width + 'px';
+             gameContainer.style.height = height + 'px';
+             // stage
+             var stage = new Hilo.Stage({
+                 renderType: 'dom',
+                 container: gameContainer,
+                 width: width,
+                 height: height
+             });
+             return stage;
+         }
+
+         function initTicker(stage) {
+             // ticker
+             var ticker = new Hilo.Ticker(60);
+             ticker.addTick(stage);
+             ticker.addTick(Hilo.Tween);
+             ticker.start();
+         }
+         
+         function initBoxes() {
+             // boxes
+             var total = 80,
+                 boxes = [];
+             for(var i=0; i< total; i++) {
+                 var box = new Hilo.DOMElement({
+                     element: Hilo.createElement('div', {
+                         style: {
+                             backgroundColor: '#336699',
+                             position: 'absolute'
+                         }
+                     }),
+                     width: 10,
+                     height: 10,
+                     x: 10*(i+1),
+                     y: 10
+                 });
+                 box.addTo(stage);
+                 boxes.push(box);
+             }
+             return boxes;
+         }
+
+         function whip(boxes, direction) {
+             var dest = direction === 'down' ? 100: 10;
+             boxes.forEach(function(box, i) {
+                 Hilo.Tween.to(box, {
+                     y: dest
+                 }, {
+                     delay: i*10,
+                     duration: 1000,
+                     ease: Hilo.Ease.Quad.EaseIn
+                 });
+             });
+         }
+         
+         var stage = initStage(),
+             boxes = initBoxes();
+
+         var dir = true;
+         setInterval(function() {
+             whip(boxes, dir? 'down': 'up');
+             dir = !dir;
+         }, 2000);
+
+         initTicker(stage);
+         
+        </script>
+    </body>
+</html>

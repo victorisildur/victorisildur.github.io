@@ -42,7 +42,9 @@ Hilo有canvas, webgl, dom三种模式，Hilo的DomElement模式管理Dom元素�
 
 ## Render Dom
 
-我们来看个甩鞭子的例子: [https://github.com/victorisildur/hilo-demos](https://github.com/victorisildur/hilo-demos) 
+我们来看个甩鞭子的例子: [whip boxes]({{site.url}}/demos/whip-boxes/index.html)
+
+源码在这里：[https://github.com/victorisildur/hilo-demos](https://github.com/victorisildur/hilo-demos) 
 
 打开Layers面板观察，每个小盒子都是一个合成层，而且从不触发重绘。
 同时Element观察，每个小盒子的运动是css transform translate3d属性不断变化控制的，而不是animate完成的，这里可能会问了，what? 
@@ -83,3 +85,24 @@ Hilo有canvas, webgl, dom三种模式，Hilo的DomElement模式管理Dom元素�
 ## Render Canvas
 
 我们来看个打飞机的例子： [war plane]({{site.url}}/demos/war-plane/index.html)
+
+这个例子里，飞机是`Bitmap`对象，子弹是`Graphics`对象，我们来看看子弹的绘制和飞行过程。
+
+首次绘制子弹，步骤如下：
+
+1. Stage._render检查是否onUpdate, 检测到不应更新，于是代理给`CanvasRenderer.startDraw(this)`
+2. CanvasRenderer调用canvasContext.clearRect方法, 清空整个舞台
+1. Graphics._render检测是否onUpdate后，调用实现类的方法Graphics.render
+2. Graphics.render中检测到当前是canvas渲染方式，调用Graphic._draw方法
+3. Graphics对象上的_actions一个个代理给canvasContext执行，执行fill, lineStyle等指令
+
+子弹飞行时，步骤如下：
+
+1. Stage._render检查是否onUpdate, 检测到不应更新，于是代理给`CanvasRenderer.startDraw(this)`
+1. View._render调用CanvasRenderer.transform(this)
+2. transform方法取子弹的x,y属性（Tween对其进行了修改）, 调用`canvasContext.translate`, 改变canvas坐标系
+
+所以无论子弹是不是动了，context一直都在疯狂重画，每次重画时因为Tween已经把x,y改过了，所以画出来的子弹位置不一样而已。
+bingo.
+
+源码在这里：[https://github.com/victorisildur/hilo-demos](https://github.com/victorisildur/hilo-demos) 
