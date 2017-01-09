@@ -261,3 +261,12 @@ export default function createStore(reducer, preloadedState, enhancer) {
     }
 }
 ```
+
+# webpack打包过大问题？
+
+`webpack --json`本身是提供打包出来模块大小分析的，但出来的json非常大，几乎没法看。
+
+云团队的同学推荐了一个神器： [https://chrisbateman.github.io/webpack-visualizer/](https://chrisbateman.github.io/webpack-visualizer/).
+可视化做的非常棒，可以清楚看到哪个模块体积过大！
+
+![visualizer]({{site.url}}/assets/images/visualizer.png)
