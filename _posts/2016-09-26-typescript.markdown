@@ -270,3 +270,16 @@ export default function createStore(reducer, preloadedState, enhancer) {
 可视化做的非常棒，可以清楚看到哪个模块体积过大！
 
 ![visualizer]({{site.url}}/assets/images/visualizer.png)
+
+# React Component类的Generic化
+
+需求是新建窗口，新建的类型希望Generic为TTarget类型。
+所以CreateDialog定义为`class CreateDialog<TTarget> extends React.Component<Props<TTarget>, State>`
+
+这个组件该如何引用呢？
+显然，`render()`里去Generic是不可能的。
+要先定义一个新的，具体化Generic Class的Class出来:
+
+```javascript
+const Dialog = CreateDialog as new() => CreateDialog<Rule>;
+```
