@@ -395,3 +395,13 @@ background-image: url(...nasa-header-image.jpg), url(...nasa-header-image@tiny.j
 select { direction: rtl; }
 option { direction: ltr; }
 ```
+
+## mix-blend-mode && background-blend-mode
+
+设计师提了个这样的需求，要实现ps中的图层overlay效果：
+
+![mix-blend-mode]({{site.url}}/asssets/images/overlay-effect.png)
+
+这个实现依赖`mix-blend-mode`属性：它规定元素如何与其直接父元素、背景融合。
+
+与此对应，还有一个`background-blend-mode`属性，它规定元素的background-image, background-color之间如何互相融合。
