@@ -283,3 +283,7 @@ export default function createStore(reducer, preloadedState, enhancer) {
 ```javascript
 const Dialog = CreateDialog as new() => CreateDialog<Rule>;
 ```
+
+这个语法有点鬼，老实讲也不知哪里来的，这里有个Issue: [https://github.com/Microsoft/TypeScript/issues/3960](https://github.com/Microsoft/TypeScript/issues/3960)
+
+# import 
