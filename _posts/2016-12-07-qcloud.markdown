@@ -6,7 +6,7 @@ categories: programming
 excerpt: "docker, mysql, node..."
 ---
 
-## Docker
+# Docker
 
 核心：container运行image，image打包好了所需dependency，image云端部署，container不依赖os。
 
@@ -32,7 +32,22 @@ Dockerfile的每一行都会新生成一个（临时）image，`FROM ...`这一�
 
 一些常见问题： 
 
-# could not resolve archive.ubuntu.com
+## could not resolve archive.ubuntu.com
 
 Dockerfile里添加： ```RUN echo nameserver 8.8.8.8 >> /etc/resolve.conf```
+
+# Node
+
+## event loop
+
+event loop在node里底层是libuv实现的，关于libuv km上有篇源码阅读，这里暂时不提。
+
+[https://blog.risingstack.com/node-hero-async-programming-in-node-js/](https://blog.risingstack.com/node-hero-async-programming-in-node-js/)
+这里有个很好的视频，其中核心观点是：event的callback是不在stack上的.
+比如setTimeout(cb, 5000)，浏览器会首先调用webapi里的timer(cb, 5000)，5s后，timer触发，cb被转移到task queue上。
+event loop的作用是不断检查stack是否空了，空了则队列里取一个任务执行。
+
+结构如图所示：
+
+![evnet_loop]({{site.url}}/assets/images/event_loop.png)
 

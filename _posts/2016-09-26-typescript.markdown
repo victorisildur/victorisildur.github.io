@@ -147,7 +147,8 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 
 ## vim 快捷键
 
-* 代码自动缩进：ggvG=
+* 代码自动缩进：`ggvG=`
+* 跳转到匹配花括号：`%`
 
 ## Typescript + React下this.context的问题
 
@@ -286,4 +287,3 @@ const Dialog = CreateDialog as new() => CreateDialog<Rule>;
 
 这个语法有点鬼，老实讲也不知哪里来的，这里有个Issue: [https://github.com/Microsoft/TypeScript/issues/3960](https://github.com/Microsoft/TypeScript/issues/3960)
 
-# import 
