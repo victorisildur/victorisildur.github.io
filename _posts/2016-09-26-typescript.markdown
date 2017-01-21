@@ -147,8 +147,7 @@ workflowReducer收到这个action后，workflowState根据trigger做出跃迁，
 
 ## vim 快捷键
 
-* 代码自动缩进：`ggvG=`
-* 跳转到匹配花括号：`%`
+* 代码自动缩进：ggvG=
 
 ## Typescript + React下this.context的问题
 
@@ -197,6 +196,13 @@ ace这个库太大了，约700kB，非常有必要code split按需加载。
 第三个问题是`ace/mode/json`需加载`json.js`，会报`ace is not defined`.
 这里发现是require('brace'), require('brace/mode/json')顺序问题.
 `require.ensure()`只保证1.1.js加载了，具体调用时，只有调用了require('brace')，这个模块里的代码才会把ace注册到window对象上。
+
+## webpack extract-css
+
+多个css提取到一个css文件里，现在遇到的问题是有些是sass写的，有些是css写的，要用到两个extractPlugin。
+如何让它们的输出到同一个文件里？
+
+暂无解决办法，设想都用sass来写好了。
 
 ## Redux Middleware
 
@@ -286,4 +292,27 @@ const Dialog = CreateDialog as new() => CreateDialog<Rule>;
 ```
 
 这个语法有点鬼，老实讲也不知哪里来的，这里有个Issue: [https://github.com/Microsoft/TypeScript/issues/3960](https://github.com/Microsoft/TypeScript/issues/3960)
+
+# async && await
+
+有个需求是要实现网络请求超时处理，用普通setTimeout面临的问题是回调的返回无法作为本体函数的返回。
+所以要本体函数要整体promise一下，在setTimeout里reject:
+
+```javascript
+async function request(opt) {
+    return new Promise(async function(resolve, reject) {
+        try {
+	    let timer = setTimeout(() => {
+	        reject(new Error('timeout'));
+	    }, 10000);
+	    let result = await CloudAPI.request(opt);
+	    clearTimeout(timer);
+	}
+    });
+}
+```
+
+这里的问题在于promise里要await，所以promise的生成函数要声明为async，看起来async可以随意声明，那到底底层做了些什么事呢？
+
+这里有篇很好的blog: [https://blog.zsxsoft.com/post/21](https://blog.zsxsoft.com/post/21)
 

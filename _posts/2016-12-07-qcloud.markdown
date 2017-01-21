@@ -51,3 +51,4 @@ event loop的作用是不断检查stack是否空了，空了则队列里取一�
 
 ![evnet_loop]({{site.url}}/assets/images/event_loop.png)
 
+
