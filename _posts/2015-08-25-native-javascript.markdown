@@ -101,4 +101,17 @@ String.prototype.codePointAt(); //从unicode字符返回code point
 String.prototype.at(); //返回指定位置字符
 ```
 
+## encodeURI encodeURIComponent
+
+encodeURI会把`= ? ; , @ & + $`这些字符留着不编码，因为这些是URI的保留字符。
+encodeURIComponent则统统编码。
+
+escape, unescape是encodeURICompnent, decodeURIComponent的废弃版本。
+区别在于escape会把unicode字符编成`%u6211`，而encodeURI会编成`%E6%88%91`.
+
+简单的说，不要在任何情况下使用escape就是了。
+encodeURI生成的是utf8编码。
+utf8是前缀码，变长，一般来说中文2-4字节。
+
+
 
