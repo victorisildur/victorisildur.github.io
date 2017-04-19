@@ -51,4 +51,18 @@ event loop的作用是不断检查stack是否空了，空了则队列里取一�
 
 ![evnet_loop]({{site.url}}/assets/images/event_loop.png)
 
+# nginx
+
+SPA location:
+
+```
+location / {
+    root   /usr/local/iot/htdocs/ai-skills;
+    index  index.html index.htm;
+    rewrite /skill-config/\w+ / break;
+    rewrite /interaction-model/\w+ break;
+    rewrite /testing/\w+ break;
+    rewrite /publish/\w+ break;
+}
+```
 
