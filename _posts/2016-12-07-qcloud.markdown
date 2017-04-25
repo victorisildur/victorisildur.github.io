@@ -66,3 +66,22 @@ location / {
 }
 ```
 
+## rewrite break
+
+rewrite break, rewrite后仍在location块内匹配，仍然在rewrite阶段。
+rewrite lash，rewrite后跳出location，回退到find-config阶段。
+
+接下来的问题是如下规则总会导致url变化：
+
+```
+location /wiki {
+  rewrite /wiki /ai-wiki;
+}
+location /ai-wiki {
+  root /usr/local/htdocs;
+  index index.html;
+}
+```
+
+看帖子[without-redirect](https://serverfault.com/questions/763342/nginx-rewrite-without-redirect)意思, 这条rewrite不是目录格式，nginx会帮你加上`/ai-wiki/`，
+改成`rewrite /wiki /ai-wiki/`后，问题解决
