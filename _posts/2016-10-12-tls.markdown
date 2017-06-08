@@ -77,4 +77,8 @@ solution 1的方案有致命缺陷，就是公钥私钥都是张三给的，黑�
 
 有个文章写得非常清楚，看这里：[http://www.jianshu.com/p/54dd21c50f21](http://www.jianshu.com/p/54dd21c50f21)
 
+## Mac如何完全信任charles的CA证书？
 
+```bash
+$ sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "/Users/isildur/Documents/charles.cer"
+```
