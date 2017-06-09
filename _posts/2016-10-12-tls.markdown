@@ -92,3 +92,4 @@ $ sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.k
 open -a /Applications/Google\ Chrome.app --args --ignore-certificate-errors
 ```
 
+然而这个方案还是绕不过去，最后的方案是生成一个"看上去"足够合法的证书：[gen certificate that chrome trust](https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate/43666288#43666288)
