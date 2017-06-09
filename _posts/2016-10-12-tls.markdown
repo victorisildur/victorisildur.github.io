@@ -82,3 +82,13 @@ solution 1的方案有致命缺陷，就是公钥私钥都是张三给的，黑�
 ```bash
 $ sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "/Users/isildur/Documents/charles.cer"
 ```
+
+后来有看到帖子说钥匙串设置里，下面的i点击后可以给证书设“always trust"。
+但又遇到问题说没有证书里没有subject alternative name.
+
+简单方案是让chrome忽略ssl error，mac下面用如下命令：
+
+```bash
+open -a /Applications/Google\ Chrome.app --args --ignore-certificate-errors
+```
+
