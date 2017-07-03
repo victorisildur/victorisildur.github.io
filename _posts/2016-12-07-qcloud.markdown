@@ -85,3 +85,11 @@ location /ai-wiki {
 
 看帖子[without-redirect](https://serverfault.com/questions/763342/nginx-rewrite-without-redirect)意思, 这条rewrite不是目录格式，nginx会帮你加上`/ai-wiki/`，
 改成`rewrite /wiki /ai-wiki/`后，问题解决
+
+# try files
+
+rewrite比较挫，推荐用try_files，简单明了
+
+# location ~
+
+正则表达式是真的正则表达式啊，`^~`是高优正则的意思，不是`^`开头的意思，要`~^/hardware($|/.*$)`这样认真写正则！
