@@ -93,3 +93,7 @@ open -a /Applications/Google\ Chrome.app --args --ignore-certificate-errors
 ```
 
 然而这个方案还是绕不过去，最后的方案是生成一个"看上去"足够合法的证书：[gen certificate that chrome trust](https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate/43666288#43666288)
+
+## ios 10.3 fiddler拦截不到的问题
+
+ios10.3开始只安装证书不够，还要专门再信任一道，入口：Settings -> General -> About -> Certificate Trust Settings 
